@@ -47,7 +47,6 @@ private:
     bool halt;
     bool ime;
     
-    Utils *utils;
     Memory *memory;
     Opcode opcodes[256];
     Opcode extendedOpcodes[256];

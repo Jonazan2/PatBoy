@@ -1,10 +1,8 @@
 #include "Video.h"
 
 Video::Video(Memory *memory, CPU *cpu) {
-    this->window = window;
     this->memory = memory;
     this->cpu = cpu;
-    utils = Utils::getInstance();
     this->scanlineCounter = RETRACE_START;
     this->createSDLWindow();
     this->resetFrameBuffer();
@@ -15,7 +13,7 @@ void Video::updateGraphics(short cycles) {
 
     updateRegisterLCD();
 
-	if ( utils->isBitSet(memory->readDirectly(0xFF40), 7) ) {
+	if ( isBitSet(memory->readDirectly(0xFF40), 7) ) {
 		scanlineCounter -= cycles;
   }
 
@@ -32,11 +30,11 @@ void Video::updateRegisterLCD() {
 
     byte lcdStatus = memory->readDirectly(0xFF41);
 
-	if ( !utils->isBitSet(memory->read(0xFF40), 7) ) {
+	if ( isBitSet(memory->read(0xFF40), 7) ) {
 		scanlineCounter = RETRACE_START;
 		memory->writeDirectly(0xFF44, 0);
 		lcdStatus &= 252;
-		utils->setBit(&lcdStatus,0);
+		setBit(&lcdStatus,0);
         memory->write(0xFF41,lcdStatus);
 
 	} else {
@@ -50,9 +48,9 @@ void Video::updateRegisterLCD() {
 
         if (lY >= VERTICAL_BLANK_SCAN_LINE) {
             mode = 1 ;
-            utils->setBit(&lcdStatus,0);
-            utils->clearBit(&lcdStatus,1);
-            reqInt = utils->isBitSet(lcdStatus, 4);
+            setBit(&lcdStatus,0);
+            clearBit(&lcdStatus,1);
+            reqInt = isBitSet(lcdStatus, 4);
 
         } else {
             int mode2Bounds = (RETRACE_START - 80);
@@ -60,18 +58,18 @@ void Video::updateRegisterLCD() {
 
             if (scanlineCounter >= mode2Bounds) {
                 mode = 2 ;
-                utils->setBit(&lcdStatus,1);
-                utils->clearBit(&lcdStatus,0);
-                reqInt = utils->isBitSet(lcdStatus,5);
+                setBit(&lcdStatus,1);
+                clearBit(&lcdStatus,0);
+                reqInt = isBitSet(lcdStatus,5);
             } else if (scanlineCounter >= mode3Bounds) {
                 mode = 3 ;
-                utils->setBit(&lcdStatus,1);
-                utils->setBit(&lcdStatus,0);
+                setBit(&lcdStatus,1);
+                setBit(&lcdStatus,0);
             } else {
                 mode = 0;
-                utils->clearBit(&lcdStatus,1);
-                utils->clearBit(&lcdStatus,0);
-                reqInt = utils->isBitSet(lcdStatus,3);
+                clearBit(&lcdStatus,1);
+                clearBit(&lcdStatus,0);
+                reqInt = isBitSet(lcdStatus,3);
             }
 
         }
@@ -81,13 +79,13 @@ void Video::updateRegisterLCD() {
         }
 
         if ( lY == memory->read(0xFF45) ) {
-            utils->setBit(&lcdStatus,2);
+            setBit(&lcdStatus,2);
 
-            if ( utils->isBitSet(lcdStatus,6) ) {
+            if ( isBitSet(lcdStatus,6) ) {
                 cpu->requestInterrupt(CPU::LCD);
             }
         } else {
-            utils->clearBit(&lcdStatus,2);
+            clearBit(&lcdStatus,2);
         }
 
         memory->write(0xFF41, lcdStatus);
@@ -95,11 +93,11 @@ void Video::updateRegisterLCD() {
 }
 
 bool Video::isLCDEnabled() {
-    return utils->testBit(memory->read(LCD_CONTROL), 7);
+    return testBit(memory->read(LCD_CONTROL), 7);
 }
 
 void Video::drawCurrentScanline() {
-    if ( utils->isBitSet(memory->read(0xFF40), 7) ) {
+    if ( isBitSet(memory->read(0xFF40), 7) ) {
 
         memory->writeDirectly(0xFF44, memory->readDirectly(0xFF44) + 1);
         scanlineCounter = RETRACE_START;
@@ -122,7 +120,7 @@ void Video::drawCurrentScanline() {
 
 void Video::drawScanline() {
     byte lcdControl = memory->read(LCD_CONTROL);
-	if ( utils->isBitSet(lcdControl, 7) ) {
+	if ( isBitSet(lcdControl, 7) ) {
 		renderBackground(lcdControl);
 		renderSprites(lcdControl);
 	}
@@ -130,7 +128,7 @@ void Video::drawScanline() {
 
 void Video::renderBackground(byte lcdControl) {
 
-    if ( utils->testBit(lcdControl,0) ) {
+    if ( testBit(lcdControl,0) ) {
 		word tileData = 0 ;
 		word backgroundMemory =0 ;
 		bool unsig = true ;
@@ -141,13 +139,13 @@ void Video::renderBackground(byte lcdControl) {
 		byte windowX = memory->read(WINDOWS_X) - 7;
         bool usingWindow = false;
 
-		if ( utils->isBitSet(lcdControl, 5) ) {
+		if ( isBitSet(lcdControl, 5) ) {
 			if (windowY <= memory->read(LY_REGISTER) ) {
 				usingWindow = true;
             }
 		}
 
-		if ( utils->isBitSet(lcdControl,4) ) {
+		if ( isBitSet(lcdControl,4) ) {
 			tileData = 0x8000;
 		} else {
 			tileData = 0x8800;
@@ -155,13 +153,13 @@ void Video::renderBackground(byte lcdControl) {
 		}
 
 		if ( !usingWindow ) {
-			if ( utils->isBitSet(lcdControl, 3) ) {
+			if ( isBitSet(lcdControl, 3) ) {
 				backgroundMemory = 0x9C00;
 			} else {
 				backgroundMemory = 0x9800;
             }
 		} else {
-			if ( utils->isBitSet(lcdControl, 6) ) {
+			if ( isBitSet(lcdControl, 6) ) {
 				backgroundMemory = 0x9C00;
             } else {
 				backgroundMemory = 0x9800;
@@ -214,9 +212,9 @@ void Video::renderBackground(byte lcdControl) {
 			colourBit -= 7;
 			colourBit *= -1;
 
-            int colourNum = utils->getBitValue(data2, colourBit);
+            int colourNum = getBitValue(data2, colourBit);
 			colourNum <<= 1;
-            colourNum |= utils->getBitValue(data1,colourBit);
+            colourNum |= getBitValue(data1,colourBit);
 
 			Colour col = getColour(colourNum, 0xFF47);
 			int red, green, blue = red = green = 0;
@@ -225,6 +223,7 @@ void Video::renderBackground(byte lcdControl) {
                 case white:	    red = 255;  green = 255;  blue = 255;  break;
                 case lightGray: red = 0xCC; green = 0xCC; blue = 0xCC; break;
                 case darkGray:	red = 0x77; green = 0x77; blue = 0x77; break;
+                case black:     red = 0x0;  green = 0x0;  blue = 0x0;  break;
 			}
 
 			int scanline = memory->read(LY_REGISTER);
@@ -250,8 +249,8 @@ Video::Colour Video::getColour(const byte colourNumber, const word address) cons
 	}
 
 	int colour = 0;
-	colour = utils->getBitValue(palette, hi) << 1;
-	colour |= utils->getBitValue(palette, lo) ;
+	colour = getBitValue(palette, hi) << 1;
+	colour |= getBitValue(palette, lo) ;
 
 	switch ( colour ) {
         case 0: res = white;       break;
@@ -265,10 +264,10 @@ Video::Colour Video::getColour(const byte colourNumber, const word address) cons
 
 void Video::renderSprites(byte lcdControl) {
 
-	if ( utils->isBitSet(lcdControl, 1) ) {
+	if ( isBitSet(lcdControl, 1) ) {
 		bool use8x16 = false ;
 
-        if ( utils->isBitSet(lcdControl, 2) ) {
+        if ( isBitSet(lcdControl, 2) ) {
 			use8x16 = true ;
         }
 
@@ -279,9 +278,9 @@ void Video::renderSprites(byte lcdControl) {
  			byte tileLocation = memory->read(0xFE00+index+2) ;
  			byte attributes = memory->read(0xFE00+index+3) ;
 
-            bool yFlip =  utils->isBitSet(attributes, 6);
-			bool xFlip = utils->isBitSet(attributes, 5);
-            bool hidden = utils->isBitSet(attributes, 7);
+            bool yFlip =  isBitSet(attributes, 6);
+			bool xFlip = isBitSet(attributes, 5);
+            bool hidden = isBitSet(attributes, 7);
 
 			int scanline = memory->read(LY_REGISTER);
 
@@ -310,12 +309,12 @@ void Video::renderSprites(byte lcdControl) {
  						colourbit *= -1;
  					}
 
-                    int colourNum = utils->getBitValue(data2,colourbit) ;
+                    int colourNum = getBitValue(data2,colourbit) ;
                     colourNum <<= 1;
-                    colourNum |= utils->getBitValue(data1,colourbit) ;
+                    colourNum |= getBitValue(data1,colourbit) ;
 
                     Colour color;
-                    if ( utils->isBitSet(attributes, 4) ) {
+                    if ( isBitSet(attributes, 4) ) {
                         color = getColour(colourNum, 0xFF49);
                     } else {
                         color = getColour(colourNum, 0xFF48);

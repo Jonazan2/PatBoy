@@ -5,7 +5,6 @@
 #include <SDL2/SDL.h>
 #include "Memory.h"
 #include "CPU.h"
-#include "Utils.h"
 
 class Memory;
 class CPU;
@@ -25,7 +24,6 @@ class Joypad {
 private:
     Memory *memory;
     CPU *cpu;
-    Utils *utils;
     byte joypadState;
     void keyPressed(int);
     void keyReleased(int);

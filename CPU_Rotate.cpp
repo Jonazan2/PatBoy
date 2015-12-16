@@ -2,7 +2,7 @@
 
 short CPU::opcode0x07() {
     
-	bool isMSBSet = utils->isBitSet(AF.hi, 7);
+	bool isMSBSet = isBitSet(AF.hi, 7);
     
 	clearFlags();
     
@@ -10,7 +10,7 @@ short CPU::opcode0x07() {
     
 	if (isMSBSet) {
 		raiseFlag(CARRY_FLAG);
-        utils->setBit(&AF.hi, 0);
+        setBit(&AF.hi, 0);
 	}
     
 	if (AF.hi == 0) {
@@ -21,7 +21,7 @@ short CPU::opcode0x07() {
 }
 
 short CPU::opcode0x0F() {
-	bool isLSBSet = utils->isBitSet(AF.hi, 0);
+	bool isLSBSet = isBitSet(AF.hi, 0);
     
 	clearFlags();
     
@@ -29,7 +29,7 @@ short CPU::opcode0x0F() {
     
 	if (isLSBSet) {
 		raiseFlag(CARRY_FLAG);
-        utils->setBit(&AF.hi, 7);
+        setBit(&AF.hi, 7);
 	}
     
 	if (AF.hi == 0) {
@@ -40,7 +40,7 @@ short CPU::opcode0x0F() {
 
 short CPU::opcode0x17() {
 	bool isCarrySet = checkFlag(CARRY_FLAG);
-	bool isMSBSet = utils->isBitSet(AF.hi, 7);
+	bool isMSBSet = isBitSet(AF.hi, 7);
     
 	clearFlags();
     
@@ -50,7 +50,7 @@ short CPU::opcode0x17() {
 		raiseFlag(CARRY_FLAG);
     
 	if (isCarrySet)
-        utils->setBit(&AF.hi, 0);
+        setBit(&AF.hi, 0);
     
 	if (AF.hi == 0)
 		raiseFlag(ZERO_FLAG);
@@ -60,7 +60,7 @@ short CPU::opcode0x17() {
 short CPU::opcode0x1F() {
     
 	bool isCarrySet = checkFlag(CARRY_FLAG);
-	bool isLSBSet = utils->isBitSet(AF.hi, 0);
+	bool isLSBSet = isBitSet(AF.hi, 0);
     
 	clearFlags();
     
@@ -71,7 +71,7 @@ short CPU::opcode0x1F() {
     }
 	
     if ( isCarrySet ) {
-        utils->setBit(&AF.hi, 7);
+        setBit(&AF.hi, 7);
     }
 	
     if ( AF.hi == 0 ) {
@@ -83,7 +83,7 @@ short CPU::opcode0x1F() {
 
 void CPU::rlc8bitRegister(byte * reg) {
     
-	bool isMSBSet = utils->isBitSet(*reg, 7) ;
+	bool isMSBSet = isBitSet(*reg, 7) ;
     
 	clearFlags();
 
@@ -91,7 +91,7 @@ void CPU::rlc8bitRegister(byte * reg) {
     
 	if ( isMSBSet ) {
 		raiseFlag(CARRY_FLAG);
-		utils->setBit(reg, 0);
+		setBit(reg, 0);
 	}
     
 	if (*reg == 0) {
@@ -132,7 +132,7 @@ short CPU::extendedOpcode0x05() {
 short CPU::extendedOpcode0x06() {
 	byte reg = memory->read(HL.value) ;
     
-	bool isMSBSet = utils->isBitSet(reg, 7) ;
+	bool isMSBSet = isBitSet(reg, 7) ;
     
 	clearFlags();
     
@@ -140,7 +140,7 @@ short CPU::extendedOpcode0x06() {
     
 	if ( isMSBSet ) {
 		raiseFlag(CARRY_FLAG);
-		utils->setBit(&reg, 0);
+		setBit(&reg, 0);
 	}
     
 	if ( reg == 0 ) {
@@ -157,7 +157,7 @@ short CPU::extendedOpcode0x07() {
 
 
 void CPU::rrc8bitRegister(byte *reg) {
-	bool isLSBset = utils->isBitSet(*reg, 0) ;
+	bool isLSBset = isBitSet(*reg, 0) ;
     
 	clearFlags();
     
@@ -165,7 +165,7 @@ void CPU::rrc8bitRegister(byte *reg) {
     
 	if ( isLSBset ) {
 		raiseFlag(CARRY_FLAG);
-		utils->setBit(reg, 7);
+		setBit(reg, 7);
 	}
     
 	if (*reg == 0) {
@@ -206,7 +206,7 @@ short CPU::extendedOpcode0x0D() {
 short CPU::extendedOpcode0x0E() {
 	byte reg = memory->read(HL.value) ;
     
-	bool isLSBset = utils->isBitSet(reg, 0) ;
+	bool isLSBset = isBitSet(reg, 0) ;
     
 	clearFlags();
     
@@ -214,7 +214,7 @@ short CPU::extendedOpcode0x0E() {
     
 	if ( isLSBset ) {
 		raiseFlag(CARRY_FLAG);
-		utils->setBit(&reg, 7);
+		setBit(&reg, 7);
 	}
     
 	if ( reg == 0 ) {
@@ -230,7 +230,7 @@ short CPU::extendedOpcode0x0F() {
 }// RRC A
 
 void CPU::rl8bitRegister(byte *reg) {
-	bool isMSBSet = utils->isBitSet(*reg, 7) ;
+	bool isMSBSet = isBitSet(*reg, 7) ;
     
 	clearFlags();
     
@@ -241,7 +241,7 @@ void CPU::rl8bitRegister(byte *reg) {
     }
     
 	if ( checkFlag(CARRY_FLAG) ) {
-		utils->setBit(reg, 0);
+		setBit(reg, 0);
     }
     
 	if ( *reg == 0 ) {
@@ -281,7 +281,7 @@ short CPU::extendedOpcode0x15() {
 
 short CPU::extendedOpcode0x16() {
 	byte reg = memory->read(HL.value);
-	bool isLSBSet = utils->isBitSet(reg, 0);
+	bool isLSBSet = isBitSet(reg, 0);
     
 	clearFlags();
     
@@ -292,7 +292,7 @@ short CPU::extendedOpcode0x16() {
     }
     
 	if ( checkFlag(CARRY_FLAG) ) {
-		utils->setBit(&reg, 7);
+		setBit(&reg, 7);
     }
 
 	if (reg == 0) {
@@ -309,7 +309,7 @@ short CPU::extendedOpcode0x17() {
 }// rl A
 
 void CPU::rr8bitRegister(byte *reg) {
-	bool isLSBSet = utils->isBitSet(*reg, 0);
+	bool isLSBSet = isBitSet(*reg, 0);
 	
     clearFlags();
     
@@ -320,7 +320,7 @@ void CPU::rr8bitRegister(byte *reg) {
     }
     
 	if ( checkFlag(CARRY_FLAG) ) {
-        utils->setBit(reg, 7);
+        setBit(reg, 7);
     }
     
 	if ( *reg == 0 ) {
@@ -362,7 +362,7 @@ short CPU::extendedOpcode0x1E() {
     
 	byte reg = memory->read(HL.value);
     
-	bool isLSBSet = utils->isBitSet(reg, 0) ;
+	bool isLSBSet = isBitSet(reg, 0) ;
     
 	clearFlags();
     
@@ -373,7 +373,7 @@ short CPU::extendedOpcode0x1E() {
     }
     
 	if ( checkFlag(CARRY_FLAG) ) {
-        utils->setBit(&reg, 7);
+        setBit(&reg, 7);
     }
     
 	if ( reg == 0 ) {
@@ -390,7 +390,7 @@ short CPU::extendedOpcode0x1F() {
 }// rr A
 
 void CPU::sla8bitRegister(byte *reg) {
-	bool isMSBSet = utils->isBitSet(*reg, 7);
+	bool isMSBSet = isBitSet(*reg, 7);
     
 	*reg <<= 1;
     
@@ -437,7 +437,7 @@ short CPU::extendedOpcode0x25() {
 
 short CPU::extendedOpcode0x26() {
     byte reg = memory->read(HL.value);
-	bool isMSBSet = utils->isBitSet(reg, 7);
+	bool isMSBSet = isBitSet(reg, 7);
     
 	reg <<= 1;
     
@@ -463,15 +463,15 @@ short CPU::extendedOpcode0x27() {
 
 void CPU::sra8bitRegister(byte * reg) {
     
-	bool isLSBSet = utils->isBitSet(*reg, 0);
-	bool isMSBSet = utils->isBitSet(*reg,7);
+	bool isLSBSet = isBitSet(*reg, 0);
+	bool isMSBSet = isBitSet(*reg,7);
     
 	clearFlags();
     
 	*reg >>= 1;
     
 	if ( isMSBSet ) {
-        utils->setBit(reg, 7);
+        setBit(reg, 7);
     }
     
 	if ( isLSBSet ) {
@@ -516,15 +516,15 @@ short CPU::extendedOpcode0x2D(){
 short CPU::extendedOpcode0x2E() {
     byte result = memory->read(HL.value);
     
-	bool isLSBSet = utils->isBitSet(result, 0);
-	bool isMSBSet = utils->isBitSet(result,7);
+	bool isLSBSet = isBitSet(result, 0);
+	bool isMSBSet = isBitSet(result,7);
     
 	clearFlags();
     
 	result >>= 1;
     
 	if ( isMSBSet ) {
-        utils->setBit(&result, 7);
+        setBit(&result, 7);
     }
     
 	if ( isLSBSet ) {
@@ -601,7 +601,7 @@ short CPU::extendedOpcode0x37() {
 }// swap A
 
 void CPU::srl8bitRegister(byte *reg) {
-	bool isLSBSet = utils->isBitSet(*reg, 0);
+	bool isLSBSet = isBitSet(*reg, 0);
     
 	clearFlags();
     
@@ -648,7 +648,7 @@ short CPU::extendedOpcode0x3D() {
 
 short CPU::extendedOpcode0x3E() {
     byte result = memory->read(HL.value);
-	bool isLSBSet = utils->isBitSet(result, 0);
+	bool isLSBSet = isBitSet(result, 0);
     
 	clearFlags();
     

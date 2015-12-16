@@ -8,7 +8,7 @@
  The half carry flag is raised and the add sub flag cleared.
 */
 void CPU::bit(const byte reg, const short position) {
-    if ( utils->isBitSet(reg, position) ) {
+    if ( isBitSet(reg, position) ) {
         clearFlag(ZERO_FLAG);
     } else {
         raiseFlag(ZERO_FLAG);
@@ -358,7 +358,7 @@ short CPU::extendedOpcode0x7F() {
  Method that reset a specific bit from a register.
  */
 void CPU::res(byte *reg, const short position) {
-    utils->clearBit(reg, position);
+    clearBit(reg, position);
 }
 
 short CPU::extendedOpcode0x80() {
@@ -393,7 +393,7 @@ short CPU::extendedOpcode0x85() {
 
 short CPU::extendedOpcode0x86() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 0);
+    clearBit(&data, 0);
     memory->write(HL.value, data);
     return 16;
 }// res 0, (HL)
@@ -436,7 +436,7 @@ short CPU::extendedOpcode0x8D() {
 
 short CPU::extendedOpcode0x8E() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 1);
+    clearBit(&data, 1);
     memory->write(HL.value, data);
     return 16;
 }// res 1, (HL)
@@ -479,7 +479,7 @@ short CPU::extendedOpcode0x95() {
 
 short CPU::extendedOpcode0x96() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 2);
+    clearBit(&data, 2);
     memory->write(HL.value, data);
     return 16;
 }// res 2, (HL)
@@ -522,7 +522,7 @@ short CPU::extendedOpcode0x9D() {
 
 short CPU::extendedOpcode0x9E() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 3);
+    clearBit(&data, 3);
     memory->write(HL.value, data);
     return 16;
 }// res 3, (HL)
@@ -565,7 +565,7 @@ short CPU::extendedOpcode0xA5() {
 
 short CPU::extendedOpcode0xA6() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 4);
+    clearBit(&data, 4);
     memory->write(HL.value, data);
     return 16;
 }// res 4, (HL)
@@ -608,7 +608,7 @@ short CPU::extendedOpcode0xAD() {
 
 short CPU::extendedOpcode0xAE() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 5);
+    clearBit(&data, 5);
     memory->write(HL.value, data);
     return 16;
 }// res 5, (HL)
@@ -651,7 +651,7 @@ short CPU::extendedOpcode0xB5() {
 
 short CPU::extendedOpcode0xB6() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 6);
+    clearBit(&data, 6);
     memory->write(HL.value, data);
     return 16;
 }// res 6, (HL)
@@ -694,7 +694,7 @@ short CPU::extendedOpcode0xBD() {
 
 short CPU::extendedOpcode0xBE() {
     byte data = memory->read(HL.value);
-    utils->clearBit(&data, 7);
+    clearBit(&data, 7);
     memory->write(HL.value, data);
     return 16;
 }// res 7, (HL)
@@ -710,7 +710,7 @@ short CPU::extendedOpcode0xBF() {
  Method that sets a specific bit from a register.
  */
 void CPU::set(byte * reg, const short position) {
-    utils->setBit(reg, position);
+    setBit(reg, position);
 }
 
 short CPU::extendedOpcode0xC0() {
@@ -745,7 +745,7 @@ short CPU::extendedOpcode0xC5() {
 
 short CPU::extendedOpcode0xC6() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 0);
+    setBit(&data, 0);
     memory->write(HL.value, data);
     return 12;
 }// set 0, (HL)
@@ -788,7 +788,7 @@ short CPU::extendedOpcode0xCD() {
 
 short CPU::extendedOpcode0xCE() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 1);
+    setBit(&data, 1);
     memory->write(HL.value, data);
     return 12;
 }// set 1, (HL)
@@ -831,7 +831,7 @@ short CPU::extendedOpcode0xD5() {
 
 short CPU::extendedOpcode0xD6() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 2);
+    setBit(&data, 2);
     memory->write(HL.value, data);
     return 12;
 }// set 2, (HL)
@@ -874,7 +874,7 @@ short CPU::extendedOpcode0xDD() {
 
 short CPU::extendedOpcode0xDE() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 3);
+    setBit(&data, 3);
     memory->write(HL.value, data);
     return 12;
 }// set 3, (HL)
@@ -917,7 +917,7 @@ short CPU::extendedOpcode0xE5() {
 
 short CPU::extendedOpcode0xE6() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 4);
+    setBit(&data, 4);
     memory->write(HL.value, data);
     return 12;
 }// set 4, (HL)
@@ -960,7 +960,7 @@ short CPU::extendedOpcode0xED() {
 
 short CPU::extendedOpcode0xEE() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 5);
+    setBit(&data, 5);
     memory->write(HL.value, data);
     return 12;
 }// set 5, (HL)
@@ -1003,7 +1003,7 @@ short CPU::extendedOpcode0xF5() {
 
 short CPU::extendedOpcode0xF6() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 6);
+    setBit(&data, 6);
     memory->write(HL.value, data);
     return 12;
 }// set 6, (HL)
@@ -1046,7 +1046,7 @@ short CPU::extendedOpcode0xFD() {
 
 short CPU::extendedOpcode0xFE() {
     byte data = memory->read(HL.value);
-    utils->setBit(&data, 7);
+    setBit(&data, 7);
     memory->write(HL.value, data);
     return 12;
 }// set 7, (HL)

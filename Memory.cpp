@@ -5,7 +5,6 @@ Memory::Memory(Cartridge *cartridge, Audio *audio, Joypad *joypad) {
     this->cartridge = cartridge;
     this->audio = audio;
     this->joypad = joypad;
-    this->utils = Utils::getInstance();
     loadCartridge();
 }
 

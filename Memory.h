@@ -26,7 +26,6 @@ protected:
     CPU *cpu;
     byte *map;
     Cartridge *cartridge;
-    Utils *utils;
     
     void loadCartridge() const;
     void DMA(byte);

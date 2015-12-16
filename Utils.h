@@ -3,25 +3,55 @@
 
 #include "Types.h"
 
-/**************************************************************************//**
-* \brief Singleton class that has methods related to bit operations.
-******************************************************************************/
+/*!
+ * @brief Sets a bit in a byte. If the bit is 1, it doesn't change.
+ * @param *value pointer to the byte that is going to be changed
+ * @param position Position of the bit that is going to be set
+ */
+inline bool isBitSet(const byte value, const short position) {
+    bool resul = false;
+    if ( (value & ( 1 << position )) != 0 ) {
+        resul = true;
+    }
+    return resul;
+}
 
-class Utils{
+inline bool testBit(byte inData, short inBitPosition) {
+    byte lMsk = 1 << inBitPosition ;
+    return ( inData & lMsk ) ? true : false ;
+}
 
-private:
-    Utils(){};
-    static Utils* instance;
+inline byte getBitValue(byte inData, short inBitPosition) {
+    byte lMsk = 1 << inBitPosition ;
+    return ( inData & lMsk ) ? 1 : 0 ;
+}
 
-public:
-    static Utils* getInstance();
-    
-    bool isBitSet(const byte, const short) const;
-    void setBit(byte*, const short);
-    void toggleBit(byte*, const short);
-    void clearBit(byte *value, const short position);
-    bool testBit(byte, short);
-    byte getBitValue(byte, short);
-};
+/*!
+ * @brief Sets a bit in a byte. If the bit is 1, it doesn't change.
+ * @param *value pointer to the byte that is going to be changed
+ * @param position Position of the bit that is going to be set
+ */
+inline void setBit(byte *value, const short position) {
+    byte mask = 1 << position;
+    *value = *value | mask;
+}
 
-#endif
+/*!
+ * @brief Toggle a bit in a byte. If the bit is 1, it changes to 0, if it is 0, then it changes to 1.
+ * @param *value pointer to the byte that is going to be changed
+ * @param position Position of the bit that is going to be toggle
+ */
+inline void toggleBit(byte *value, const short position) {
+    *value = *value ^ (1 << position);
+}
+
+/*!
+ * @brief Clear a bit in a byte. The bit's value will be always 0 after this operation.
+ * @param *value pointer to the byte that is going to be changed
+ * @param position Position of the bit that is going to be set
+ */
+inline void clearBit(byte *value, const short position) {
+    *value = *value & ~(1 << position);
+}
+
+#endif /*_UTILS_H_*/

@@ -39,7 +39,7 @@ private:
     SDL_Texture *texture;
     CPU *cpu;
     Memory *memory;
-    Utils *utils;
+
     int scanlineCounter;
     byte currentScanline;
     

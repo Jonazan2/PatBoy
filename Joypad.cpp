@@ -1,7 +1,6 @@
 #include "Joypad.h"
 
 Joypad::Joypad(){
-    this->utils = Utils::getInstance();
     joypadState = 0xFF;
 }
 
@@ -13,11 +12,11 @@ void Joypad::init(CPU *cpu, Memory *memory){
 void Joypad::keyPressed(int key) {
     bool previouslyUnset = false ;
     
-	if ( !utils->isBitSet(joypadState, key) ) {
+	if ( !isBitSet(joypadState, key) ) {
 		previouslyUnset = true ;
     }
     
-	utils->clearBit(&joypadState, key);
+    clearBit(&joypadState, key);
     
 	bool button;
     
@@ -30,9 +29,9 @@ void Joypad::keyPressed(int key) {
 	byte keyReq = memory->readDirectly(0xFF00);
 	bool requestInterupt = false;
     
-	if ( button && !utils->isBitSet(keyReq,5) ) {
+	if ( button && !isBitSet(keyReq,5) ) {
 		requestInterupt = true ;
-	} else if ( !button && !utils->isBitSet(keyReq,4) ) {
+	} else if ( !button && !isBitSet(keyReq,4) ) {
 		requestInterupt = true ;
 	}
     
@@ -42,18 +41,18 @@ void Joypad::keyPressed(int key) {
 }
 
 void Joypad::keyReleased(int key) {
-    utils->setBit(&joypadState, key);
+    setBit(&joypadState, key);
 }
 
 byte Joypad::getState() {
 	byte res = memory->readDirectly(0xFF00);
 	res ^= 0xFF ;
     
-	if ( !utils->isBitSet(res, 4) ) {
+	if ( !isBitSet(res, 4) ) {
 		byte topJoypad = joypadState >> 4 ;
 		topJoypad |= 0xF0 ;
 		res &= topJoypad ;
-	} else if ( !utils->isBitSet(res,5) ) {
+	} else if ( !isBitSet(res,5) ) {
 		byte bottomJoypad = joypadState & 0xF ;
 		bottomJoypad |= 0xF0 ;
 		res &= bottomJoypad ;

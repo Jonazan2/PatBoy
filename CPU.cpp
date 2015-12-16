@@ -2,7 +2,6 @@
 
 CPU::CPU(Memory *memory) {
     this->memory = memory;
-    this->utils = Utils::getInstance();
     chargeOpcodes();
     chargeExtendedOpcodes();
     reset();
@@ -78,7 +77,7 @@ void CPU::updateTimers(int cycles) {
     
 	divRegister += cycles ;
     
-	if ( utils->isBitSet(timerAtts, 2) ) {
+	if ( isBitSet(timerAtts, 2) ) {
 		timaCounter += cycles ;
         
 		// time to increment the timer
@@ -127,9 +126,9 @@ void CPU::updateInterrupts() {
 		byte requestFlag = memory->read(IF_REGISTER);
 		if ( requestFlag > 0 ) {
 			for ( int bit = 0; bit < 8; bit++ ) {
-				if ( utils->isBitSet(requestFlag, bit) ) {
+				if ( isBitSet(requestFlag, bit) ) {
 					byte enabledReg = memory->read(IE_REGISTER);
-					if ( utils->isBitSet(enabledReg,bit) ) {
+					if ( isBitSet(enabledReg,bit) ) {
 						serviceInterrupt(Interrupts(bit));
 					}
 				}
@@ -151,7 +150,7 @@ void CPU::serviceInterrupt(Interrupts interrupt) {
     
 	ime = false;
     byte ifRegister = memory->readDirectly(IF_REGISTER);
-	utils->clearBit(&ifRegister, interrupt);
+	clearBit(&ifRegister, interrupt);
     memory->writeDirectly(IF_REGISTER, ifRegister);
 }
 
@@ -159,16 +158,16 @@ void CPU::serviceInterrupt(Interrupts interrupt) {
 void CPU::raiseFlag(Flag flag) {
     switch ( flag ) {
         case ZERO_FLAG:
-            utils->setBit(&AF.low, ZERO_FLAG);
+            setBit(&AF.low, ZERO_FLAG);
             break;
         case ADD_SUB_FLAG:
-            utils->setBit(&AF.low, ADD_SUB_FLAG);
+            setBit(&AF.low, ADD_SUB_FLAG);
             break;
         case HALF_CARRY_FLAG:
-            utils->setBit(&AF.low, HALF_CARRY_FLAG);
+            setBit(&AF.low, HALF_CARRY_FLAG);
             break;
         case CARRY_FLAG:
-            utils->setBit(&AF.low, CARRY_FLAG);
+            setBit(&AF.low, CARRY_FLAG);
             break;
             break;
     }
@@ -177,16 +176,16 @@ void CPU::raiseFlag(Flag flag) {
 void CPU::toggleFlag(Flag flag) {
     switch ( flag ) {
         case ZERO_FLAG:
-            utils->toggleBit(&AF.low, ZERO_FLAG);
+            toggleBit(&AF.low, ZERO_FLAG);
             break;
         case ADD_SUB_FLAG:
-            utils->toggleBit(&AF.low, ADD_SUB_FLAG);
+            toggleBit(&AF.low, ADD_SUB_FLAG);
             break;
         case HALF_CARRY_FLAG:
-            utils->toggleBit(&AF.low, HALF_CARRY_FLAG);
+            toggleBit(&AF.low, HALF_CARRY_FLAG);
             break;
         case CARRY_FLAG:
-            utils->toggleBit(&AF.low, CARRY_FLAG);
+            toggleBit(&AF.low, CARRY_FLAG);
             break;
     }
 }
@@ -194,16 +193,16 @@ void CPU::toggleFlag(Flag flag) {
 void CPU::clearFlag(Flag flag) {
     switch ( flag ) {
         case ZERO_FLAG:
-            utils->clearBit(&AF.low, ZERO_FLAG);
+            clearBit(&AF.low, ZERO_FLAG);
             break;
         case ADD_SUB_FLAG:
-            utils->clearBit(&AF.low, ADD_SUB_FLAG);
+            clearBit(&AF.low, ADD_SUB_FLAG);
             break;
         case HALF_CARRY_FLAG:
-            utils->clearBit(&AF.low, HALF_CARRY_FLAG);
+            clearBit(&AF.low, HALF_CARRY_FLAG);
             break;
         case CARRY_FLAG:
-            utils->clearBit(&AF.low, CARRY_FLAG);
+            clearBit(&AF.low, CARRY_FLAG);
             break;
     }
 }
@@ -212,16 +211,16 @@ bool CPU::checkFlag(Flag flag) {
     bool result = false;
     switch ( flag ) {
         case ZERO_FLAG:
-            result = utils->isBitSet(AF.low, ZERO_FLAG);
+            result = isBitSet(AF.low, ZERO_FLAG);
             break;
         case ADD_SUB_FLAG:
-            result = utils->isBitSet(AF.low, ADD_SUB_FLAG);
+            result = isBitSet(AF.low, ADD_SUB_FLAG);
             break;
         case HALF_CARRY_FLAG:
-            result = utils->isBitSet(AF.low, HALF_CARRY_FLAG);
+            result = isBitSet(AF.low, HALF_CARRY_FLAG);
             break;
         case CARRY_FLAG:
-            result = utils->isBitSet(AF.low, CARRY_FLAG);
+            result = isBitSet(AF.low, CARRY_FLAG);
             break;
     }
     return result;
@@ -295,7 +294,7 @@ void CPU::printRegisterState() {
 
 void CPU::requestInterrupt(Interrupts interrupt) {
     byte ifRegister = memory->read(IF_REGISTER);
-    utils->setBit(&ifRegister, interrupt);
+    setBit(&ifRegister, interrupt);
     memory->write(IF_REGISTER, ifRegister);
 }
 

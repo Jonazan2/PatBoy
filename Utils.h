@@ -8,7 +8,7 @@
  * @param *value pointer to the byte that is going to be changed
  * @param position Position of the bit that is going to be set
  */
-inline bool isBitSet(const byte value, const short position) {
+inline bool isBitSet(const byte value, const unsigned short position) {
     bool resul = false;
     if ( (value & ( 1 << position )) != 0 ) {
         resul = true;
@@ -16,13 +16,9 @@ inline bool isBitSet(const byte value, const short position) {
     return resul;
 }
 
-inline bool testBit(byte inData, short inBitPosition) {
-    byte lMsk = 1 << inBitPosition ;
-    return ( inData & lMsk ) ? true : false ;
-}
 
-inline byte getBitValue(byte inData, short inBitPosition) {
-    byte lMsk = 1 << inBitPosition ;
+inline byte getBitValue(const byte inData, const unsigned short position) {
+    byte lMsk = 1 << position ;
     return ( inData & lMsk ) ? 1 : 0 ;
 }
 
@@ -31,7 +27,7 @@ inline byte getBitValue(byte inData, short inBitPosition) {
  * @param *value pointer to the byte that is going to be changed
  * @param position Position of the bit that is going to be set
  */
-inline void setBit(byte *value, const short position) {
+inline void setBit(byte *value, const unsigned short position) {
     byte mask = 1 << position;
     *value = *value | mask;
 }
@@ -41,7 +37,7 @@ inline void setBit(byte *value, const short position) {
  * @param *value pointer to the byte that is going to be changed
  * @param position Position of the bit that is going to be toggle
  */
-inline void toggleBit(byte *value, const short position) {
+inline void toggleBit(byte *value, const unsigned short position) {
     *value = *value ^ (1 << position);
 }
 
@@ -50,7 +46,7 @@ inline void toggleBit(byte *value, const short position) {
  * @param *value pointer to the byte that is going to be changed
  * @param position Position of the bit that is going to be set
  */
-inline void clearBit(byte *value, const short position) {
+inline void clearBit(byte *value, const unsigned short position) {
     *value = *value & ~(1 << position);
 }
 

@@ -4,9 +4,9 @@
 #include "Types.h"
 
 /*!
- * @brief Sets a bit in a byte. If the bit is 1, it doesn't change.
- * @param *value pointer to the byte that is going to be changed
- * @param position Position of the bit that is going to be set
+ * @brief Check if a bit is 1 inside a byte for a specific position
+ * @param value byte that will be check
+ * @param position Position of the bit that is going to be check
  */
 inline bool isBitSet(const byte value, const unsigned short position) {
     bool resul = false;
@@ -16,7 +16,11 @@ inline bool isBitSet(const byte value, const unsigned short position) {
     return resul;
 }
 
-
+/*!
+ * @brief Gets a bit inside a byte for a specific position
+ * @param value byte value
+ * @param position Position of the bit that is going to be get
+ */
 inline byte getBitValue(const byte inData, const unsigned short position) {
     byte lMsk = 1 << position ;
     return ( inData & lMsk ) ? 1 : 0 ;

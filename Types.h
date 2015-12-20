@@ -82,7 +82,7 @@ const byte nintendoTitle[256] = {
     0xF5, 0x06, 0x19, 0x78, 0x86, 0x23, 0x05, 0x20, 0xFB, 0x86, 0x00, 0x00, 0x3E, 0x01, 0xE0, 0x50
 };
 
-static const char* kOPCodeNames[256] = {
+static const char* opcodeNames[256] = {
     "NOP",
     "LD BC,nn",
     "LD (BC),A",
@@ -356,7 +356,7 @@ static const char* kOPCodeNames[256] = {
     "RST 0x38"
 };
 
-static const char* kOPCodeCBNames[256] = {
+static const char* specialOpcodeNames[256] = {
     "RLC B",
     "RLC C",
     "RLC D",

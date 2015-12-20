@@ -92,9 +92,7 @@ short CPU::opcode0xE9() {
 
 short CPU::opcode0xC3() {
     byte low = memory->read(PC.value);
-    incrementProgramCounter();
-    byte hi = memory->read(PC.value);
-    incrementProgramCounter();
+    byte hi = memory->read(PC.value + 1);
     PC.hi = hi;
     PC.low = low;
     return 12;

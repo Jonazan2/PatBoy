@@ -93,7 +93,7 @@ void Video::updateRegisterLCD() {
 }
 
 bool Video::isLCDEnabled() {
-    return testBit(memory->read(LCD_CONTROL), 7);
+    return isBitSet(memory->read(LCD_CONTROL), 7);
 }
 
 void Video::drawCurrentScanline() {
@@ -128,7 +128,7 @@ void Video::drawScanline() {
 
 void Video::renderBackground(byte lcdControl) {
 
-    if ( testBit(lcdControl,0) ) {
+    if ( isBitSet(lcdControl,0) ) {
 		word tileData = 0 ;
 		word backgroundMemory =0 ;
 		bool unsig = true ;

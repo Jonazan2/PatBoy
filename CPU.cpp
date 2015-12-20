@@ -57,7 +57,7 @@ unsigned int CPU::update() {
 }
 
 void CPU::reset() {
-    AF.value = 0x01B0;
+    AF.value = 0x11B0;
     BC.value = 0x0013;
     DE.value = 0x00D8;
     HL.value = 0x014D;
@@ -280,6 +280,7 @@ void CPU::checkCarryFlag(const word data) {
 }
 
 void CPU::printRegisterState() {
+    printf("PC:%02X ", PC.value);
     printf("A:%02X ", AF.hi);
     printf("F:%02X ", AF.low);
     printf("B:%02X ", BC.hi);
@@ -289,6 +290,7 @@ void CPU::printRegisterState() {
     printf("H:%02X ", HL.hi);
     printf("L:%02X ", HL.low);
     printf("SP:%04X ", SP.value);
+    printf("\n");
 }
 
 

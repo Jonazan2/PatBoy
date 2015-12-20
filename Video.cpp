@@ -367,7 +367,7 @@ bool Video::createSDLWindow() {
     // turn on double buffering set the depth buffer to 24 bits
     // you may need to change this to 16 or 32 for your system
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
     
     window = SDL_CreateWindow("Patboy",  0,
                        0,GAMEBOY_WIDTH, GAMEBOY_HEIGHT, SDL_WINDOW_OPENGL);

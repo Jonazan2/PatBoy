@@ -101,9 +101,7 @@ short CPU::opcode0xC3() {
 short CPU::opcode0xC2() {
     if ( !checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
         PC.low = low;
     } else {
@@ -117,9 +115,7 @@ short CPU::opcode0xC2() {
 short CPU::opcode0xCA() {
     if ( checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
         PC.low = low;
     } else {
@@ -132,9 +128,7 @@ short CPU::opcode0xCA() {
 short CPU::opcode0xD2() {
     if ( !checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
         PC.low = low;
     } else {
@@ -147,9 +141,7 @@ short CPU::opcode0xD2() {
 short CPU::opcode0xDA() {
     if ( checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
         PC.low = low;
     } else {
@@ -164,9 +156,7 @@ short CPU::opcode0xDA() {
 short CPU::opcode0xCD() {
     
     byte low = memory->read(PC.value);
-    incrementProgramCounter();
-    byte hi = memory->read(PC.value);
-    incrementProgramCounter();
+    byte hi = memory->read(PC.value + 1);
     
     stackPush(PC);
     
@@ -179,9 +169,7 @@ short CPU::opcode0xCD() {
 short CPU::opcode0xC4() {
     if ( !checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         stackPush(PC);
         PC.hi = hi;
         PC.low = low;
@@ -196,9 +184,7 @@ short CPU::opcode0xC4() {
 short CPU::opcode0xCC() {
     if ( checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         stackPush(PC);
         PC.hi = hi;
         PC.low = low;
@@ -213,9 +199,7 @@ short CPU::opcode0xCC() {
 short CPU::opcode0xD4() {
     if ( !checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         stackPush(PC);
         PC.hi = hi;
         PC.low = low;
@@ -230,9 +214,7 @@ short CPU::opcode0xD4() {
 short CPU::opcode0xDC() {
     if ( checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
-        incrementProgramCounter();
-        byte hi = memory->read(PC.value);
-        incrementProgramCounter();
+        byte hi = memory->read(PC.value + 1);
         stackPush(PC);
         PC.hi = hi;
         PC.low = low;

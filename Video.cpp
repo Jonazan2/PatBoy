@@ -355,13 +355,13 @@ byte Video::getLCDMode() const {
 	return lcdStatus & 0x3;
 }
 
+
 bool Video::createSDLWindow() {
-	if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
-		return false;
-	}
+    if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
+        return false;
+    }
     
     // set the opengl context version
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
     // turn on double buffering set the depth buffer to 24 bits
@@ -369,11 +369,11 @@ bool Video::createSDLWindow() {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
     
-    window = SDL_CreateWindow("Patboy",  0,
-                       0,GAMEBOY_WIDTH, GAMEBOY_HEIGHT, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow("PatBoy",  0,
+                              0,GAMEBOY_WIDTH, GAMEBOY_HEIGHT, SDL_WINDOW_OPENGL);
     SDL_GL_CreateContext(window);
-	initializeOpenGL();
-	return true ;
+    initializeOpenGL();
+    return true ;
 }
 
 void Video::initializeOpenGL() {
@@ -402,10 +402,11 @@ void Video::renderGame() {
 
 void Video::resetFrameBuffer() {
     for ( int x = 0 ; x < 144; x++ ) {
- 		for ( int y = 0; y < 160; y++ ) {
- 			frameBuffer[x][y][0] = 255;
+        for ( int y = 0; y < 160; y++ ) {
+            frameBuffer[x][y][0] = 255;
             frameBuffer[x][y][1] = 255;
- 			frameBuffer[x][y][2] = 255;
- 		}
- 	}
+            frameBuffer[x][y][2] = 255;
+        }
+    }
 }
+

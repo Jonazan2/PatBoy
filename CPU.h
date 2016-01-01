@@ -70,6 +70,9 @@ private:
     void stackPush(const Register);
     void stackPop(Register *);
     
+    void printRegisterState();
+    void printOpcodeName(const byte, const bool);
+    
     // Flag related operations
     void raiseFlag(Flag); // set flag = 1, if it is 1 doesn't change
     bool checkFlag(Flag); // return true if flag = 1
@@ -734,7 +737,6 @@ private:
 public:
     CPU(Memory *);
     unsigned int update();
-    void printRegisterState();
     void requestInterrupt(Interrupts);
     void updateTimers(int);
     void updateInterrupts();

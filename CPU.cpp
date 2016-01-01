@@ -279,6 +279,14 @@ void CPU::checkCarryFlag(const word data) {
     }
 }
 
+void CPU::printOpcodeName(const byte opcode, const bool special) {
+    if (special) {
+        printf("%s\n", specialOpcodeNames[opcode]);
+    } else {
+        printf("%s\n", opcodeNames[opcode]);
+    }
+}
+
 void CPU::printRegisterState() {
     printf("PC:%02X ", PC.value);
     printf("A:%02X ", AF.hi);

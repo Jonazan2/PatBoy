@@ -1,7 +1,7 @@
 #include "GameBoy.h"
 
 const int MAX_CYCLES = 70221;
-const int FPS = 60;
+const int FPS = 59.7;
 const int DELAY_TIME = 1000.0f / FPS;
 
 GameBoy::GameBoy(const string path) {

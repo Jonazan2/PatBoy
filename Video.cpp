@@ -92,7 +92,7 @@ void Video::updateRegisterLCD() {
     }
 }
 
-bool Video::isLCDEnabled() {
+bool Video::isLCDEnabled() const {
     return isBitSet(memory->read(LCD_CONTROL), 7);
 }
 

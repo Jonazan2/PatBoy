@@ -23,12 +23,33 @@ class Video {
     
 public:
     
+    static const short GAMEBOY_WIDTH = 160;
+    static const short GAMEBOY_HEIGHT = 144;
+    
+    const word SCROLL_Y = 0xFF42;
+    const word SCROLL_X = 0xFF43;
+    const word WINDOWS_Y = 0xFF4A;
+    const word WINDOWS_X = 0xFF4B;
+    
+    const byte VERTICAL_BLANK_SCAN_LINE = 0x90;
+    const byte VERTICAL_BLANK_SCAN_LINE_MAX = 0x99;
+    const int RETRACE_START = 456;
+    
+    const word LCD_CONTROL = 0xFF40;
+    const word LCDC_STATUS = 0xFF41;
+    const word LY_REGISTER = 0xFF44;
+    const word LY_COMPARE = 0xFF45;
+    
     enum Colour {
         white,
         lightGray,
         darkGray,
         black
     };
+    
+    Video(Memory*, CPU*);
+    void updateGraphics(short);
+    void renderGame();
     
 private:
     
@@ -39,12 +60,12 @@ private:
     SDL_Texture *texture;
     CPU *cpu;
     Memory *memory;
-
+    
     int scanlineCounter;
     byte currentScanline;
     
     void updateRegisterLCD();
-    bool isLCDEnabled();
+    bool isLCDEnabled() const;
     void drawCurrentScanline();
     void drawScanline();
     byte getLCDMode() const;
@@ -54,10 +75,5 @@ private:
     bool createSDLWindow();
     void initializeOpenGL();
     void resetFrameBuffer();
-    
-public:
-    Video(Memory*, CPU*);
-    void updateGraphics(short);
-    void renderGame();
 };
 #endif

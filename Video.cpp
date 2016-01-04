@@ -28,14 +28,14 @@ void Video::updateGraphics(short cycles) {
 
 void Video::updateRegisterLCD() {
 
-    byte lcdStatus = memory->readDirectly(0xFF41);
+    byte lcdStatus = memory->readDirectly(LCD_STATUS);
 
 	if ( isBitSet(memory->read(0xFF40), 7) ) {
 		scanlineCounter = RETRACE_START;
 		memory->writeDirectly(0xFF44, 0);
 		lcdStatus &= 252;
 		setBit(&lcdStatus,0);
-        memory->write(0xFF41,lcdStatus);
+        memory->write(LCD_STATUS,lcdStatus);
 
 	} else {
 
@@ -88,7 +88,7 @@ void Video::updateRegisterLCD() {
             clearBit(&lcdStatus,2);
         }
 
-        memory->write(0xFF41, lcdStatus);
+        memory->write(LCD_STATUS, lcdStatus);
     }
 }
 
@@ -97,19 +97,19 @@ bool Video::isLCDEnabled() const {
 }
 
 void Video::drawCurrentScanline() {
-    if ( isBitSet(memory->read(0xFF40), 7) ) {
+    if ( isBitSet(memory->read(LCD_CONTROL), 7) ) {
 
-        memory->writeDirectly(0xFF44, memory->readDirectly(0xFF44) + 1);
+        memory->writeDirectly(LY_REGISTER, memory->readDirectly(0xFF44) + 1);
         scanlineCounter = RETRACE_START;
 
-        byte scanLine = memory->readDirectly(0xFF44);
+        byte scanLine = memory->readDirectly(LY_REGISTER);
 
         if ( scanLine == VERTICAL_BLANK_SCAN_LINE ) {
             cpu->requestInterrupt(CPU::VBLANK);
         }
 
         if ( scanLine > VERTICAL_BLANK_SCAN_LINE_MAX ) {
-            memory->writeDirectly(0xFF44, 0x0);
+            memory->writeDirectly(LY_REGISTER, 0x0);
         }
 
         if ( scanLine < VERTICAL_BLANK_SCAN_LINE ) {
@@ -351,7 +351,7 @@ void Video::renderSprites(byte lcdControl) {
 }
 
 byte Video::getLCDMode() const {
-    byte lcdStatus = memory->readDirectly(LCDC_STATUS);
+    byte lcdStatus = memory->readDirectly(LCD_STATUS);
 	return lcdStatus & 0x3;
 }
 

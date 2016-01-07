@@ -13,12 +13,12 @@ void Video::updateGraphics(short cycles) {
 
     updateRegisterLCD();
 
-	if ( isBitSet(memory->readDirectly(0xFF40), 7) ) {
+	if ( isBitSet(memory->readDirectly(LCDS_CONTROL), 7) ) {
 		scanlineCounter -= cycles;
   }
 
-	if ( memory->readDirectly(0xFF44) > VERTICAL_BLANK_SCAN_LINE_MAX ) {
-		memory->writeDirectly(0xFF44, 0x0);
+	if ( memory->readDirectly(LY_REGISTER) > VERTICAL_BLANK_SCAN_LINE_MAX ) {
+		memory->writeDirectly(LY_REGISTER, 0x0);
   }
 
 	if ( scanlineCounter <= 0 ) {
@@ -30,16 +30,16 @@ void Video::updateRegisterLCD() {
 
     byte lcdStatus = memory->readDirectly(LCD_STATUS);
 
-	if ( isBitSet(memory->read(0xFF40), 7) ) {
+	if ( isBitSet(memory->read(LCDS_CONTROL), 7) ) {
 		scanlineCounter = RETRACE_START;
-		memory->writeDirectly(0xFF44, 0);
+		memory->writeDirectly(LY_REGISTER, 0);
 		lcdStatus &= 252;
 		setBit(&lcdStatus,0);
         memory->write(LCD_STATUS,lcdStatus);
 
 	} else {
 
-        byte lY = memory->read(0xFF44);
+        byte lY = memory->read(LY_REGISTER);
 
         byte currentMode = getLCDMode();
 
@@ -93,13 +93,13 @@ void Video::updateRegisterLCD() {
 }
 
 bool Video::isLCDEnabled() const {
-    return isBitSet(memory->read(LCD_CONTROL), 7);
+    return isBitSet(memory->read(LCDS_CONTROL), 7);
 }
 
 void Video::drawCurrentScanline() {
-    if ( isBitSet(memory->read(LCD_CONTROL), 7) ) {
+    if ( isBitSet(memory->read(LCDS_CONTROL), 7) ) {
 
-        memory->writeDirectly(LY_REGISTER, memory->readDirectly(0xFF44) + 1);
+        memory->writeDirectly(LY_REGISTER, memory->readDirectly(LY_REGISTER) + 1);
         scanlineCounter = RETRACE_START;
 
         byte scanLine = memory->readDirectly(LY_REGISTER);
@@ -119,7 +119,7 @@ void Video::drawCurrentScanline() {
 }
 
 void Video::drawScanline() {
-    byte lcdControl = memory->read(LCD_CONTROL);
+    byte lcdControl = memory->read(LCDS_CONTROL);
 	if ( isBitSet(lcdControl, 7) ) {
 		renderBackground(lcdControl);
 		renderSprites(lcdControl);

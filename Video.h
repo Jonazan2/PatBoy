@@ -35,7 +35,7 @@ public:
     const byte VERTICAL_BLANK_SCAN_LINE_MAX = 0x99;
     const int RETRACE_START = 456;
     
-    const word LCD_CONTROL = 0xFF40;
+    const word LCDS_CONTROL = 0xFF40;
     const word LCD_STATUS = 0xFF41;
     const word LY_REGISTER = 0xFF44;
     const word LY_COMPARE = 0xFF45;

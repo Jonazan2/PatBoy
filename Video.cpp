@@ -11,19 +11,21 @@ Video::Video(Memory *memory, CPU *cpu) {
 
 void Video::updateGraphics(short cycles) {
 
+    printVideoRegistersState();
+    
     updateRegisterLCD();
-
+    
 	if ( isBitSet(memory->readDirectly(LCDS_CONTROL), 7) ) {
 		scanlineCounter -= cycles;
-  }
+    }
 
 	if ( memory->readDirectly(LY_REGISTER) > VERTICAL_BLANK_SCAN_LINE_MAX ) {
 		memory->writeDirectly(LY_REGISTER, 0x0);
-  }
+    }
 
 	if ( scanlineCounter <= 0 ) {
 		drawCurrentScanline();
-  }
+    }
 }
 
 void Video::updateRegisterLCD() {
@@ -405,5 +407,14 @@ void Video::resetFrameBuffer() {
             frameBuffer[x][y][2] = 255;
         }
     }
+}
+
+void Video::printVideoRegistersState() const {
+    printf("LCDS CONTROL: %02X\t", memory->readDirectly(LCDS_CONTROL));
+    printf("LCD STATUS: %02X\t", memory->readDirectly(LCD_STATUS));
+    printf("LY_REGISTER: %02X\t" , memory->readDirectly(LY_REGISTER));
+    printf("LY_COMPARE: %02X\t", memory->readDirectly(LY_COMPARE));
+    printf("SCROLL X: %02X\t", memory->readDirectly(SCROLL_X));
+    printf("SCROLL Y: %02X\n\n", memory->readDirectly(SCROLL_Y));
 }
 

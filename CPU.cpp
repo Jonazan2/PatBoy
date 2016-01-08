@@ -25,13 +25,17 @@ unsigned int CPU::update() {
     unsigned int clockCycles = 0;
     byte opcode;
     
+    printRegisterState();
+    
     if ( !halt ) {
         opcode = getCurrentOpcode();
         
         if ( opcode == SPECIAL_OPCODE ) {
             opcode = getCurrentOpcode();
+            printOpcodeName(opcode, true);
             clockCycles = (this->*extendedOpcodes[opcode])();
         } else {
+            printOpcodeName(opcode, false);
             clockCycles = (this->*opcodes[opcode])();
         }
         
@@ -57,7 +61,7 @@ unsigned int CPU::update() {
 }
 
 void CPU::reset() {
-    AF.value = 0x11B0;
+    AF.value = 0x01B0;
     BC.value = 0x0013;
     DE.value = 0x00D8;
     HL.value = 0x014D;

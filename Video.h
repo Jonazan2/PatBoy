@@ -75,5 +75,6 @@ private:
     bool createSDLWindow();
     void initializeOpenGL();
     void resetFrameBuffer();
+    void printVideoRegistersState() const;
 };
 #endif

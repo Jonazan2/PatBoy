@@ -258,7 +258,6 @@ void Memory::loadCartridge() const {
 }
 
 void Memory::reset() {
-    map[0xFF00] = 0xFF;
 	map[0xFF05] = 0x00;
 	map[0xFF06] = 0x00;
 	map[0xFF07] = 0x00;

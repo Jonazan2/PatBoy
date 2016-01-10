@@ -66,7 +66,6 @@ private:
     
     void updateRegisterLCD();
     bool isLCDEnabled() const;
-    void drawCurrentScanline();
     void drawScanline();
     byte getLCDMode() const;
     void renderBackground(byte);

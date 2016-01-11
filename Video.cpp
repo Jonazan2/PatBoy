@@ -15,7 +15,7 @@ void Video::updateGraphics(short cycles) {
     
     updateRegisterLCD();
     
-	if ( isBitSet(memory->readDirectly(LCDS_CONTROL), 7) ) {
+	if ( isLCDEnabled() ) {
 		scanlineCounter -= cycles;
  
         if (scanlineCounter <= 0) {
@@ -23,9 +23,9 @@ void Video::updateGraphics(short cycles) {
             byte currentLine = memory->readDirectly(LY_REGISTER) + 1;
             memory->writeDirectly(LY_REGISTER, currentLine);
 
-            if (currentLine == 144) {
+            if (currentLine == VERTICAL_BLANK_SCAN_LINE) {
                 cpu->requestInterrupt(CPU::VBLANK);
-            } else if (currentLine > 153) {
+            } else if (currentLine > VERTICAL_BLANK_SCAN_LINE_MAX) {
                 memory->writeDirectly(LY_REGISTER, 0x0);
             } else if (currentLine < VERTICAL_BLANK_SCAN_LINE) {
                 drawScanline();

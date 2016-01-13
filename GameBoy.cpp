@@ -1,6 +1,6 @@
 #include "GameBoy.h"
 
-const int MAX_CYCLES = 70221;
+const int MAX_CYCLES = 70224;
 const int FPS = 59.7;
 const int DELAY_TIME = 1000.0f / FPS;
 

@@ -13,7 +13,15 @@ void Memory::init(CPU * cpu) {
 }
 
 byte Memory::read(const word address) const {
-	return map[address];
+    if (address >= 0x4000 && address <= 0x7FFF) {
+        return readWithChip(address);
+    } else if (address >= 0xA000 && address <= 0xBFFF) {
+        return readWithChip(address);
+    } else if (address == 0xFF00) {
+        return joypad->getState();
+    } else {
+        return map[address] ;
+    }
 }
 
 byte Memory::readDirectly(const word address) const {

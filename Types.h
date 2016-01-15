@@ -12,6 +12,14 @@ typedef union {
     word value;
 } Register;
 
+typedef union {
+    struct {
+        int red;
+        int green;
+        int blue;
+    };
+} RGB;
+
 enum TMA_CYCLES {
     TMA_4096 = 1024,
     TMA_16384 = 256,

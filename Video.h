@@ -85,6 +85,7 @@ private:
     void renderBackground(byte);
     void renderSprites(byte);
     Colour getColour(const byte, const word) const;
+    RGB getPixelWithColour(const Colour);
     bool createSDLWindow();
     void initializeOpenGL();
     void resetFrameBuffer();

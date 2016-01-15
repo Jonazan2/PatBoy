@@ -10,8 +10,6 @@ Video::Video(Memory *memory, CPU *cpu) {
 }
 
 void Video::updateGraphics(short cycles) {
-
-//    printVideoRegistersState();
     
     if (isLCDEnabled()) {
         scanlineCounter -= cycles;
@@ -96,7 +94,6 @@ void Video::handleOAMMode() {
     clearBit(&lcdStatus, 0);
     memory->writeDirectly(LCD_STATUS, lcdStatus);
     
-    
     if (isBitSet(lcdStatus, 3)) {
         cpu->requestInterrupt(CPU::Interrupts::LCD);
     }
@@ -124,112 +121,111 @@ void Video::drawScanline() {
 }
 
 void Video::renderBackground(byte lcdControl) {
+    word tileData = 0 ;
+    word backgroundMemory =0 ;
+    bool unsig = true ;
 
-    if ( isBitSet(lcdControl,0) ) {
-		word tileData = 0 ;
-		word backgroundMemory =0 ;
-		bool unsig = true ;
+    byte scrollY = memory->read(SCROLL_Y);
+    byte scrollX = memory->read(SCROLL_X);
+    byte windowY = memory->read(WINDOWS_Y);
+    byte windowX = memory->read(WINDOWS_X) - 7;
+    bool usingWindow = false;
 
-		byte scrollY = memory->read(SCROLL_Y);
-		byte scrollX = memory->read(SCROLL_X);
-		byte windowY = memory->read(WINDOWS_Y);
-		byte windowX = memory->read(WINDOWS_X) - 7;
-        bool usingWindow = false;
+    if ( isBitSet(lcdControl, 5) ) {
+        if (windowY <= memory->read(LY_REGISTER) ) {
+            usingWindow = true;
+        }
+    }
 
-		if ( isBitSet(lcdControl, 5) ) {
-			if (windowY <= memory->read(LY_REGISTER) ) {
-				usingWindow = true;
+    if ( isBitSet(lcdControl,4) ) {
+        tileData = 0x8000;
+    } else {
+        tileData = 0x8800;
+        unsig= false;
+    }
+
+    if ( !usingWindow ) {
+        if ( isBitSet(lcdControl, 3) ) {
+            backgroundMemory = 0x9C00;
+        } else {
+            backgroundMemory = 0x9800;
+        }
+    } else {
+        if ( isBitSet(lcdControl, 6) ) {
+            backgroundMemory = 0x9C00;
+        } else {
+            backgroundMemory = 0x9800;
+        }
+    }
+
+
+    byte yPos = 0;
+    if ( !usingWindow ) {
+        yPos = scrollY + memory->read(LY_REGISTER);
+    } else {
+        yPos = memory->read(LY_REGISTER) - windowY;
+    }
+
+    word tileRow = (((byte)(yPos/8))*32);
+
+    for ( int pixel = 0 ; pixel < 160; pixel++ ) {
+        byte xPos = pixel+scrollX;
+
+        if ( usingWindow ) {
+            if ( pixel >= windowX ) {
+                xPos = pixel - windowX;
             }
-		}
-
-		if ( isBitSet(lcdControl,4) ) {
-			tileData = 0x8000;
-		} else {
-			tileData = 0x8800;
-			unsig= false;
-		}
-
-		if ( !usingWindow ) {
-			if ( isBitSet(lcdControl, 3) ) {
-				backgroundMemory = 0x9C00;
-			} else {
-				backgroundMemory = 0x9800;
-            }
-		} else {
-			if ( isBitSet(lcdControl, 6) ) {
-				backgroundMemory = 0x9C00;
-            } else {
-				backgroundMemory = 0x9800;
-            }
-		}
-
-
-		byte yPos = 0;
-
-		if ( !usingWindow ) {
-			yPos = scrollY + memory->read(LY_REGISTER);
-		} else {
-			yPos = memory->read(LY_REGISTER) - windowY;
         }
 
-        word tileRow = (((byte)(yPos/8))*32);
+        word tileCol = (xPos/8);
+        signed short tileNum;
+        
+        if( unsig ) {
+            tileNum = (byte)memory->read(backgroundMemory+tileRow + tileCol);
+        } else {
+            tileNum = (signed short)memory->read(backgroundMemory+tileRow + tileCol);
+        }
 
-		for ( int pixel = 0 ; pixel < 160; pixel++ ) {
-			byte xPos = pixel+scrollX;
+        word tileLocation = tileData;
+        if ( unsig ) {
+            tileLocation += (tileNum * 16);
+        } else {
+            tileLocation += ((tileNum+128) *16);
+        }
 
-			if ( usingWindow ) {
-				if ( pixel >= windowX ) {
-					xPos = pixel - windowX;
-				}
-			}
+        byte line = yPos % 8;
+        line *= 2;
+        byte data1 = memory->read(tileLocation + line);
+        byte data2 = memory->read(tileLocation + line + 1);
 
-			word tileCol = (xPos/8);
-			signed short tileNum;
+        int colourBit = xPos % 8;
+        colourBit -= 7;
+        colourBit *= -1;
+        
+        int colourNum = getBitValue(data2, colourBit);
+        colourNum <<= 1;
+        colourNum |= getBitValue(data1,colourBit);
 
-			if( unsig ) {
-				tileNum = (byte)memory->read(backgroundMemory+tileRow + tileCol);
-			} else {
-				tileNum = (signed short)memory->read(backgroundMemory+tileRow + tileCol);
-            }
+        Colour colour = getColour(colourNum, 0xFF47);
+        RGB pixelColours = getPixelWithColour(colour);
 
-			word tileLocation = tileData;
+        int scanline = memory->read(LY_REGISTER);
 
-			if ( unsig ) {
-				tileLocation += (tileNum * 16);
-			} else {
-				tileLocation += ((tileNum+128) *16);
-            }
+        frameBuffer[scanline][pixel][0] = pixelColours.red;
+        frameBuffer[scanline][pixel][1] = pixelColours.green;
+        frameBuffer[scanline][pixel][2] = pixelColours.blue;
+    }
+}
 
-			byte line = yPos % 8;
-			line *= 2;
-			byte data1 = memory->read(tileLocation + line);
-			byte data2 = memory->read(tileLocation + line + 1);
-
-			int colourBit = xPos % 8;
-			colourBit -= 7;
-			colourBit *= -1;
-
-            int colourNum = getBitValue(data2, colourBit);
-			colourNum <<= 1;
-            colourNum |= getBitValue(data1,colourBit);
-
-			Colour col = getColour(colourNum, 0xFF47);
-			int red, green, blue = red = green = 0;
-
-			switch( col ) {
-                case white:	    red = 255;  green = 255;  blue = 255;  break;
-                case lightGray: red = 0xCC; green = 0xCC; blue = 0xCC; break;
-                case darkGray:	red = 0x77; green = 0x77; blue = 0x77; break;
-                case black:     red = 0x0;  green = 0x0;  blue = 0x0;  break;
-			}
-
-			int scanline = memory->read(LY_REGISTER);
-
-			frameBuffer[scanline][pixel][0] = red;
-			frameBuffer[scanline][pixel][1] = green;
-			frameBuffer[scanline][pixel][2] = blue;
-		}
-	}
+RGB Video::getPixelWithColour(const Colour colour) {
+    RGB rgb;
+    switch( colour ) {
+        case white:	    rgb.red = 255;  rgb.green = 255;  rgb.blue = 255;  break;
+        case lightGray: rgb.red = 0xCC; rgb.green = 0xCC; rgb.blue = 0xCC; break;
+        case darkGray:	rgb.red = 0x77; rgb.green = 0x77; rgb.blue = 0x77; break;
+        case black:     rgb.red = 0x0;  rgb.green = 0x0;  rgb.blue = 0x0;  break;
+    }
+    return rgb;
 }
 
 Video::Colour Video::getColour(const byte colourNumber, const word address) const {
@@ -260,88 +256,77 @@ Video::Colour Video::getColour(const byte colourNumber, const word address) cons
 }
 
 void Video::renderSprites(byte lcdControl) {
+    bool use8x16 = false;
 
-	if ( isBitSet(lcdControl, 1) ) {
-		bool use8x16 = false ;
+    if ( isBitSet(lcdControl, 2) ) {
+        use8x16 = true;
+    }
 
-        if ( isBitSet(lcdControl, 2) ) {
-			use8x16 = true ;
+    for (int sprite = 0 ; sprite < 40; sprite++) {
+        byte index = sprite*4 ;
+        byte yPos = memory->read(0xFE00+index) - 16;
+        byte xPos = memory->read(0xFE00+index+1)-8;
+        byte tileLocation = memory->read(0xFE00+index+2) ;
+        byte attributes = memory->read(0xFE00+index+3) ;
+
+        bool yFlip =  isBitSet(attributes, 6);
+        bool xFlip = isBitSet(attributes, 5);
+        bool hidden = isBitSet(attributes, 7);
+
+        int scanline = memory->read(LY_REGISTER);
+
+        int ysize = 8;
+
+        if ( use8x16 ) {
+            ysize = 16;
         }
 
-		for (int sprite = 0 ; sprite < 40; sprite++) {
- 			byte index = sprite*4 ;
- 			byte yPos = memory->read(0xFE00+index) - 16;
- 			byte xPos = memory->read(0xFE00+index+1)-8;
- 			byte tileLocation = memory->read(0xFE00+index+2) ;
- 			byte attributes = memory->read(0xFE00+index+3) ;
+        if ( (scanline >= yPos) && (scanline < (yPos+ysize)) ) {
+            int line = scanline - yPos;
 
-            bool yFlip =  isBitSet(attributes, 6);
-			bool xFlip = isBitSet(attributes, 5);
-            bool hidden = isBitSet(attributes, 7);
-
-			int scanline = memory->read(LY_REGISTER);
-
-			int ysize = 8;
-
-			if ( use8x16 ) {
-				ysize = 16;
+            if ( yFlip ) {
+                line -= ysize;
+                line *= -1;
             }
 
- 			if ( (scanline >= yPos) && (scanline < (yPos+ysize)) ) {
-                int line = scanline - yPos;
+            line *= 2;
+            byte data1 = memory->read((0x8000 + (tileLocation * 16)) + line);
+            byte data2 = memory->read((0x8000 + (tileLocation * 16)) + line+1);
 
- 				if ( yFlip ) {
- 					line -= ysize;
- 					line *= -1;
- 				}
+            for ( int tilePixel = 7; tilePixel >= 0; tilePixel-- ) {
+                int colourbit = tilePixel ;
+                if ( xFlip ) {
+                    colourbit -= 7;
+                    colourbit *= -1;
+                }
 
- 				line *= 2;
- 				byte data1 = memory->read((0x8000 + (tileLocation * 16)) + line);
- 				byte data2 = memory->read((0x8000 + (tileLocation * 16)) + line+1);
+                int colourNum = getBitValue(data2,colourbit) ;
+                colourNum <<= 1;
+                colourNum |= getBitValue(data1,colourbit) ;
 
- 				for ( int tilePixel = 7; tilePixel >= 0; tilePixel-- ) {
-					int colourbit = tilePixel ;
- 					if ( xFlip ) {
- 						colourbit -= 7;
- 						colourbit *= -1;
- 					}
+                Colour colour;
+                if ( isBitSet(attributes, 4) ) {
+                    colour = getColour(colourNum, 0xFF49);
+                } else {
+                    colour = getColour(colourNum, 0xFF48);
+                }
 
-                    int colourNum = getBitValue(data2,colourbit) ;
-                    colourNum <<= 1;
-                    colourNum |= getBitValue(data1,colourbit) ;
+                
+                int xPix = 0 - tilePixel;
+                xPix += 7;
 
-                    Colour color;
-                    if ( isBitSet(attributes, 4) ) {
-                        color = getColour(colourNum, 0xFF49);
-                    } else {
-                        color = getColour(colourNum, 0xFF48);
-                    }
+                int pixel = xPos+xPix;
 
- 					int red, green, blue;
-                    red = green = blue = 0;
+                if ( hidden && frameBuffer[scanline][pixel][0] == white ) {
+                    hidden = false;
+                }
 
-                    switch ( color ) {
-                        case white:	    red = 255;  green = 255;  blue = 255;  break;
-                        case lightGray: red = 0xCC; green = 0xCC; blue = 0xCC; break;
-                        case darkGray:	red = 0x77; green = 0x77; blue = 0x77; break;
-                        case black: red = 0x0; green = 0x0; blue = 0x0; break;
-                    }
-
- 					int xPix = 0 - tilePixel;
- 					xPix += 7;
-
-					int pixel = xPos+xPix;
-
-                    if ( hidden && frameBuffer[scanline][pixel][0] == white ) {
-                        hidden = false;
-                    }
-
-                    if ( !hidden ){
-                        frameBuffer[scanline][pixel][0] = red;
-                        frameBuffer[scanline][pixel][1] = green;
-                        frameBuffer[scanline][pixel][2] = blue;
-                    }
- 				}
+                if ( !hidden ){
+                    RGB pixelColour = getPixelWithColour(colour);
+                    frameBuffer[scanline][pixel][0] = pixelColour.red;
+                    frameBuffer[scanline][pixel][1] = pixelColour.green;
+                    frameBuffer[scanline][pixel][2] = pixelColour.blue;
+                }
  			}
 		}
 	}
@@ -357,7 +342,6 @@ bool Video::createSDLWindow() {
     if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
         return false;
     }
-    
     
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);

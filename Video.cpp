@@ -26,6 +26,10 @@ void Video::updateGraphics(short cycles) {
             } else if (scanlineCounter >= (MAX_VIDEO_CYCLES - MIN_OAM_AND_VRAM_MODE_CYCLES - MIN_OAM_MODE_CYCLES)) {
                 handleOAMAndVRamMode();
             } else {
+                if (mode != 0x0) {
+                    clearBit(&lcdStatus, 1);
+                    clearBit(&lcdStatus, 0);
+                }
                 handleHBlankMode();
             }
         } else {

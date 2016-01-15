@@ -13,74 +13,7 @@ void Memory::init(CPU * cpu) {
 }
 
 byte Memory::read(const word address) const {
-    switch ( address & 0xE000 ) {
-        case 0x2000:
-        case 0x4000:
-        case 0x6000:
-            return readWithChip(address);
-            
-        case 0x8000:
-            return readCommon(address);
-        
-        case 0xA000:
-            return readWithChip(address);
-        
-        case 0xC000:
-        case 0xE000:
-            if (address < 0xFF00)
-                return readCommon(address);
-            else
-                return readIORegister(address);
-        
-        default:
-            return readDirectly(address);
-        
-    }
-    
 	return map[address];
-}
-
-byte Memory::readIORegister(const word address) const {
-    
-    if ( address == 0xFF00 ) {
-        return joypad->getState();
-    } else if ( address == 0xFF03 ) {
-        return 0xFF;
-    } else if ( address == 0xFF07) {
-        return readDirectly(0xFF07) | 0xF8;
-    } else if ( address >= 0xFF08 && address <= 0xFF0E ) {
-        return 0xFF;
-    } else if ( address == 0xFF0F ) {
-        return readDirectly(0xFF0F) | 0xE0;
-    } else if ( address >= 0xFF10 && address <= 0xFF3F ) {
-        return audio->readAudioRegister(address);
-    } else if ( address == 0xFF41 ) {
-        return readDirectly(0xFF41);
-    } else if ( address ==  0xFF4C ) {
-        return 0xFF;
-    } else if ( address ==  0xFF4F ) {
-        return readDirectly(0xFF4F);
-    } else if ( address == 0xFF68 || 0xFF6A ) {
-        return  0xC0;
-    } else if ( address == 0xFF69 || 0xFF6B ) {
-        return 0xFF;
-    }else if ( address ==  0xFF70 ) {
-        return 0xFF;
-    } else if ( address ==   0xFF76 ) {
-        return 0xFF;
-    } else if ( address ==   0xFF77 ) {
-        return 0xFF;
-    } else {
-        return readDirectly(address);
-    }
-}
-
-byte Memory::readCommon(const word address) const {
-    if ( address >= 0xFEA0 && address < 0xFF00 ) {
-        return ((((address + ((address >> 4) - 0x0FEA)) >> 2) & 1) ? 0x00 : 0xFF);
-    } else {
-        return readDirectly(address);
-    }
 }
 
 byte Memory::readDirectly(const word address) const {
@@ -88,104 +21,51 @@ byte Memory::readDirectly(const word address) const {
 }
 
 void Memory::write(const word address, const byte data) {
-    switch ( address & 0xE000 ) {
-            
-        case 0x0000:
-        case 0x2000:
-        case 0x4000:
-        case 0x6000:
-            writeWithChip(address, data);
-            break;
-            
-        case 0x8000:
-            writeCommon(address, data);
-            break;
-            
-        case 0xA000:
-            writeCommon(address, data);
-            break;
-            
-        case 0xC000:
-        case 0xE000:
-            if (address < 0xFF00) {
-                writeCommon(address, data);
-            } else {
-                writeIORegister(address, data);
-            }
-            break;
-            
-        default:
-            writeDirectly(address, data);
-            break;
-    }
-}
-
-void Memory::writeCommon(const word address, const byte data) {
-    if ( address >= 0xC000 && address < 0xDE00 ) {
+    if (address < 0x8000) {
+        writeWithChip(address, data);
+    } else if ( address < 0xA000) {
         map[address] = data;
-        map[address + 0x2000] = data;
-    } else if ( address >= 0xE000 && address < 0xFE00 ) {
+    } else if ( (address >= 0xC000) && (address <= 0xDFFF) ){
         map[address] = data;
-        map[address - 0x2000] = data;
-    } else if (address >= 0xFEA0 && address < 0xFF00 ) {
+    } else if ( (address > 0xE000) && (address <= 0xFDFF) ) {
         map[address] = data;
-    } else {
-        map[address] = data;
-    }
-}
-
-
-void Memory::writeIORegister(const word address, const byte data) {
-    
-    if ( address == 0xFF04 ) {
+        map[address -0x2000] = data;
+    } else if ((address >= 0xFEA0) && (address <= 0xFEFF)) {
+        // Not allowed
+    } else if (address == 0xFF04) {
+        map[address] = 0x0;
         cpu->resetDivRegister();
-        
-    } else if ( address == 0xFF07 ){
+    }else if (address == 0xFF07) {
         map[address] = data ;
-        
+            
         int timerVal = data & 0x03 ;
-        
+            
         int clockSpeed = 0 ;
-        
-        switch ( timerVal ) {
-            case 0: clockSpeed = 1024 ; break ;
-            case 1: clockSpeed = 16; break ;
-            case 2: clockSpeed = 64 ;break ;
-            case 3: clockSpeed = 256 ;break ; // 256
-            default: assert(false); break ; // weird timer val
+        switch(timerVal) {
+            case 0:  clockSpeed = 1024;  break;
+            case 1:  clockSpeed = 16;    break;
+            case 2:  clockSpeed = 64;    break;
+            case 3:  clockSpeed = 256;   break;
+            default: assert(false);      break;
         }
-        
-        if ( clockSpeed != cpu->getCurrrentClockSpeed() ) {
+            
+        if (clockSpeed != cpu->getCurrrentClockSpeed()){
             cpu->resetTimaRegister();
             cpu->setCurrentClockSpeed(clockSpeed);
         }
-        
-    } else if ( address == 0xFF0F ) {
-        writeDirectly(address, data);
-        
+    } else if (address == 0xFF41) {
+        writeDirectly(0xFF41, 0x0);
+    } else if (address == 0xFF46){
+        word newAddress = (data << 8) ;
+        for (int i = 0; i < 0xA0; i++) {
+            map[0xFE00 + i] = readDirectly(newAddress + i);
+        }
+    } else if ((address >= 0xFF4C) && (address <= 0xFF7F)) {
+        // Not allowed
     } else if ( address >= 0xFF10 && address <= 0xFF3F ) {
         audio->writeAudioRegister(address, data);
-        
-    } else if ( address == 0xFF44 ) {
-        writeDirectly(address, 0x0);
-        
-    } else if ( address == 0xFF45 ) {
-        writeDirectly(address, data);
-        
-    } else if ( address == 0xFF46 ) {
-        this->DMA(data);
-        
-    } else if ( address == 0xFF6C ){
-        writeDirectly(address, data | 0xFE);
-        
-    } else if ( address == 0xFF75 ) {
-        writeDirectly(address, data | 0x1F);
-        
-    } else if ( address ==0xFFFF ) {
-        writeDirectly(address, data & 0x1F);
-        
     } else {
-        writeDirectly(address, data);
+        map[address] = data;
     }
 }
 

@@ -29,10 +29,6 @@ protected:
     
     void loadCartridge() const;
     void DMA(byte);
-    byte readIORegister(const word) const;
-    byte readCommon(const word) const;
-    void writeCommon(const word, const byte);
-    void writeIORegister(const word, const byte);
     
 public:
     Memory(Cartridge *, Audio *, Joypad *);

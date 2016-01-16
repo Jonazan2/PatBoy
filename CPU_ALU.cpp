@@ -661,7 +661,7 @@ void CPU::compare8bitRegister(const Register registerA, const byte data) {
         raiseFlag(ZERO_FLAG);
     }
     
-    if ( ((registerA.hi - data) & 0xF) > (AF.hi & 0xF) ) {
+    if ( (registerA.hi & 0xF) < (data & 0x0F) ) {
         raiseFlag(HALF_CARRY_FLAG);
     }
 }
@@ -708,9 +708,9 @@ short CPU::opcode0xBE() {
 }// CP A, (HL) 8 cycles
 
 short CPU::opcode0xFE() {
-    byte data = memory->read(PC.value);
+    byte n = memory->read(PC.value);
     incrementProgramCounter();
-    compare8bitRegister(AF, data);
+    compare8bitRegister(AF, n);
     return 8;
 }// CP A, nn 8 cycles
 

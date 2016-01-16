@@ -2,6 +2,7 @@
 
 CPU::CPU(Memory *memory) {
     this->memory = memory;
+    this->instructionSet = new InstructionSet();
     chargeOpcodes();
     chargeExtendedOpcodes();
     reset();
@@ -881,4 +882,6 @@ void CPU::chargeExtendedOpcodes() {
     extendedOpcodes[0xFF] = &CPU::extendedOpcode0xFF; // set 7, A
 }
 
-CPU::~CPU() {}
+CPU::~CPU() {
+    delete instructionSet;
+}

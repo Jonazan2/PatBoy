@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "Memory.h"
+#include "InstructionSet.h"
 #include "Utils.h"
 
 class Memory;
@@ -43,6 +44,8 @@ private:
     Register HL;
     Register SP;
     Register PC;
+    
+    InstructionSet *instructionSet;
     
     bool halt;
     bool ime;

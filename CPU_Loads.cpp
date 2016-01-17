@@ -124,13 +124,13 @@ short CPU::opcode0xE2() {
 
 short CPU::opcode0x22() {
     memory->write(HL.value, AF.hi);
-    increment16BitRegister(&HL);
+    instructionSet->increment16BitRegister(&HL);
     return 8;
 } // LD (HLI),A (22) INC
 
 short CPU::opcode0x2A() {
     AF.hi = memory->read(HL.value);
-    increment16BitRegister(&HL);
+    instructionSet->increment16BitRegister(&HL);
     return 8;
 } // LDi A, (HL)
 
@@ -586,3 +586,28 @@ short CPU::opcode0x6F() {
     loadIntoRegister(&HL.low, AF.hi);
     return 4;
 }// LD L,A
+
+////////////////////////////////// ld   HL,SP+dd
+short CPU::opcode0xF8() {
+    char n = memory->read(PC.value) ;
+    incrementProgramCounter();
+    clearFlag(ZERO_FLAG);
+    clearFlag(ADD_SUB_FLAG);
+    
+    word value = (SP.value + n) & 0xFFFF;
+    
+    HL.value = value;
+    
+    if( (SP.value + n) > 0xFFFF ) {
+        raiseFlag(CARRY_FLAG);
+    } else {
+        clearFlag(CARRY_FLAG);
+    }
+    
+    if( (SP.value & 0xF) + (n & 0xF) > 0xF ) {
+        raiseFlag(HALF_CARRY_FLAG);
+    } else {
+        clearFlag(HALF_CARRY_FLAG);
+    }
+    return 12;
+}

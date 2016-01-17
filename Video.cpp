@@ -38,7 +38,7 @@ void Video::updateGraphics(short cycles) {
         byte lyCompare = memory->readDirectly(LY_COMPARE);
         if (lyCompare == lyRegister) {
             if (isBitSet(lcdStatus, 6)) {
-                cpu->requestInterrupt(CPU::Interrupts::LCD);
+                cpu->requestInterrupt(Interrupts::LCD);
             }
         }
         
@@ -64,7 +64,7 @@ void Video::handleHBlankMode() {
         memory->writeDirectly(LCD_STATUS, lcdStatus);
         
         if (isBitSet(lcdStatus, 4)) {
-            cpu->requestInterrupt(CPU::Interrupts::VBLANK);
+            cpu->requestInterrupt(Interrupts::VBLANK);
         }
     }
 }
@@ -83,7 +83,7 @@ void Video::handleVBlankMode() {
         
         
         if (isBitSet(lcdStatus, 5)) {
-            cpu->requestInterrupt(CPU::Interrupts::LCD);
+            cpu->requestInterrupt(Interrupts::LCD);
         }
     }
 }
@@ -95,7 +95,7 @@ void Video::handleOAMMode() {
     memory->writeDirectly(LCD_STATUS, lcdStatus);
     
     if (isBitSet(lcdStatus, 3)) {
-        cpu->requestInterrupt(CPU::Interrupts::LCD);
+        cpu->requestInterrupt(Interrupts::LCD);
     }
 
 }

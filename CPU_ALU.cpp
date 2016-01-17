@@ -1,27 +1,22 @@
 #include "CPU.h"
 
-///////////////////////////////////////////16 bits increments
-void CPU::increment16BitRegister(Register *reg) {
-    reg->value++;
-}
 short CPU::opcode0x03() {
-    increment16BitRegister(&BC);
+    instructionSet->increment16BitRegister(&BC);
     return 8;
 }
 
 short CPU::opcode0x13() {
-    increment16BitRegister(&DE);
+    instructionSet->increment16BitRegister(&DE);
     return 8;
 }
 
 short CPU::opcode0x23() {
-    increment16BitRegister(&HL);
+    instructionSet->increment16BitRegister(&HL);
     return 8;
 }
 
 short CPU::opcode0x33() {
-    // SP increment
-    incrementStackPointer();
+    instructionSet->increment16BitRegister(&SP);
     return 8;
 }
 
@@ -786,29 +781,4 @@ short CPU::opcode0xE8() {
     
     SP.value = static_cast<word>(result);
     return 16;
-}
-
-////////////////////////////////// ld   HL,SP+dd
-short CPU::opcode0xF8() {
-    char n = memory->read(PC.value) ;
-    incrementProgramCounter();
-    clearFlag(ZERO_FLAG);
-    clearFlag(ADD_SUB_FLAG);
-    
-    word value = (SP.value + n) & 0xFFFF;
-    
-    HL.value = value;
-    
-    if( (SP.value + n) > 0xFFFF ) {
-        raiseFlag(CARRY_FLAG);
-    } else {
-        clearFlag(CARRY_FLAG);
-    }
-    
-    if( (SP.value & 0xF) + (n & 0xF) > 0xF ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    } else {
-        clearFlag(HALF_CARRY_FLAG);
-    }
-    return 12;
 }

@@ -36,7 +36,7 @@ void Joypad::keyPressed(int key) {
 	}
     
 	if ( requestInterupt && !previouslyUnset ) {
-        cpu->requestInterrupt(CPU::JOYPAD);
+        cpu->requestInterrupt(Interrupts::JOYPAD);
 	}
 }
 

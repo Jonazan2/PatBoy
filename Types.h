@@ -12,6 +12,21 @@ typedef union {
     word value;
 } Register;
 
+
+enum Interrupts {
+    VBLANK = 0x00,
+    LCD = 0x01,
+    TIMER = 0x02,
+    JOYPAD = 0x10
+};
+
+enum Flag {
+    ZERO_FLAG = 7,
+    ADD_SUB_FLAG = 6,
+    HALF_CARRY_FLAG = 5,
+    CARRY_FLAG = 4
+};
+
 typedef union {
     struct {
         int red;

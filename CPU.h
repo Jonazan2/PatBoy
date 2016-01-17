@@ -18,22 +18,20 @@ class Memory;
  * See also \ref Memmory \ref Utils
 ******************************************************************************/
 class CPU {
-    
+
 public:
+    CPU(Memory *);
+    unsigned int update();
+    void requestInterrupt(Interrupts);
+    void updateTimers(int);
+    void updateInterrupts();
+    void resetDivRegister();
+    void resetTimaRegister();
+    void setCurrentClockSpeed(const int);
+    int getCurrrentClockSpeed() const;
+    Register getAF();
     
-    enum Interrupts {
-        VBLANK = 0x00,
-        LCD = 0x01,
-        TIMER = 0x02,
-        JOYPAD = 0x10
-    };
-    
-    enum Flag {
-        ZERO_FLAG = 7,
-        ADD_SUB_FLAG = 6,
-        HALF_CARRY_FLAG = 5,
-        CARRY_FLAG = 4
-    };
+    ~CPU();
     
 private:
     typedef short (CPU::*Opcode) (void);
@@ -104,7 +102,6 @@ private:
     short opcode0x08(); // LD (nn), SP
     
     // 16 bits increments
-    void  increment16BitRegister(Register *);
     short opcode0x03(); // INC BC
     short opcode0x13(); // INC DE
     short opcode0x23(); // INC HL
@@ -736,20 +733,6 @@ private:
     short extendedOpcode0xFD(); // set 7, L
     short extendedOpcode0xFE(); // set 7, (HL)
     short extendedOpcode0xFF(); // set 7, A
-    
-public:
-    CPU(Memory *);
-    unsigned int update();
-    void requestInterrupt(Interrupts);
-    void updateTimers(int);
-    void updateInterrupts();
-    void resetDivRegister();
-    void resetTimaRegister();
-    void setCurrentClockSpeed(const int);
-    int getCurrrentClockSpeed() const;
-    Register getAF();
-    
-    ~CPU();
 };
 
 

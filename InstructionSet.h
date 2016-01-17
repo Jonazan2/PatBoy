@@ -9,7 +9,7 @@ class InstructionSet {
 public:
     /* ALU operations */
     void increment16BitRegister(Register *);
-    void increment8BitRegister(byte *, bool);
+    void increment8BitRegister(byte *, byte*);
     void decrement16BitRegister(Register *);
     void decrement8BitRegister(byte *, bool);
     void add16BitRegister(Register *, const Register);

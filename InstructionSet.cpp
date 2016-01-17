@@ -6,6 +6,24 @@ void InstructionSet::increment16BitRegister(Register *reg) {
     reg->value++;
 }
 
+void InstructionSet::increment8BitRegister(byte *reg, byte *flags) {
+    *reg = *reg + 1;
+    
+    clearFlag(ADD_SUB_FLAG, flags);
+    
+    if (*reg == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    } else {
+        clearFlag(ZERO_FLAG, flags);
+    }
+    
+    if (*reg & 0x0F) {
+        clearFlag(HALF_CARRY_FLAG, flags);
+    } else {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    }
+}
+
 
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {

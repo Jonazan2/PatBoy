@@ -13,4 +13,8 @@ TEST (CPU_ALU, increment16BitRegister) {
     reg.value = 0xFF;
     set->increment16BitRegister(&reg);
     ASSERT_EQ(reg.value, 0x100);
+    
+    reg.value = 0xFFFF;
+    set->increment16BitRegister(&reg);
+    ASSERT_EQ(reg.value, 0x0000);
 }

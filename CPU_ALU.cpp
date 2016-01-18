@@ -41,110 +41,86 @@ short CPU::opcode0x14() {
 }// D increment
 
 short CPU::opcode0x1C() {
-    instructionSet->increment8BitRegister(&DE.low, &AF.hi);
+    instructionSet->increment8BitRegister(&DE.low, &AF.low);
     return 4;
 }// E increment
 
 short CPU::opcode0x24() {
-    instructionSet->increment8BitRegister(&HL.hi, &AF.hi);
+    instructionSet->increment8BitRegister(&HL.hi, &AF.low);
     return 4;
 }// H increment
 
 short CPU::opcode0x2C() {
-    instructionSet->increment8BitRegister(&HL.low, &AF.hi);
+    instructionSet->increment8BitRegister(&HL.low, &AF.low);
     return 4;
 }// L increment
 
 short CPU::opcode0x34() {
     byte result = memory->read(HL.value) + 1;
-    instructionSet->increment8BitRegister(&result, &AF.hi);
+    instructionSet->increment8BitRegister(&result, &AF.low);
     memory->write(HL.value, result);
     return 12;
 }// HL increment
 
-///////////////////////////////////// 16 bits decrements
-void CPU::decrement16BitRegister(Register *reg) {
-    reg->value--;
-}
-
 short CPU::opcode0x0B() {
-    decrement16BitRegister(&BC);
+    instructionSet->decrement16BitRegister(&BC);
     return 8;
 } // BC
 
 short CPU::opcode0x1B() {
-    decrement16BitRegister(&DE);
+    instructionSet->decrement16BitRegister(&DE);
     return 8;
 } // DE
 
 short CPU::opcode0x2B() {
-    decrement16BitRegister(&HL);
+    instructionSet->decrement16BitRegister(&HL);
     return 8;
 } // HL
 
 short CPU::opcode0x3B() {
-    decrementStackPointer();
+    instructionSet->decrement16BitRegister(&SP);
     return 8;
 } // SP
 
-/////////////////////////////////// 8 bits decrements z1h FLAGS implemented
-void CPU::decrement8BitRegister(byte *reg) {
-    byte before = *reg;
-    *reg = *reg -1;
-    
-    raiseFlag(ADD_SUB_FLAG);
-    checkZeroFlag(*reg);
-    if ( (before & 0x0F) == 0x00 ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    } else {
-        clearFlag(HALF_CARRY_FLAG);
-    }
-}
-
 short CPU::opcode0x05() {
-    decrement8BitRegister(&BC.hi);
+    instructionSet->decrement8BitRegister(&BC.hi, &AF.low);
     return 4;
 }// DEC B 4
 
 short CPU::opcode0x0D() {
-    decrement8BitRegister(&BC.low);
+    instructionSet->decrement8BitRegister(&BC.low, &AF.low);
     return 4;
 }// DEC C
 
 short CPU::opcode0x15() {
-    decrement8BitRegister(&DE.hi);
+    instructionSet->decrement8BitRegister(&DE.hi, &AF.low);
     return 4;
 }// DEC D
 
 short CPU::opcode0x1D() {
-    decrement8BitRegister(&DE.low);
+    instructionSet->decrement8BitRegister(&DE.low, &AF.low);
     return 4;
 }// DEC E
 
 short CPU::opcode0x25() {
-    decrement8BitRegister(&HL.hi);
+    instructionSet->decrement8BitRegister(&HL.hi, &AF.low);
     return 4;
 }// DEC H
 
 short CPU::opcode0x2D() {
-    decrement8BitRegister(&HL.low);
+    instructionSet->decrement8BitRegister(&HL.low, &AF.low);
     return 4;
 }// DEC L
 
 short CPU::opcode0x3D() {
-    decrement8BitRegister(&AF.hi);
+    instructionSet->decrement8BitRegister(&AF.hi, &AF.low);
     return 4;
 }// DEC A
 
 short CPU::opcode0x35() {
-    byte before = memory->read(HL.value);
     byte data = memory->read(HL.value) - 1;
+    instructionSet->decrement8BitRegister(&data, &AF.low);
     memory->write(HL.value, data);
-    
-    raiseFlag(ADD_SUB_FLAG);
-    checkZeroFlag(data);
-    checkHalfCarryFlag(before);
-    
     return 12;
 }// DEC HL 12 z1h
 

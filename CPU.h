@@ -108,7 +108,6 @@ private:
     short opcode0x33(); // INC SP
     
     // 16 bits decrements
-    void  decrement16BitRegister(Register *reg);
     short opcode0x0B();
     short opcode0x1B();
     short opcode0x2B();
@@ -292,7 +291,6 @@ private:
     short opcode0x34(); // HL increment 12
     
     //8 bit decrements
-    void decrement8BitRegister(byte *);
     short opcode0x05(); // DEC B 4
     short opcode0x0D(); // DEC C
     short opcode0x15(); // DEC D

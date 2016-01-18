@@ -136,13 +136,13 @@ short CPU::opcode0x2A() {
 
 short CPU::opcode0x32() {
     memory->write(HL.value, AF.hi);
-    decrement16BitRegister(&HL);
+    instructionSet->decrement16BitRegister(&HL);
     return 8;
 }
 
 short CPU::opcode0x3A() {
     AF.hi = memory->read(HL.value);
-    decrement16BitRegister(&HL);
+    instructionSet->decrement16BitRegister(&HL);
     return 8;
 } // LDi A, (HL)
 

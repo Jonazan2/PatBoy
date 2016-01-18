@@ -24,6 +24,26 @@ void InstructionSet::increment8BitRegister(byte *reg, byte *flags) {
     }
 }
 
+void InstructionSet::decrement16BitRegister(Register *reg) {
+    reg->value--;
+}
+
+void InstructionSet::decrement8BitRegister(byte *reg, byte *flags) {
+    *reg = *reg -1;
+    
+    raiseFlag(ADD_SUB_FLAG, flags);
+    if (*reg == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    } else {
+        clearFlag(ZERO_FLAG, flags);
+    }
+    
+    if ((*reg & 0x0F) == 0x0F) {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    } else {
+        clearFlag(HALF_CARRY_FLAG, flags);
+    }
+}
 
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {

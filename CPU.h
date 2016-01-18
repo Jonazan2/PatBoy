@@ -351,7 +351,6 @@ private:
     short opcode0xF1(); // POP AF -> F = F & 0xF0
     
     //16 bit add
-    void add16BitHLRegister(const Register);
     short opcode0x09(); // HL = HL + BC 8
     short opcode0x19(); // HL = HL + DE
     short opcode0x29(); // HL = HL + HL

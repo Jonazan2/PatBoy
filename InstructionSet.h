@@ -12,7 +12,7 @@ public:
     void increment8BitRegister(byte *, byte*);
     void decrement16BitRegister(Register *);
     void decrement8BitRegister(byte *, byte *);
-    void add16BitRegister(Register *, const Register);
+    void add16BitRegister(Register *, const Register, byte *);
     void add8BitRegister(byte *, const byte);
     void adc8BitRegister(byte *, const byte);
     void sub8BitRegister(byte *, const byte);

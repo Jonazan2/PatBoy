@@ -45,6 +45,25 @@ void InstructionSet::decrement8BitRegister(byte *reg, byte *flags) {
     }
 }
 
+void InstructionSet::add16BitRegister(Register *original, const Register adding, byte *flags) {
+    
+    clearFlag(ADD_SUB_FLAG, flags);
+    
+    if (((original->value & 0x0FFF) + (adding.value & 0x0FFF)) > 0x0FFF) {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    } else {
+        clearFlag(HALF_CARRY_FLAG, flags);
+    }
+    
+    if ((original->value + adding.value) > 0xFFFF) {
+        raiseFlag(CARRY_FLAG, flags);
+    } else {
+        clearFlag(CARRY_FLAG, flags);
+    }
+    
+    original->value = original->value + adding.value;
+}
+
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {
     switch ( flag ) {

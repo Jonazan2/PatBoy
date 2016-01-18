@@ -124,43 +124,23 @@ short CPU::opcode0x35() {
     return 12;
 }// DEC HL 12 z1h
 
-/////////////////////////////////////////////////////// 16 bits add operations 0hc
-void CPU::add16BitHLRegister(const Register reg) {
-	word before = HL.value;
-	HL.value += reg.value;
-    
-    clearFlag(ADD_SUB_FLAG);
-    
-	if ((before + reg.value) > 0xFFFF) {
-		raiseFlag(CARRY_FLAG);
-    } else {
-        clearFlag(CARRY_FLAG);
-    }
-    
-	if (( (before & 0xFF00) & 0xF) + ((reg.value >> 8) & 0xF)) {
-		raiseFlag(HALF_CARRY_FLAG);
-    } else {
-        clearFlag(HALF_CARRY_FLAG);
-    }
-}
-
 short CPU::opcode0x09() {
-    add16BitHLRegister(BC);
+    instructionSet->add16BitRegister(&HL, BC, &AF.low);
     return 8;
 }// HL = HL + BC 8
 
 short CPU::opcode0x19() {
-    add16BitHLRegister(DE);
+    instructionSet->add16BitRegister(&HL, DE, &AF.low);
     return 8;
 }// HL = HL + DE
 
 short CPU::opcode0x29() {
-    add16BitHLRegister(HL);
+    instructionSet->add16BitRegister(&HL, HL, &AF.low);
     return 8;
 }// HL = HL + HL
 
 short CPU::opcode0x39() {
-    add16BitHLRegister(SP);
+    instructionSet->add16BitRegister(&HL, SP, &AF.low);
     return 8;
 }// HL = HL + SP
 

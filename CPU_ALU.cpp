@@ -20,62 +20,45 @@ short CPU::opcode0x33() {
     return 8;
 }
 
-/////////////////////////////////// 8 bit increments z0h
-void CPU::increment8BitRegister(byte *reg) {
-    byte before = *reg;
-    *reg = *reg +1;
-    
-    clearFlag(ADD_SUB_FLAG);
-    checkZeroFlag(*reg);
-    if ( (before & 0xF) == 0xF ) {
-		raiseFlag(HALF_CARRY_FLAG);
-	} else {
-		clearFlag(HALF_CARRY_FLAG);
-    }
-}
-
 short CPU::opcode0x3C() {
-    increment8BitRegister(&AF.hi);
+    instructionSet->increment8BitRegister(&AF.hi, &AF.low);
     return 4;
 }// A increment 4
 
 short CPU::opcode0x04() {
-    increment8BitRegister(&BC.hi);
+    instructionSet->increment8BitRegister(&BC.hi, &AF.low);
     return 4;
 }// B increment
 
 short CPU::opcode0x0C() {
-    increment8BitRegister(&BC.low);
+    instructionSet->increment8BitRegister(&BC.low, &AF.low);
     return 4;
 }// C increment
 
 short CPU::opcode0x14() {
-    increment8BitRegister(&DE.hi);
+    instructionSet->increment8BitRegister(&DE.hi, &AF.low);
     return 4;
 }// D increment
 
 short CPU::opcode0x1C() {
-    increment8BitRegister(&DE.low);
+    instructionSet->increment8BitRegister(&DE.low, &AF.hi);
     return 4;
 }// E increment
 
 short CPU::opcode0x24() {
-    increment8BitRegister(&HL.hi);
+    instructionSet->increment8BitRegister(&HL.hi, &AF.hi);
     return 4;
 }// H increment
 
 short CPU::opcode0x2C() {
-    increment8BitRegister(&HL.low);
+    instructionSet->increment8BitRegister(&HL.low, &AF.hi);
     return 4;
 }// L increment
 
 short CPU::opcode0x34() {
     byte result = memory->read(HL.value) + 1;
+    instructionSet->increment8BitRegister(&result, &AF.hi);
     memory->write(HL.value, result);
-    
-    clearFlag(ADD_SUB_FLAG);
-    checkZeroFlag(result);
-    checkHalfCarryFlag(result);
     return 12;
 }// HL increment
 

@@ -282,7 +282,6 @@ private:
     short opcode0xFE(); // CP A, nn 8 cycles
     
     //8 bit increments -> flags affected
-    void increment8BitRegister(byte *);
     short opcode0x3C(); // A increment 4
     short opcode0x04(); // B increment
     short opcode0x0C(); // C increment

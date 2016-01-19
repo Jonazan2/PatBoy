@@ -88,6 +88,32 @@ void InstructionSet::add8BitRegister(byte *accumulator, const byte adding, byte 
     *accumulator = *accumulator + adding;
 }
 
+void InstructionSet::adc8BitRegister(byte *accumulator, const byte adding, byte *flags) {
+
+    byte carryValue = getBitValue(*flags, CARRY_FLAG);
+    word result = *accumulator + carryValue + adding;
+    
+    clearFlag(ADD_SUB_FLAG, flags);
+    if ((result & 0xFF) == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    } else {
+        clearFlag(ZERO_FLAG, flags);
+    }
+    
+    if ((carryValue + (adding & 0x0F) + (*accumulator & 0x0F)) > 0x0F) {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    } else {
+        clearFlag(HALF_CARRY_FLAG, flags);
+    }
+    
+    if (result > 0xFF) {
+        raiseFlag(CARRY_FLAG, flags);
+    } else {
+        clearFlag(CARRY_FLAG, flags);
+    }
+    
+    *accumulator = result & 0xFF;
+}
 
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {

@@ -14,7 +14,7 @@ public:
     void decrement8BitRegister(byte *, byte *);
     void add16BitRegister(Register *, const Register, byte *);
     void add8BitRegister(byte *, const byte, byte *);
-    void adc8BitRegister(byte *, const byte);
+    void adc8BitRegister(byte *, const byte, byte *);
     void sub8BitRegister(byte *, const byte);
     void sbc8BitRegister(byte *, const byte);
     void xor8BitRegister(byte *, const byte);

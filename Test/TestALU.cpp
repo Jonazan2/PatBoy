@@ -201,3 +201,45 @@ TEST_F (CPU_ALU_TEST, add8BitRegister_overflow) {
     ASSERT_TRUE(isBitSet(flags, HALF_CARRY_FLAG));
     ASSERT_TRUE(isBitSet(flags, CARRY_FLAG));
 }
+
+TEST_F (CPU_ALU_TEST, adc8BitRegister_happy) {
+    set->adc8BitRegister(&reg.hi, 0xFE, &flags);
+    ASSERT_EQ(reg.hi, 0xFE);
+    ASSERT_FALSE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_FALSE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_FALSE(isBitSet(flags, CARRY_FLAG));
+}
+
+TEST_F (CPU_ALU_TEST, adc8BitRegister_zero_flag) {
+    reg.hi = 0x80;
+    flags = 0x10;
+    set->adc8BitRegister(&reg.hi, 0x7F, &flags);
+    ASSERT_EQ(reg.hi, 0x00);
+    ASSERT_TRUE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_TRUE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_TRUE(isBitSet(flags, CARRY_FLAG));
+}
+
+TEST_F (CPU_ALU_TEST, adc8BitRegister_half_carry) {
+    reg.hi = 0x0F;
+    flags = 0x10;
+    set->adc8BitRegister(&reg.hi, 0x0E, &flags);
+    ASSERT_EQ(reg.hi, 0x1E);
+    ASSERT_FALSE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_TRUE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_FALSE(isBitSet(flags, CARRY_FLAG));
+}
+
+TEST_F (CPU_ALU_TEST, adc8BitRegister_overflow) {
+    reg.hi = 0x86;
+    flags = 0x10;
+    set->adc8BitRegister(&reg.hi, 0x89, &flags);
+    ASSERT_EQ(reg.hi, 0x10);
+    ASSERT_FALSE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_TRUE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_TRUE(isBitSet(flags, CARRY_FLAG));
+}

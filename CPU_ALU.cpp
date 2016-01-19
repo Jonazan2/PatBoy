@@ -359,67 +359,51 @@ short CPU::opcode0xC6() {
     return 8;
 }// ADD A, n 8
 
-///////////////////////////////////////////// ADC A, r - ADC A, nn  - ADC A, (HL)   z0hc
-void CPU::adc8bitRegister(Register *registerA, const byte data) {
-    byte carry = checkFlag(CARRY_FLAG) ? 1 : 0;
-    byte result = registerA->hi + data + carry;
-    clearFlags();
-    raiseFlag(ADD_SUB_FLAG);
-    checkZeroFlag(result);
-    if (result > 0xFF) {
-        raiseFlag(CARRY_FLAG);
-    }
-    if ( ((registerA->hi& 0x0F) + (data & 0x0F) + carry) > 0x0F ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    }
-    registerA->hi = static_cast<byte> (result);
-}
-
 short CPU::opcode0x8F() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// ADC A, A
 
 short CPU::opcode0x88() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// ADC A, B
 
 short CPU::opcode0x89() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// ADC A, C
 
 short CPU::opcode0x8A() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// ADC A, D
 
 short CPU::opcode0x8B() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// ADC A, E
 
 short CPU::opcode0x8C() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// ADC A, H
 
 short CPU::opcode0x8D() {
-    adc8bitRegister(&AF, AF.hi);
+    instructionSet->adc8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// ADC A, L
 
 short CPU::opcode0x8E() {
     byte data = memory->read(HL.value);
-    adc8bitRegister(&AF, data);
+    instructionSet->adc8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// ADC A, (HL) 8
 
 short CPU::opcode0xCE() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    adc8bitRegister(&AF, data);
+    instructionSet->adc8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// ADC A, nn 8
 

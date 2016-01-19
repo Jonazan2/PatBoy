@@ -232,7 +232,6 @@ private:
     short opcode0xC6(); // ADD A, n 8
     
     // 8 bits adc (with carry flag) z0hc 4 cycles
-    void adc8bitRegister(Register *, const byte);
     short opcode0x8F(); // ADC A, A
     short opcode0x88(); // ADC A, B
     short opcode0x89(); // ADC A, C

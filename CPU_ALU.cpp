@@ -407,69 +407,51 @@ short CPU::opcode0xCE() {
     return 8;
 }// ADC A, nn 8
 
-////////////////////////////////////////////// 8-bit sub 4 cycles z1hc
-void CPU::sub8bitRegister(Register *registerA, const byte data) {
-    int result = registerA->hi - data;
-    int carrybits = registerA->hi ^ data ^ result;
-    registerA->hi = static_cast<byte> (result);
-    
-    clearFlags();
-    raiseFlag(ADD_SUB_FLAG);
-    checkZeroFlag(static_cast<byte> (result));
-    if ( (carrybits & 0x100) != 0 ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( (carrybits & 0x10) != 0 ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    }
-}
-
 short CPU::opcode0x97() {
-    sub8bitRegister(&AF, AF.hi);
+    instructionSet->sub8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// SUB A, A
 
 short CPU::opcode0x90() {
-    sub8bitRegister(&AF, BC.hi);
+    instructionSet->sub8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// SUB A, B
 
 short CPU::opcode0x91() {
-    sub8bitRegister(&AF, BC.low);
+    instructionSet->sub8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// SUB A, C
 
 short CPU::opcode0x92() {
-    sub8bitRegister(&AF, DE.hi);
+    instructionSet->sub8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// SUB A, D
 
 short CPU::opcode0x93() {
-    sub8bitRegister(&AF, DE.low);
+    instructionSet->sub8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// SUB A, E
 
 short CPU::opcode0x94() {
-    sub8bitRegister(&AF, HL.hi);
+    instructionSet->sub8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// SUB A, H
 
 short CPU::opcode0x95() {
-    sub8bitRegister(&AF, HL.low);
+    instructionSet->sub8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// SUB A, L
 
 short CPU::opcode0x96() {
     byte data = memory->read(HL.value);
-    sub8bitRegister(&AF, data);
+    instructionSet->sub8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// SUB A, (HL) 8
 
 short CPU::opcode0xD6() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    sub8bitRegister(&AF, data);
+    instructionSet->sub8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// SUB A, n 8
 

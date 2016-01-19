@@ -243,7 +243,6 @@ private:
     short opcode0xCE(); // ADC A, nn 8
     
     // 8-bit sub 4 cycles
-    void sub8bitRegister(Register *, const byte);
     short opcode0x97(); // SUB A, A
     short opcode0x90(); // SUB A, B
     short opcode0x91(); // SUB A, C

@@ -311,78 +311,51 @@ short CPU::opcode0xE6(){
     return 8;
 }// AND A, n 8 cycles
 
-/////////////////////////////////////////////// ADD 8 bits z0hc
-void CPU::add8bitRegister(Register *registerA, const byte data) {
-
-    byte before = registerA->hi;
-    
-	registerA->hi += data ;
-    
-	clearFlags();
-    
-    clearFlag(ADD_SUB_FLAG);
-    
-	if ( registerA->hi == 0 ) {
-		clearFlag(ZERO_FLAG);
-    }
-    
-	word htest = (before & 0xF) ;
-	htest += (data & 0xF) ;
-    
-	if ( htest > 0xF ) {
-		raiseFlag(HALF_CARRY_FLAG);
-    }
-        
-	if ( (before + data) > 0xFF ) {
-		raiseFlag(CARRY_FLAG);
-    }
-}
-
 short CPU::opcode0x87() {
-    add8bitRegister(&AF, AF.hi);
+    instructionSet->add8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// ADD A, A
 
 short CPU::opcode0x80() {
-    add8bitRegister(&AF, BC.hi);
+    instructionSet->add8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// ADD A, B
 
 short CPU::opcode0x81() {
-    add8bitRegister(&AF, BC.low);
+    instructionSet->add8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// ADD A, C
 
 short CPU::opcode0x82() {
-    add8bitRegister(&AF, DE.hi);
+    instructionSet->add8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// ADD A, D
 
 short CPU::opcode0x83() {
-    add8bitRegister(&AF, DE.low);
+    instructionSet->add8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// ADD A, E
 
 short CPU::opcode0x84() {
-    add8bitRegister(&AF, HL.hi);
+    instructionSet->add8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// ADD A, H
 
 short CPU::opcode0x85() {
-    add8bitRegister(&AF, HL.low);
+    instructionSet->add8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// ADD A, L
 
 short CPU::opcode0x86() {
     byte data = memory->read(HL.value);
-    add8bitRegister(&AF, data);
+    instructionSet->add8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// ADD A, (HL) 8
 
 short CPU::opcode0xC6() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    add8bitRegister(&AF, data);
+    instructionSet->add8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// ADD A, n 8
 

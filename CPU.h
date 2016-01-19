@@ -221,7 +221,6 @@ private:
     short opcode0xF2(); // LD A, (FF00+C), 8
     
     // 8 bits add z0hc 4 cycles
-    void add8bitRegister(Register *, const byte);
     short opcode0x87(); // ADD A, A
     short opcode0x80(); // ADD A, B
     short opcode0x81(); // ADD A, C

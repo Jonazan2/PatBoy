@@ -297,7 +297,6 @@ private:
     short opcode0x35(); // DEC HL 12
     
     // 8 bits XOR 4 cycles
-    void xor8bitRegister(Register *, const byte);
     short opcode0xAF(); // XOR A, A
     short opcode0xA8(); // XOR A, B
     short opcode0xA9(); // XOR A, C

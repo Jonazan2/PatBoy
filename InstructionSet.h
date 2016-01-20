@@ -17,12 +17,12 @@ public:
     void adc8BitRegister(byte *, const byte, byte *);
     void sub8BitRegister(byte *, const byte, byte *);
     void sbc8BitRegister(byte *, const byte, byte *);
-    void xor8BitRegister(byte *, const byte);
+    void xor8BitRegister(byte *, const byte, byte *);
     void or8BitRegister(byte *, const byte);
     void and8BitRegister(byte *, const byte);
     void compare8BitRegister(byte *, const byte);
     void cpl(byte *, byte *);
-    void dda(byte *);
+    void dda(byte *, byte *);
     void addStackPointer(Register *, const byte, byte *);
     
 

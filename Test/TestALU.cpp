@@ -327,3 +327,26 @@ TEST_F (CPU_ALU_TEST, sbc8BitRegister_overflow) {
     ASSERT_TRUE(isBitSet(flags, HALF_CARRY_FLAG));
     ASSERT_TRUE(isBitSet(flags, CARRY_FLAG));
 }
+
+
+TEST_F (CPU_ALU_TEST, xor8BitRegister_happy) {
+    reg.low = 0x08;
+    flags = 0xF0;
+    set->xor8BitRegister(&reg.low, 0x09, &flags);
+    ASSERT_EQ(reg.low, 0x01);
+    ASSERT_FALSE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_FALSE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_FALSE(isBitSet(flags, CARRY_FLAG));
+}
+
+TEST_F (CPU_ALU_TEST, xor8BitRegister_zero_flag) {
+    reg.low = 0x09;
+    flags = 0xF0;
+    set->xor8BitRegister(&reg.low, 0x09, &flags);
+    ASSERT_EQ(reg.low, 0x00);
+    ASSERT_TRUE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_FALSE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_FALSE(isBitSet(flags, CARRY_FLAG));
+}

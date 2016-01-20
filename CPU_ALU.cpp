@@ -144,59 +144,51 @@ short CPU::opcode0x39() {
     return 8;
 }// HL = HL + SP
 
-
-///////////////////////////////////////////////////////// 8 bits XOR 4 cycles
-void CPU::xor8bitRegister(Register *registerA, const byte data) {
-    registerA->hi = registerA->hi ^ data;
-    clearFlags();
-    checkZeroFlag(registerA->hi);
-}
-
 short CPU::opcode0xAF() {
-    xor8bitRegister(&AF, AF.hi);
+    instructionSet->xor8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// XOR A, A
 
 short CPU::opcode0xA8() {
-    xor8bitRegister(&AF, BC.hi);
+    instructionSet->xor8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// XOR A, B
 
 short CPU::opcode0xA9() {
-    xor8bitRegister(&AF, BC.low);
+    instructionSet->xor8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// XOR A, C
 
 short CPU::opcode0xAA() {
-    xor8bitRegister(&AF, DE.hi);
+    instructionSet->xor8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// XOR A, D
 
 short CPU::opcode0xAB() {
-    xor8bitRegister(&AF, DE.low);
+    instructionSet->xor8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// XOR A, E
 
 short CPU::opcode0xAC() {
-    xor8bitRegister(&AF, HL.hi);
+    instructionSet->xor8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// XOR A, H
 
 short CPU::opcode0xAD() {
-    xor8bitRegister(&AF, HL.low);
+    instructionSet->xor8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// XOR A, L
 
 short CPU::opcode0xAE() {
     byte data = memory->read(HL.value);
-    xor8bitRegister(&AF, data);
+    instructionSet->xor8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// XOR A, (HL) 8
 
 short CPU::opcode0xEE() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    xor8bitRegister(&AF, data);
+    instructionSet->xor8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// XOR A, n 8
 

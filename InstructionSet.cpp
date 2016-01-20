@@ -139,6 +139,17 @@ void InstructionSet::sub8BitRegister(byte *accumulator, const byte substract, by
     *accumulator = *accumulator - substract;
 }
 
+void InstructionSet::xor8BitRegister(byte *accumulator, const byte data, byte *flags) {
+    *accumulator = *accumulator ^ data;
+
+    clearFlags(flags);
+    if (*accumulator == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    } else {
+        clearFlag(ZERO_FLAG, flags);
+    }
+}
+
 void InstructionSet::sbc8BitRegister(byte *accumulator, const byte substract, byte * flags) {
     byte carry = getBitValue(*flags, CARRY_FLAG);
     
@@ -237,5 +248,5 @@ bool InstructionSet::checkFlag(Flag flag, const byte reg) {
 }
 
 void InstructionSet::clearFlags(byte *reg) {
-    reg = 0;
+    *reg = 0;
 }

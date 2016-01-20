@@ -254,7 +254,6 @@ private:
     short opcode0xD6(); // SUB A, n 8
     
     // 8-bit sbc (with carry flag) 4 cycles
-    void sbc8bitRegister(Register *, const byte);
     short opcode0x9F(); // SBC A, A
     short opcode0x98(); // SBC A, B
     short opcode0x99(); // SBC A, C

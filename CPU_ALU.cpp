@@ -455,69 +455,51 @@ short CPU::opcode0xD6() {
     return 8;
 }// SUB A, n 8
 
-///////////////////////////////////////////// 8-bit sbc (with carry flag) 4 cycles z1hc
-void CPU::sbc8bitRegister(Register *registerA, const byte data){
-    int carry = checkFlag(CARRY_FLAG) ? 1 : 0;
-    int result = registerA->hi - data - carry;
-    clearFlags();
-    raiseFlag(ADD_SUB_FLAG);
-    
-    checkZeroFlag(static_cast<byte> (result));
-    if ( result < 0 ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( ((registerA->hi & 0x0F) - (data & 0x0F) - carry) < 0 ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    }
-    registerA->hi = static_cast<byte> (result);
-}
-
 short CPU::opcode0x9F() {
-    sbc8bitRegister(&AF, AF.hi);
+    instructionSet->sbc8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// SBC A, A
 
 short CPU::opcode0x98() {
-    sbc8bitRegister(&AF, BC.hi);
+    instructionSet->sbc8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// SBC A, B
 
 short CPU::opcode0x99() {
-    sbc8bitRegister(&AF, BC.low);
+    instructionSet->sbc8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// SBC A, C
 
 short CPU::opcode0x9A() {
-    sbc8bitRegister(&AF, DE.hi);
+    instructionSet->sbc8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// SBC A, D
 
 short CPU::opcode0x9B() {
-    sbc8bitRegister(&AF, DE.low);
+    instructionSet->sbc8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// SBC A, E
 
 short CPU::opcode0x9C() {
-    sbc8bitRegister(&AF, HL.hi);
+    instructionSet->sbc8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// SBC A, H
 
 short CPU::opcode0x9D() {
-    sbc8bitRegister(&AF, HL.low);
+    instructionSet->sbc8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// SBC A, L
 
 short CPU::opcode0x9E() {
     byte data = memory->read(HL.value);
-    sbc8bitRegister(&AF, data);
+    instructionSet->sbc8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// SBC A, (HL) 8
 
 short CPU::opcode0xDE() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    sbc8bitRegister(&AF, data);
+    instructionSet->sbc8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// SBC A, n 8
 

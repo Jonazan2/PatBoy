@@ -115,7 +115,7 @@ void InstructionSet::adc8BitRegister(byte *accumulator, const byte adding, byte 
     *accumulator = result & 0xFF;
 }
 
-void InstructionSet::sub8BitRegister(byte *accumulator, const byte substract,byte *flags) {
+void InstructionSet::sub8BitRegister(byte *accumulator, const byte substract, byte *flags) {
     
     raiseFlag(ADD_SUB_FLAG, flags);
     if ((*accumulator - substract) == 0x00) {
@@ -137,6 +137,31 @@ void InstructionSet::sub8BitRegister(byte *accumulator, const byte substract,byt
     }
 
     *accumulator = *accumulator - substract;
+}
+
+void InstructionSet::sbc8BitRegister(byte *accumulator, const byte substract, byte * flags) {
+    byte carry = getBitValue(*flags, CARRY_FLAG);
+    
+    raiseFlag(ADD_SUB_FLAG, flags);
+    if ((*accumulator - substract - carry) == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    } else {
+        clearFlag(ZERO_FLAG, flags);
+    }
+    
+    if ((*accumulator & 0x0F) < ((substract + carry) & 0x0F)) {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    } else {
+        clearFlag(HALF_CARRY_FLAG, flags);
+    }
+    
+    if (*accumulator < (substract + carry)) {
+        raiseFlag(CARRY_FLAG, flags);
+    } else {
+        clearFlag(CARRY_FLAG, flags);
+    }
+    
+    *accumulator = *accumulator - substract - carry;
 }
 
 /* COMMON INSTRUCTIONS */

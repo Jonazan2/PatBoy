@@ -265,7 +265,6 @@ private:
     short opcode0xDE(); // SBC A, n 8
     
     // 8 bit compare z1hc 4 cycles
-    void compare8bitRegister(const Register, const byte);
     short opcode0xBF(); // CP A, A
     short opcode0xB8(); // CP A, B
     short opcode0xB9(); // CP A, C
@@ -308,7 +307,6 @@ private:
     short opcode0xEE(); // XOR A, n 8
     
     // 8 bits OR 4 cycles
-    void or8bitRegister(Register *, const byte);
     short opcode0xB7(); // OR A, A
     short opcode0xB0(); // OR A, B
     short opcode0xB1(); // OR A, C
@@ -320,7 +318,6 @@ private:
     short opcode0xF6(); // OR A, n 8 cycles
     
     // 8 bit and
-    void and8bitRegister(Register *, const byte data);
     short opcode0xA7(); // AND A, A
     short opcode0xA0(); // AND A, B
     short opcode0xA1(); // AND A, C

@@ -18,11 +18,11 @@ public:
     void sub8BitRegister(byte *, const byte, byte *);
     void sbc8BitRegister(byte *, const byte, byte *);
     void xor8BitRegister(byte *, const byte, byte *);
-    void or8BitRegister(byte *, const byte);
-    void and8BitRegister(byte *, const byte);
-    void compare8BitRegister(byte *, const byte);
+    void or8BitRegister(byte *, const byte, byte *);
+    void and8BitRegister(byte *, const byte, byte *);
+    void compare8BitRegister(const byte, const byte, byte *);
     void cpl(byte *, byte *);
-    void dda(byte *, byte *);
+    void daa(byte *, byte *);
     void addStackPointer(Register *, const byte, byte *);
     
 

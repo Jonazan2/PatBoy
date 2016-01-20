@@ -192,114 +192,99 @@ short CPU::opcode0xEE() {
     return 8;
 }// XOR A, n 8
 
-///////////////////////////////////////////// 8 bits OR 4 cycles
-void CPU::or8bitRegister(Register *registerA, const byte data) {
-    registerA->hi = registerA->hi | data;
-    clearFlags();
-    checkZeroFlag(registerA->hi);
-}
-
 short CPU::opcode0xB7() {
-    or8bitRegister(&AF, AF.hi);
+    instructionSet->or8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// OR A, A
 
 short CPU::opcode0xB0() {
-    or8bitRegister(&AF, BC.hi);
+    instructionSet->or8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// OR A, B
 
 short CPU::opcode0xB1() {
-    or8bitRegister(&AF, BC.low);
+    instructionSet->or8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// OR A, C
 
 short CPU::opcode0xB2() {
-    or8bitRegister(&AF, DE.hi);
+    instructionSet->or8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// OR A, D
 
 short CPU::opcode0xB3() {
-    or8bitRegister(&AF, DE.low);
+    instructionSet->or8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// OR A, E
 
 short CPU::opcode0xB4() {
-    or8bitRegister(&AF, HL.hi);
+    instructionSet->or8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// OR A, H
 
 short CPU::opcode0xB5() {
-    or8bitRegister(&AF, HL.low);
+    instructionSet->or8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// OR A, L
 
 short CPU::opcode0xB6() {
     byte data = memory->read(HL.value);
-    or8bitRegister(&AF, data);
+    instructionSet->or8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// OR A, (HL) 8 cycles
 
 short CPU::opcode0xF6() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    or8bitRegister(&AF, data);
+    instructionSet->or8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// OR A, n 8 cycles
 
-//////////////////////////////////// AND 8 bit register z010
-void CPU::and8bitRegister(Register *registerA, const byte data) {
-    registerA->hi = registerA->hi & data;
-    clearFlags();
-    checkZeroFlag(registerA->hi);
-    raiseFlag(HALF_CARRY_FLAG);
-}
-
 short CPU::opcode0xA7() {
-    and8bitRegister(&AF,AF.hi);
+    instructionSet->and8BitRegister(&AF.hi, AF.hi, &AF.low);
     return 4;
 }// AND A, A
 
 short CPU::opcode0xA0() {
-    and8bitRegister(&AF,BC.hi);
+    instructionSet->and8BitRegister(&AF.hi, BC.hi, &AF.low);
     return 4;
 }// AND A, B
 
 short CPU::opcode0xA1() {
-    and8bitRegister(&AF,BC.low);
+    instructionSet->and8BitRegister(&AF.hi, BC.low, &AF.low);
     return 4;
 }// AND A, C
 
 short CPU::opcode0xA2() {
-    and8bitRegister(&AF,DE.hi);
+    instructionSet->and8BitRegister(&AF.hi, DE.hi, &AF.low);
     return 4;
 }// AND A, D
 
 short CPU::opcode0xA3() {
-    and8bitRegister(&AF,DE.low);
+    instructionSet->and8BitRegister(&AF.hi, DE.low, &AF.low);
     return 4;
 }// AND A, E
 
 short CPU::opcode0xA4() {
-    and8bitRegister(&AF, HL.hi);
+    instructionSet->and8BitRegister(&AF.hi, HL.hi, &AF.low);
     return 4;
 }// AND A, H
 
 short CPU::opcode0xA5() {
-    and8bitRegister(&AF, HL.low);
+    instructionSet->and8BitRegister(&AF.hi, HL.low, &AF.low);
     return 4;
 }// AND A, L
 
 short CPU::opcode0xA6() {
     byte data = memory->read(HL.value);
-    and8bitRegister(&AF,data);
+    instructionSet->and8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// AND A, (HL) 8 cycles
 
 short CPU::opcode0xE6(){
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    and8bitRegister(&AF, data);
+    instructionSet->and8BitRegister(&AF.hi, data, &AF.low);
     return 8;
 }// AND A, n 8 cycles
 
@@ -495,142 +480,67 @@ short CPU::opcode0xDE() {
     return 8;
 }// SBC A, n 8
 
-
-//////////////////////////////////CP z1hc
-void CPU::compare8bitRegister(const Register registerA, const byte data) {
-    clearFlags();
-    raiseFlag(ADD_SUB_FLAG);
-    if ( registerA.hi < data ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( registerA.hi == data ) {
-        raiseFlag(ZERO_FLAG);
-    }
-    
-    if ( (registerA.hi & 0xF) < (data & 0x0F) ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    }
-}
-
 short CPU::opcode0xBF() {
-    compare8bitRegister(AF, AF.hi);
+    instructionSet->compare8BitRegister(AF.hi, AF.hi, &AF.low);
     return 4;
 }// CP A, A
 
 short CPU::opcode0xB8() {
-    compare8bitRegister(AF, BC.hi);
+    instructionSet->compare8BitRegister(AF.hi, BC.hi, &AF.low);
     return 4;
 }// CP A, B
 
 short CPU::opcode0xB9() {
-    compare8bitRegister(AF, BC.low);
+    instructionSet->compare8BitRegister(AF.hi, BC.low, &AF.low);
     return 4;
 }// CP A, C
 
 short CPU::opcode0xBA() {
-    compare8bitRegister(AF, DE.hi);
+    instructionSet->compare8BitRegister(AF.hi, DE.hi, &AF.low);
     return 4;
 }// CP A, D
 
 short CPU::opcode0xBB() {
-    compare8bitRegister(AF, DE.low);
+    instructionSet->compare8BitRegister(AF.hi, DE.low, &AF.low);
     return 4;
 }// CP A, E
 
 short CPU::opcode0xBC() {
-    compare8bitRegister(AF, HL.hi);
+    instructionSet->compare8BitRegister(AF.hi, HL.hi, &AF.low);
     return 4;
 }// CP A, H
 
 short CPU::opcode0xBD() {
-    compare8bitRegister(AF, HL.low);
+    instructionSet->compare8BitRegister(AF.hi, HL.hi, &AF.low);
     return 4;
 }// CP A, L
 
 short CPU::opcode0xBE() {
     byte data = memory->read(HL.value);
-    compare8bitRegister(AF, data);
+    instructionSet->compare8BitRegister(AF.hi, data, &AF.low);
     return 8;
 }// CP A, (HL) 8 cycles
 
 short CPU::opcode0xFE() {
-    byte n = memory->read(PC.value);
+    byte data = memory->read(PC.value);
     incrementProgramCounter();
-    compare8bitRegister(AF, n);
+    instructionSet->compare8BitRegister(AF.hi, data, &AF.low);
     return 8;
 }// CP A, nn 8 cycles
 
-/////////////////////////////////////////////// CPL
 short CPU::opcode0x2F() {
-    AF.hi ^= 0xFF;
-    raiseFlag(HALF_CARRY_FLAG);
-    raiseFlag(ADD_SUB_FLAG);
+    instructionSet->cpl(&AF.hi, &AF.low);
     return 4;
 }
 
-/////////////////////////////////////////////// DDA
 short CPU::opcode0x27() {
-    
-    // DAA
-    int a = AF.hi;
-    
-    if ( !checkFlag(ADD_SUB_FLAG) ) {
-        
-        if ( checkFlag(HALF_CARRY_FLAG) || ((a & 0xF) > 9) ) {
-            a += 0x06;
-        }
-        
-        if ( checkFlag(CARRY_FLAG) || (a > 0x9F) ) {
-            a += 0x60;
-        }
-        
-    } else {
-        
-        if ( checkFlag(HALF_CARRY_FLAG)) {
-            a = (a - 6) & 0xFF;
-        }
-        
-        if ( checkFlag(CARRY_FLAG) ) {
-            a -= 0x60;
-        }
-    }
-    
-    clearFlag(ZERO_FLAG);
-    clearFlag(HALF_CARRY_FLAG);
-    
-    if ((a & 0x100) == 0x100)
-        raiseFlag(CARRY_FLAG);
-    
-    a &= 0xFF;
-    
-    if ( a == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    } else {
-        clearFlag(ZERO_FLAG);
-    }
-    
-    AF.hi = a;
-    
+    instructionSet->daa(&AF.hi, &AF.low);
     return 4;
 }
 
-/////////////////////////////// ADD SP, nn 00hc 16 cycles
 short CPU::opcode0xE8() {
     byte data = memory->read(PC.value);
-    int result = SP.value + data;
     incrementProgramCounter();
-    
-    clearFlags();
-    
-    if ( ((SP.value ^ data ^ (result & 0xFFFF)) & 0x100) == 0x100 ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( ((SP.value ^ data ^ (result & 0xFFFF)) & 0x10) == 0x10 ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    }
-    
-    SP.value = static_cast<word>(result);
+    instructionSet->addStackPointer(&SP, data, &AF.low);
     return 16;
 }

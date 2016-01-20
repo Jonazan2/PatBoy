@@ -139,17 +139,6 @@ void InstructionSet::sub8BitRegister(byte *accumulator, const byte substract, by
     *accumulator = *accumulator - substract;
 }
 
-void InstructionSet::xor8BitRegister(byte *accumulator, const byte data, byte *flags) {
-    *accumulator = *accumulator ^ data;
-
-    clearFlags(flags);
-    if (*accumulator == 0x00) {
-        raiseFlag(ZERO_FLAG, flags);
-    } else {
-        clearFlag(ZERO_FLAG, flags);
-    }
-}
-
 void InstructionSet::sbc8BitRegister(byte *accumulator, const byte substract, byte * flags) {
     byte carry = getBitValue(*flags, CARRY_FLAG);
     
@@ -173,6 +162,108 @@ void InstructionSet::sbc8BitRegister(byte *accumulator, const byte substract, by
     }
     
     *accumulator = *accumulator - substract - carry;
+}
+
+
+void InstructionSet::xor8BitRegister(byte *accumulator, const byte data, byte *flags) {
+    *accumulator = *accumulator ^ data;
+    
+    clearFlags(flags);
+    if (*accumulator == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    }
+}
+
+void InstructionSet::or8BitRegister(byte *accumulator, const byte data, byte *flags) {
+    *accumulator = *accumulator | data;
+    
+    clearFlags(flags);
+    if (*accumulator == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    }
+}
+
+void InstructionSet::and8BitRegister(byte *accumulator, const byte data, byte *flags) {
+    *accumulator = *accumulator & data;
+    
+    clearFlags(flags);
+    raiseFlag(HALF_CARRY_FLAG, flags);
+    if (*accumulator == 0x00) {
+        raiseFlag(ZERO_FLAG, flags);
+    }
+}
+
+void InstructionSet::compare8BitRegister(const byte accumulator, const byte data, byte *flags) {
+    clearFlags(flags);
+    
+    raiseFlag(ADD_SUB_FLAG, flags);
+    if (accumulator == data) {
+        raiseFlag(ZERO_FLAG, flags);
+    }
+    
+    if ((accumulator & 0x0F) < (data & 0x0F)) {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    }
+    
+    if (accumulator < data) {
+        raiseFlag(CARRY_FLAG, flags);
+    }
+}
+
+void InstructionSet::cpl(byte *accumulator, byte *flags) {
+    *accumulator = ~*accumulator;
+    raiseFlag(ADD_SUB_FLAG, flags);
+    raiseFlag(HALF_CARRY_FLAG, flags);
+}
+
+void InstructionSet::daa(byte *accumulator, byte *flags) {
+    int a = *accumulator;
+    
+    if (checkFlag(ZERO_FLAG, *flags)) {
+        if (checkFlag(HALF_CARRY_FLAG, *flags)) {
+            a = (a - 6) & 0xFF;
+        }
+        if (checkFlag(CARRY_FLAG, *flags)) {
+            a -= 0x60;
+        }
+    } else {
+
+        if (checkFlag(HALF_CARRY_FLAG, *flags) || ((a & 0xF) > 9)) {
+            a += 0x06;
+        }
+        if ((checkFlag(CARRY_FLAG, *flags)) || (a > 0x9F)) {
+            a += 0x60;
+        }
+    }
+    
+    clearFlag(HALF_CARRY_FLAG, flags);
+    clearFlag(ZERO_FLAG, flags);
+    
+    if ((a & 0x100) == 0x100) {
+        raiseFlag(CARRY_FLAG, flags);
+    }
+    
+    a &= 0xFF;
+    
+    if (a == 0) {
+        raiseFlag(ZERO_FLAG, flags);
+    }
+    
+    *accumulator = a;
+}
+
+void InstructionSet::addStackPointer(Register *SP, const byte data, byte *flags) {
+    clearFlags(flags);
+
+    if (((SP->value & 0x0F) + (data & 0x0F)) > 0x0F) {
+        raiseFlag(HALF_CARRY_FLAG, flags);
+    }
+    
+    if (((SP->value & 0xFF) + (data & 0xFF)) > 0xFF) {
+        raiseFlag(CARRY_FLAG, flags);
+    }
+
+    SP->value = SP->value + data;
 }
 
 /* COMMON INSTRUCTIONS */

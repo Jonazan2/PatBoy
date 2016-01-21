@@ -487,3 +487,15 @@ TEST_F (CPU_ALU_TEST, addStackPointer_carry) {
     ASSERT_TRUE(isBitSet(flags, HALF_CARRY_FLAG));
     ASSERT_TRUE(isBitSet(flags, CARRY_FLAG));
 }
+
+TEST_F (CPU_ALU_TEST, addDAAAlignment_happy) {
+    reg.hi = 0x15;
+    set->add8BitRegister(&reg.hi, 0x27, &flags);
+    ASSERT_EQ(reg.hi, 0x003C);
+    set->daa(&reg.hi, &flags);
+    ASSERT_EQ(reg.hi, 0x42);
+    ASSERT_FALSE(isBitSet(flags, ZERO_FLAG));
+    ASSERT_FALSE(isBitSet(flags, ADD_SUB_FLAG));
+    ASSERT_FALSE(isBitSet(flags, HALF_CARRY_FLAG));
+    ASSERT_FALSE(isBitSet(flags, CARRY_FLAG));
+}

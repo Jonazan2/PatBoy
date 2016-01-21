@@ -219,7 +219,7 @@ void InstructionSet::cpl(byte *accumulator, byte *flags) {
 void InstructionSet::daa(byte *accumulator, byte *flags) {
     int a = *accumulator;
     
-    if (checkFlag(ZERO_FLAG, *flags)) {
+    if (checkFlag(ADD_SUB_FLAG, *flags)) {
         if (checkFlag(HALF_CARRY_FLAG, *flags)) {
             a = (a - 6) & 0xFF;
         }

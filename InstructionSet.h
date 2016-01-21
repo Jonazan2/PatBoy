@@ -25,7 +25,10 @@ public:
     void daa(byte *, byte *);
     void addStackPointer(Register *, const byte, byte *);
     
-
+    /* CONTROL operations */
+    void ccf(byte *);
+    void scf(byte *);
+    
 private:
     void raiseFlag(Flag, byte *);
     bool checkFlag(Flag, const byte);

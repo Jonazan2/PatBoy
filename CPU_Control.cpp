@@ -8,7 +8,7 @@ short CPU::opcode0x76() {
 }
 
 short CPU::opcode0xF3() {
-    interruptPendingDisabled = true;
+    interruptPendingDisabled = false;
     return 4;
 }
 
@@ -18,16 +18,12 @@ short CPU::opcode0xFB() {
 }
 
 short CPU::opcode0x3F() {
-    toggleFlag(CARRY_FLAG);
-    clearFlag(HALF_CARRY_FLAG);
-    clearFlag(ADD_SUB_FLAG);
+    instructionSet->ccf(&AF.low);
     return 4;
 }// ccf -00c cy = cy xor 1
 
 short CPU::opcode0x37() {
-    raiseFlag(CARRY_FLAG);
-    clearFlag(HALF_CARRY_FLAG);
-    clearFlag(ADD_SUB_FLAG);
+    instructionSet->scf(&AF.low);
     return 4;
 }// scf -001 cy = 1
 

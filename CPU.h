@@ -349,7 +349,6 @@ private:
     short opcode0x39(); // HL = HL + SP
     
     //RST instructions
-    void rst(const word); // 16
     short opcode0xC7(); // 0x00
     short opcode0xCF(); // 0x08
     short opcode0xD7(); // 0x10

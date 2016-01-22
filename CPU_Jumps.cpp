@@ -39,15 +39,14 @@ short CPU::opcode0xFF() {
     return 32;
 }// call 0x38
 
-/////////////////////////////////////////////// JUMPS
 short CPU::opcode0x18(){
-    PC.value = PC.value + 1 + static_cast<char>(memory->read(PC.value));
+    PC.value = PC.value + 1 + memory->read(PC.value);
     return 8;
 } // JP PC, nn
 
 short CPU::opcode0x20(){
     if ( !checkFlag(ZERO_FLAG) ) {
-        PC.value = PC.value + static_cast<char>(memory->read(PC.value));
+        PC.value = PC.value + memory->read(PC.value);
     }
     incrementProgramCounter();
     return 8;
@@ -55,7 +54,7 @@ short CPU::opcode0x20(){
 
 short CPU::opcode0x28(){
     if ( checkFlag(ZERO_FLAG) ) {
-        PC.value = PC.value + static_cast<char>(memory->read(PC.value));
+        PC.value = PC.value + memory->read(PC.value);
     }
     incrementProgramCounter();
     return 8;
@@ -63,7 +62,7 @@ short CPU::opcode0x28(){
 
 short CPU::opcode0x30(){
     if ( !checkFlag(CARRY_FLAG) ) {
-        PC.value = PC.value + static_cast<char>(memory->read(PC.value));
+        PC.value = PC.value + memory->read(PC.value);
     }
     incrementProgramCounter();
     return 8;
@@ -71,13 +70,12 @@ short CPU::opcode0x30(){
 
 short CPU::opcode0x38(){
     if ( checkFlag(CARRY_FLAG) ) {
-        PC.value = PC.value + static_cast<char>(memory->read(PC.value));
+        PC.value = PC.value + memory->read(PC.value);
     }
     incrementProgramCounter();
     return 8;
 } // JR C,n
 
-//////////////////////////////////////////////// JUMPS WITHOUT DATA
 short CPU::opcode0xE9() {
     PC.value = HL.value;
     return 4;
@@ -85,21 +83,20 @@ short CPU::opcode0xE9() {
 
 short CPU::opcode0xC3() {
     byte low = memory->read(PC.value);
+    PC.low = low;
     byte hi = memory->read(PC.value + 1);
     PC.hi = hi;
-    PC.low = low;
     return 12;
 }// JP nn 16
 
 short CPU::opcode0xC2() {
     if ( !checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
+        PC.low = low;
         byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
-        PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     
     return 12;
@@ -108,12 +105,10 @@ short CPU::opcode0xC2() {
 short CPU::opcode0xCA() {
     if ( checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
+        PC.low = low;
         byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
-        PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
     }
     return 12;
 }// JP Z,nn
@@ -121,12 +116,11 @@ short CPU::opcode0xCA() {
 short CPU::opcode0xD2() {
     if ( !checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
+        PC.low = low;
         byte hi = memory->read(PC.value + 1);
         PC.hi = hi;
-        PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     return 12;
 }// JP NC, nn
@@ -147,7 +141,6 @@ short CPU::opcode0xDA() {
 
 ///////////////////////////////// CALLS
 short CPU::opcode0xCD() {
-    
     byte low = memory->read(PC.value);
     byte hi = memory->read(PC.value + 1);
     

@@ -7,6 +7,7 @@
 #include "Utils.h"
 
 class Memory;
+class InstructionSet;
 
 /**************************************************************************//**
  * \brief Class that implements the CPU system of the Nintendo Game Boy

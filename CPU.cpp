@@ -26,17 +26,13 @@ unsigned int CPU::update() {
     unsigned int clockCycles = 0;
     byte opcode;
     
-    printRegisterState();
-    
     if ( !halt ) {
         opcode = getCurrentOpcode();
         
         if ( opcode == SPECIAL_OPCODE ) {
             opcode = getCurrentOpcode();
-            printOpcodeName(opcode, true);
             clockCycles = (this->*extendedOpcodes[opcode])();
         } else {
-            printOpcodeName(opcode, false);
             clockCycles = (this->*opcodes[opcode])();
         }
         

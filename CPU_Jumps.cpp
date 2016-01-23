@@ -105,8 +105,7 @@ short CPU::opcode0xC2() {
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     
     return 12;
@@ -119,8 +118,7 @@ short CPU::opcode0xCA() {
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     return 12;
 }// JP Z,nn
@@ -132,8 +130,7 @@ short CPU::opcode0xD2() {
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     return 12;
 }// JP NC, nn
@@ -145,8 +142,7 @@ short CPU::opcode0xDA() {
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     return 12;
 }// JP C, nn
@@ -173,11 +169,11 @@ short CPU::opcode0xC4() {
         byte hi = memory->read(PC.value);
         incrementProgramCounter();
         stackPush(PC);
+        
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     
     return 12;
@@ -186,13 +182,15 @@ short CPU::opcode0xC4() {
 short CPU::opcode0xCC() {
     if ( checkFlag(ZERO_FLAG) ) {
         byte low = memory->read(PC.value);
-        byte hi = memory->read(PC.value + 1);
+        incrementProgramCounter();
+        byte hi = memory->read(PC.value);
+        incrementProgramCounter();
         stackPush(PC);
+        
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     
     return 12;
@@ -201,13 +199,15 @@ short CPU::opcode0xCC() {
 short CPU::opcode0xD4() {
     if ( !checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
-        byte hi = memory->read(PC.value + 1);
+        incrementProgramCounter();
+        byte hi = memory->read(PC.value);
+        incrementProgramCounter();
         stackPush(PC);
+        
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     
     return 12;
@@ -216,13 +216,15 @@ short CPU::opcode0xD4() {
 short CPU::opcode0xDC() {
     if ( checkFlag(CARRY_FLAG) ) {
         byte low = memory->read(PC.value);
-        byte hi = memory->read(PC.value + 1);
+        incrementProgramCounter();
+        byte hi = memory->read(PC.value);
+        incrementProgramCounter();
         stackPush(PC);
+        
         PC.hi = hi;
         PC.low = low;
     } else {
-        incrementProgramCounter();
-        incrementProgramCounter();
+        PC.value = PC.value + 2;
     }
     
     return 12;

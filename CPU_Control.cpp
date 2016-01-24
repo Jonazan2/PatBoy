@@ -8,7 +8,7 @@ short CPU::opcode0x76() {
 }
 
 short CPU::opcode0xF3() {
-    interruptPendingDisabled = false;
+    interruptPendingDisabled = true;
     return 4;
 }
 

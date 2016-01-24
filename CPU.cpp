@@ -26,13 +26,17 @@ unsigned int CPU::update() {
     unsigned int clockCycles = 0;
     byte opcode;
     
+    printRegisterState();
+    
     if ( !halt ) {
         opcode = getCurrentOpcode();
         
         if ( opcode == SPECIAL_OPCODE ) {
             opcode = getCurrentOpcode();
+            printOpcodeName(opcode, true);
             clockCycles = (this->*extendedOpcodes[opcode])();
         } else {
+            printOpcodeName(opcode, false);
             clockCycles = (this->*opcodes[opcode])();
         }
         
@@ -282,9 +286,9 @@ void CPU::checkCarryFlag(const word data) {
 
 void CPU::printOpcodeName(const byte opcode, const bool special) {
     if (special) {
-        printf("%s\n", specialOpcodeNames[opcode]);
+        printf("%02X  %s\n", opcode, specialOpcodeNames[opcode]);
     } else {
-        printf("%s\n", opcodeNames[opcode]);
+        printf("%02X  %s\n", opcode,opcodeNames[opcode]);
     }
 }
 

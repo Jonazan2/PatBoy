@@ -44,20 +44,6 @@ unsigned int CPU::update() {
         clockCycles = 4;
     }
     
-    if ( interruptPendingDisabled ) {
-		if (memory->read(PC.value-1) != 0xF3) {
-			interruptPendingDisabled = false ;
-			ime = false ;
-		}
-	}
-    
-	if (interruptPendingEnabled) {
-		if (memory->read(PC.value-1) != 0xFB) {
-			interruptPendingEnabled = false ;
-			ime = true ;
-		}
-	}
-    
     return clockCycles;
 }
 

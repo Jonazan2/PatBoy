@@ -11,7 +11,6 @@
 #include "Audio.h"
 #include "Joypad.h"
 #include <SDL2/SDL.h>
-#include <SDL2_ttf/SDL_ttf.h>
 
 /**************************************************************************//**
  * \brief Class that models a Game Boy with all its systems.

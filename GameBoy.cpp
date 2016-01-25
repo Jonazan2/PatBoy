@@ -1,8 +1,8 @@
 #include "GameBoy.h"
 
 const int MAX_CYCLES = 70224;
-const int FPS = 59.7;
-const int DELAY_TIME = 1000.0f / FPS;
+const float FPS = 59.7;
+const float DELAY_TIME = 1000.0f / FPS;
 
 GameBoy::GameBoy(const string path) {
     this->audio = new Audio();
@@ -21,7 +21,7 @@ void GameBoy::startEmulation() {
     bool quit = false;
 	SDL_Event event;
     
-    int frameTime, frameStart;
+    float frameTime, frameStart;
     while (!quit) {
     
         frameStart = SDL_GetTicks();
@@ -40,7 +40,7 @@ void GameBoy::startEmulation() {
         if(frameTime < DELAY_TIME){
             SDL_Delay(DELAY_TIME - frameTime);
         } else {
-            printf("Time overpass: %d\n", frameTime - DELAY_TIME);
+            printf("Time overpass: %f\n", frameTime - DELAY_TIME);
         }
     }
 	SDL_Quit( ) ;

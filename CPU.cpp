@@ -44,20 +44,6 @@ unsigned int CPU::update() {
         clockCycles = 4;
     }
     
-    if ( interruptPendingDisabled ) {
-		if (memory->read(PC.value-1) != 0xF3) {
-			interruptPendingDisabled = false ;
-			ime = false ;
-		}
-	}
-    
-	if (interruptPendingEnabled) {
-		if (memory->read(PC.value-1) != 0xFB) {
-			interruptPendingEnabled = false ;
-			ime = true ;
-		}
-	}
-    
     return clockCycles;
 }
 
@@ -286,9 +272,9 @@ void CPU::checkCarryFlag(const word data) {
 
 void CPU::printOpcodeName(const byte opcode, const bool special) {
     if (special) {
-        printf("%s\n", specialOpcodeNames[opcode]);
+        printf("%02X  %s\n", opcode, specialOpcodeNames[opcode]);
     } else {
-        printf("%s\n", opcodeNames[opcode]);
+        printf("%02X  %s\n", opcode,opcodeNames[opcode]);
     }
 }
 

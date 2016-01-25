@@ -31,7 +31,10 @@ public:
     /* JUMP operations */
     void rst(const word, Register *, Register *, Memory *);
     
-
+    /* CONTROL operations */
+    void ccf(byte *);
+    void scf(byte *);
+    
 private:
     void stackPop(Register *, Register *, Memory *);
     void stackPush(Register *, const Register,  Memory *);

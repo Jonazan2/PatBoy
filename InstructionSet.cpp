@@ -271,6 +271,20 @@ void InstructionSet::rst(const word address, Register *SP, Register *PC, Memory 
     stackPush(SP, *PC, memory);
     PC->value = address;
 }
+    
+/* CONTROL INSTRUCTIONS */
+
+void InstructionSet::ccf(byte *flags) {
+    clearFlag(ADD_SUB_FLAG, flags);
+    clearFlag(HALF_CARRY_FLAG, flags);
+    toggleFlag(CARRY_FLAG, flags);
+}
+
+void InstructionSet::scf(byte *flags) {
+    clearFlag(ADD_SUB_FLAG, flags);
+    clearFlag(HALF_CARRY_FLAG, flags);
+    raiseFlag(CARRY_FLAG, flags);
+}
 
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {

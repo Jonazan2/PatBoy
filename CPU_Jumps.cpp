@@ -79,15 +79,15 @@ short CPU::opcode0x38(){
 
 //////////////////////////////////////////////// JUMPS WITHOUT DATA
 short CPU::opcode0xE9() {
-    PC.value = HL.value;
+    instructionSet->jump(&PC, HL.value);
     return 4;
 }// JP HL  4
 
 short CPU::opcode0xC3() {
-    byte low = memory->read(PC.value);
-    byte hi = memory->read(PC.value + 1);
-    PC.hi = hi;
-    PC.low = low;
+    Register aux;
+    aux.low = memory->read(PC.value);
+    aux.hi = memory->read(PC.value + 1);
+    instructionSet->jump(&PC, aux.value);
     return 12;
 }// JP nn 16
 

@@ -30,6 +30,9 @@ public:
     
     /* JUMP operations */
     void rst(const word, Register *, Register *, Memory *);
+    void jump(Register *, const word);
+    void conditionalJump(Register *, const word, Flag);
+    void negConditionalJump(Register *, const word, Flag);
     
     /* CONTROL operations */
     void ccf(byte *);

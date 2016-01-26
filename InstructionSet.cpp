@@ -271,6 +271,10 @@ void InstructionSet::rst(const word address, Register *SP, Register *PC, Memory 
     stackPush(SP, *PC, memory);
     PC->value = address;
 }
+
+void InstructionSet::jump(Register *PC, const word address) {
+    PC->value = address;
+}
     
 /* CONTROL INSTRUCTIONS */
 

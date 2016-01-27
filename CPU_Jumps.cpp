@@ -77,7 +77,6 @@ short CPU::opcode0x38(){
     return 8;
 } // JR C,n
 
-//////////////////////////////////////////////// JUMPS WITHOUT DATA
 short CPU::opcode0xE9() {
     instructionSet->jump(&PC, HL.value);
     return 4;
@@ -140,8 +139,6 @@ short CPU::opcode0xDA() {
     return 12;
 }// JP C, nn
 
-
-///////////////////////////////// CALLS
 short CPU::opcode0xCD() {
     byte low = memory->read(PC.value);
     incrementProgramCounter();
@@ -223,8 +220,6 @@ short CPU::opcode0xDC() {
     return 12;
 }//  call C, nn
 
-
-///////////////////////////////////////////////// returns
 short CPU::opcode0xC9() {
     stackPop(&PC);
     return 8;

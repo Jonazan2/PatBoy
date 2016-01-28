@@ -266,6 +266,16 @@ void InstructionSet::addStackPointer(Register *SP, const byte data, byte *flags)
     SP->value = SP->value + data;
 }
 
+/* JUMP INSTRUCTIONS */
+void InstructionSet::rst(const word address, Register *SP, Register *PC, Memory *memory) {
+    stackPush(SP, *PC, memory);
+    PC->value = address;
+}
+
+void InstructionSet::jump(Register *PC, const word address) {
+    PC->value = address;
+}
+    
 /* CONTROL INSTRUCTIONS */
 
 void InstructionSet::ccf(byte *flags) {
@@ -354,4 +364,18 @@ bool InstructionSet::checkFlag(Flag flag, const byte reg) {
 
 void InstructionSet::clearFlags(byte *reg) {
     *reg = 0;
+}
+
+void InstructionSet::stackPush(Register *SP, const Register reg, Memory *memory) {
+    SP->value--;
+    memory->write(SP->value, reg.hi);
+    SP->value--;
+    memory->write(SP->value, reg.low);
+}
+
+void InstructionSet::stackPop(Register *SP, Register *reg, Memory *memory) {
+    reg->low = memory->read(SP->value);
+    SP->value++;
+    reg->hi = memory->read(SP->value);
+    SP->value++;
 }

@@ -1,48 +1,41 @@
 #include "CPU.h"
-
-////////////////////////////////////////////////////// RESET OPERATIONS
-void CPU::rst(const word address) {
-    stackPush(PC);
-    PC.value = address;
-}
-
 short CPU::opcode0xC7() {
-    rst(0x00);
+    instructionSet->rst(0x00, &SP, &PC, memory);
     return 32;
 }// call 0x00
 
 short CPU::opcode0xCF() {
-    rst(0x08);
+    instructionSet->rst(0x08, &SP, &PC, memory);
     return 32;
 }// call 0x08
 
 short CPU::opcode0xD7() {
-    rst(0x10);
+    instructionSet->rst(0x10, &SP, &PC, memory);
     return 32;
 }// call 0x10
 
 short CPU::opcode0xDF() {
-    rst(0x18);
+    instructionSet->rst(0x18, &SP, &PC, memory);
     return 32;
 }// call 0x18
 
 short CPU::opcode0xE7() {
-    rst(0x20);
+    instructionSet->rst(0x20, &SP, &PC, memory);
     return 32;
 }// call 0x20
 
 short CPU::opcode0xEF() {
-    rst(0x28);
+    instructionSet->rst(0x28, &SP, &PC, memory);
     return 32;
 }// call 0x28
 
 short CPU::opcode0xF7() {
-    rst(0x30);
+    instructionSet->rst(0x30, &SP, &PC, memory);
     return 32;
 }// call 0x30
 
 short CPU::opcode0xFF() {
-    rst(0x38);
+    instructionSet->rst(0x38, &SP, &PC, memory);
     return 32;
 }// call 0x38
 
@@ -84,17 +77,16 @@ short CPU::opcode0x38(){
     return 8;
 } // JR C,n
 
-//////////////////////////////////////////////// JUMPS WITHOUT DATA
 short CPU::opcode0xE9() {
-    PC.value = HL.value;
+    instructionSet->jump(&PC, HL.value);
     return 4;
 }// JP HL  4
 
 short CPU::opcode0xC3() {
-    byte low = memory->read(PC.value);
-    byte hi = memory->read(PC.value + 1);
-    PC.hi = hi;
-    PC.low = low;
+    Register aux;
+    aux.low = memory->read(PC.value);
+    aux.hi = memory->read(PC.value + 1);
+    instructionSet->jump(&PC, aux.value);
     return 12;
 }// JP nn 16
 
@@ -147,8 +139,6 @@ short CPU::opcode0xDA() {
     return 12;
 }// JP C, nn
 
-
-///////////////////////////////// CALLS
 short CPU::opcode0xCD() {
     byte low = memory->read(PC.value);
     incrementProgramCounter();
@@ -230,8 +220,6 @@ short CPU::opcode0xDC() {
     return 12;
 }//  call C, nn
 
-
-///////////////////////////////////////////////// returns
 short CPU::opcode0xC9() {
     stackPop(&PC);
     return 8;

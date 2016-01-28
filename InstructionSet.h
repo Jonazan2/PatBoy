@@ -3,6 +3,9 @@
 
 #include "Types.h"
 #include "Utils.h"
+#include "Memory.h"
+
+class Memory;
 
 class InstructionSet {
 
@@ -25,11 +28,17 @@ public:
     void daa(byte *, byte *);
     void addStackPointer(Register *, const byte, byte *);
     
+    /* JUMP operations */
+    void rst(const word, Register *, Register *, Memory *);
+    void jump(Register *, const word);
+    
     /* CONTROL operations */
     void ccf(byte *);
     void scf(byte *);
     
 private:
+    void stackPop(Register *, Register *, Memory *);
+    void stackPush(Register *, const Register,  Memory *);
     void raiseFlag(Flag, byte *);
     bool checkFlag(Flag, const byte);
     void toggleFlag(Flag, byte *);

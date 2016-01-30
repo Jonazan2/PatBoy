@@ -57,8 +57,6 @@ void CPU::reset() {
     timaCounter = 0;
     divRegister = 0;
     currentClockSpeed = 1024;
-    interruptPendingEnabled = false;
-    interruptPendingDisabled = false;
     memory->reset();
 }
 

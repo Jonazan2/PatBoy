@@ -57,8 +57,6 @@ private:
     unsigned int timaCounter;
     int	currentClockSpeed;
     
-    bool interruptPendingEnabled;
-    bool interruptPendingDisabled;
     void serviceInterrupt(Interrupts);
     
     void chargeOpcodes();

@@ -473,14 +473,14 @@ short CPU::opcode0xFA() {
 short CPU::opcode0xF0() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    AF.hi = memory->read(0xFF00 + data);
+    AF.hi = memory->readDirectly(0xFF00 + data);
     return 12;
 }// LD A, (FF00+n) 12
 
 short CPU::opcode0xE0() {
     byte data = memory->read(PC.value);
     incrementProgramCounter();
-    memory->write(0xFF00 + data, AF.hi);
+    memory->writeDirectly(0xFF00 + data, AF.hi);
     return 12;
 } // LD (FF00+n), A 12
 

@@ -20,7 +20,7 @@ byte Memory::read(const word address) const {
     } else if (address == 0xFF00) {
         return joypad->getState();
     } else {
-        return map[address];
+        return map[address] ;
     }
 }
 

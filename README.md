@@ -1,6 +1,9 @@
 # PatBoy
 Game Boy emulator written in C++ with SDL2 and OpenGL.
 
+<p align="center">
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-tetris.png" alt="Tetris"/>
+</p>
 # Specification
 PatBoy follows GameBoy specification that can be found in the pandocs as well as in the documentation provided by nintendo in the Game Boy Programming manual. The documentation needed for building a game boy emulator can be found in: http://bgb.bircd.org/pandocs.htm.
 

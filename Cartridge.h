@@ -1,5 +1,3 @@
-
-
 #ifndef CARTRIDGE_H_
 #define CARTRIDGE_H_
 

@@ -7,6 +7,13 @@
 
 class Memory;
 
+/**************************************************************************//**
+* \brief Class that models the set of instructions in a game boy. It has been
+* decoupled from the CPU for testing purposes.
+*
+* See also \ref CPU \ref Memory \ref Utils
+******************************************************************************/
+
 class InstructionSet {
 
 public:

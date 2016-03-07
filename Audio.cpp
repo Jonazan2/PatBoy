@@ -74,13 +74,13 @@ void Audio::writeAudioRegister(word address, byte value) {
 }
 
 void Audio::endFrame() {
-    apu->end_frame(soundFrameLength);
-    stereoBuffer->end_frame(soundFrameLength);
+    apu->end_frame((int) soundFrameLength);
+    stereoBuffer->end_frame((int) soundFrameLength);
 
     if ( stereoBuffer->samples_avail() >= sampleBufferSize ) {
         long count = stereoBuffer->read_samples(sampleBuffer, sampleBufferSize);
         if ( soundEnabled ) {
-            soundQueue->write(sampleBuffer, count);
+            soundQueue->write(sampleBuffer, (int) count);
         }
     }
 }

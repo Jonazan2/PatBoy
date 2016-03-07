@@ -129,7 +129,7 @@ void MemoryMBC3::writeWithChip(const word address, const byte data) {
                 }
                 
             } else if ( cartridge->hasRTC() && RTCEnabled ) {
-                RTCLastTime = cartridge->getCurrentRTCValue();
+                RTCLastTime = (int)cartridge->getCurrentRTCValue();
                 switch ( RTCRegister ) {
                     case 0x08:
                         RTCSeconds = data;
@@ -161,10 +161,10 @@ void MemoryMBC3::writeWithChip(const word address, const byte data) {
 
 void MemoryMBC3::updateRTC()
 {
-    int now = cartridge->getCurrentRTCValue();
+    time_t now = cartridge->getCurrentRTCValue();
     
     if ( RTCLastTimeCache != now ) {
-        RTCLastTimeCache = now;
+        RTCLastTimeCache = (int) now;
         long difference = now - RTCLastTime;
         
         if ( difference > 0 ) {
@@ -200,6 +200,6 @@ void MemoryMBC3::updateRTC()
                 RTCControl = (RTCControl & 0xFF) | (RTCDays > 0xFF ? 1 : 0);
             }
         }
-        RTCLastTime = now;
+        RTCLastTime = (int) now;
     }
 }

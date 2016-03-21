@@ -12,7 +12,6 @@ typedef union {
     word value;
 } Register;
 
-
 enum Interrupts {
     VBLANK = 0x00,
     LCD = 0x01,

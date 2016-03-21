@@ -16,7 +16,7 @@ byte Memory::read(const word address) const {
     if (address >= 0x4000 && address <= 0x7FFF) {
         return readWithChip(address);
     } else if (address >= 0xA000 && address <= 0xBFFF) {
-        return readWithChip(address);
+        return readDirectly(address);
     } else if (address == 0xFF00) {
         return joypad->getState();
     } else {
@@ -64,9 +64,8 @@ void Memory::write(const word address, const byte data) {
     } else if (address == 0xFF41) {
         writeDirectly(0xFF41, 0x0);
     } else if (address == 0xFF46){
-        word newAddress = (data << 8) ;
         for (int i = 0; i < 0xA0; i++) {
-            map[0xFE00 + i] = readDirectly(newAddress + i);
+            map[0xFE00 + i] = readDirectly((cpu->getAF().hi << 8) + i);
         }
     } else if ((address >= 0xFF4C) && (address <= 0xFF7F)) {
         // Not allowed

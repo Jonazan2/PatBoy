@@ -343,39 +343,19 @@ bool Video::createSDLWindow() {
         return false;
     }
     
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-    
-    window = SDL_CreateWindow("PatBoy",  0,
-                              0,GAMEBOY_WIDTH, GAMEBOY_HEIGHT, SDL_WINDOW_OPENGL);
-    SDL_GL_CreateContext(window);
-    initializeOpenGL();
+    window = SDL_CreateWindow("PatBoy", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                              GAMEBOY_WIDTH, GAMEBOY_HEIGHT, 0);
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24,
+                                SDL_TEXTUREACCESS_STREAMING, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
     return true ;
 }
 
-void Video::initializeOpenGL() {
-    glViewport(0, 0, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
-    glMatrixMode(GL_MODELVIEW);
-    glOrtho(0, GAMEBOY_WIDTH, GAMEBOY_HEIGHT, 0, -1.0, 1.0);
-    glClearColor(0, 0, 0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    glShadeModel(GL_FLAT);
-    
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DITHER);
-    glDisable(GL_BLEND);
-}
-
 void Video::renderGame() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-    glRasterPos2i(-1, 1);
-    glPixelZoom(1, -1);
-    glDrawPixels(GAMEBOY_WIDTH, GAMEBOY_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, this->frameBuffer);
-    SDL_GL_SwapWindow(window);
+    SDL_UpdateTexture(texture, NULL, this->frameBuffer, GAMEBOY_WIDTH * sizeof(byte) * 3);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 void Video::resetFrameBuffer() {

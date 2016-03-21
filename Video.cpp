@@ -377,3 +377,10 @@ void Video::printVideoRegistersState() const {
     printf("SCROLL Y: %02X\n\n", memory->readDirectly(SCROLL_Y));
 }
 
+Video::~Video() {
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+

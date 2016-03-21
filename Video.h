@@ -56,6 +56,7 @@ public:
     };
     
     Video(Memory*, CPU*);
+    ~Video();
     void updateGraphics(short);
     void renderGame();
     

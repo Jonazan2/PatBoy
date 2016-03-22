@@ -1,5 +1,5 @@
 # PatBoy
-Game Boy emulator written in C++ with SDL2 and OpenGL.
+Game Boy emulator written in C++ with SDL2.
 
 <p align="center">
   <img src="http://jonathanmcontreras.com/images/portfolio/patboy-tetris.png" alt="Tetris"/>
@@ -9,7 +9,7 @@ PatBoy follows GameBoy specification that can be found in the pandocs as well as
 
 # Dependencies
 
-Patboy is using *OpenGL* (ver 4.1) and *SDL2*. While OpenGL is included in Xcode development kit, we need to install SDL2 for Mac OS manually. As test library the project uses Google Test.
+Patboy is using *SDL2* to render the emulator. We need to install SDL2 for Mac OS manually. Google Test is being used as test library for the project.
 
 ### How to install SDL2
 

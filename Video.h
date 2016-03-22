@@ -7,12 +7,11 @@
 #include "Utils.h"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 
 /**************************************************************************//**
  * \brief Class that implements the Video system of the Nintendo Game Boy
  *
- * This class implements the creation of the SDL window and the rendering with OpenGL.
+ * This class implements the creation of the SDL window and the rendering with SDL2.
  * It contains methods to render the sprites and tiles as well as methods to control
  * and update the registers of the video system.
  *
@@ -57,6 +56,7 @@ public:
     };
     
     Video(Memory*, CPU*);
+    ~Video();
     void updateGraphics(short);
     void renderGame();
     
@@ -87,7 +87,6 @@ private:
     Colour getColour(const byte, const word) const;
     RGB getPixelWithColour(const Colour);
     bool createSDLWindow();
-    void initializeOpenGL();
     void resetFrameBuffer();
     void printVideoRegistersState() const;
 };

@@ -2,9 +2,14 @@
 #define _JOYPAD_H_
 
 #include <iostream>
-#include <SDL2/SDL.h>
 #include "Memory.h"
 #include "CPU.h"
+
+#ifdef __APPLE__
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 class Memory;
 class CPU;

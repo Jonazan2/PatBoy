@@ -10,7 +10,12 @@
 #include "MemoryFactory.h"
 #include "Audio.h"
 #include "Joypad.h"
+
+#ifdef __APPLE__
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 /**************************************************************************//**
  * \brief Class that models a Game Boy with all its systems.

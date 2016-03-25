@@ -6,7 +6,11 @@
 #ifndef SOUND_QUEUE_H
 #define SOUND_QUEUE_H
 
+#ifdef __APPLE__
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 // Simple SDL sound wrapper that has a synchronous interface
 class Sound_Queue {

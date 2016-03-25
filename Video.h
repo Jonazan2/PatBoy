@@ -6,7 +6,11 @@
 #include "CPU.h"
 #include "Utils.h"
 
+#ifdef __APPLE__
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 /**************************************************************************//**
  * \brief Class that implements the Video system of the Nintendo Game Boy

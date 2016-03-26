@@ -10,6 +10,8 @@
 #include "MemoryFactory.h"
 #include "Audio.h"
 #include "Joypad.h"
+#include <iostream>
+#include <thread>
 
 #ifdef __APPLE__
 #include <SDL2/SDL.h>
@@ -36,7 +38,6 @@ private:
     CPU *cpu;
     Video *video;
     Joypad *joypad;
-    void update();
     
 public:
     GameBoy(const string);

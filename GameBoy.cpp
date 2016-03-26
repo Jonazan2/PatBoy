@@ -21,10 +21,15 @@ void GameBoy::startEmulation() {
     bool quit = false;
 	SDL_Event event;
     
-    float frameTime, frameStart;
+	int cycles;
+	
+	std::chrono::time_point<std::chrono::system_clock> current, previous;
+	previous = std::chrono::system_clock::now();
+
     while (!quit) {
-    
-        frameStart = SDL_GetTicks();
+		current = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds> (current - previous);
+		previous = current;
         
 		while( SDL_PollEvent( &event ) ) {
             joypad->handleInput(event);
@@ -33,35 +38,30 @@ void GameBoy::startEmulation() {
 				quit = true;
 			}
 		}
-		this->update();
 
-        frameTime = SDL_GetTicks() - frameStart;
-        
-        if(frameTime < DELAY_TIME){
-            SDL_Delay(DELAY_TIME - frameTime);
-        } else {
-            printf("Time overpass: %f\n", frameTime - DELAY_TIME);
-        }
+		cycles = 0;
+		while (cycles < MAX_CYCLES) {
+			short cyclesPerThisOpcode = cpu->update();
+			cpu->updateTimers(cyclesPerThisOpcode);
+			video->updateGraphics(cyclesPerThisOpcode);
+			audio->update(cyclesPerThisOpcode);
+			cpu->updateInterrupts();
+			cycles += cyclesPerThisOpcode;
+		}
+		video->renderGame();
+
+		if (cartridge->hasRTC()) {
+			cartridge->updateRTC();
+		}
+
+		if (elapsed.count() < DELAY_TIME) {
+			int waitTime = (int)(DELAY_TIME - elapsed.count());
+			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+		} else {
+			printf("Time overpass: %f\n", elapsed.count() - DELAY_TIME);
+		}
     }
 	SDL_Quit( ) ;
-}
-
-
-void GameBoy::update() {
-    int cycles = 0;
-    while ( cycles < MAX_CYCLES ) {
-        short cyclesPerThisOpcode = cpu->update();
-        cycles += cyclesPerThisOpcode;
-        cpu->updateTimers(cyclesPerThisOpcode);
-        video->updateGraphics(cyclesPerThisOpcode);
-        audio->update(cyclesPerThisOpcode);
-        cpu->updateInterrupts();
-    }
-    video->renderGame();
-    
-    if ( cartridge->hasRTC() ) {
-        cartridge->updateRTC();
-    }
 }
 
 GameBoy::~GameBoy() {

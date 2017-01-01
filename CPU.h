@@ -16,7 +16,7 @@ class InstructionSet;
  * that contains each opcode function and an array with the same funcionality but
  * for the extended opcode operation. It handles the interrupts and timers.
  *
- * See also \ref Memmory \ref Utils
+ * See also \ref Memory \ref Utils
 ******************************************************************************/
 class CPU {
 

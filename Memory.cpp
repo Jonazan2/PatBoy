@@ -87,7 +87,7 @@ void Memory::DMA(byte data) {
 }
 
 void Memory::dumpHexadecimalMemory() const {
-    cout << "\n\t\t\t\t\t\t==== Memory ==== " << endl;
+	std::cout << "\n\t\t\t\t\t\t==== Memory ==== " << std::endl;
     long i;
     unsigned char buff[17];
     
@@ -99,27 +99,27 @@ void Memory::dumpHexadecimalMemory() const {
             }
             
             if ( i == 0x0000 ) {
-                cout << "\n\t\t\t\t\t_ Cartridge fixed bank _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Cartridge fixed bank _" << std::endl;
             } else if ( i == 0x4000 ) {
-                cout << "\n\t\t\t\t\t_ Cartridge ROM bank _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Cartridge ROM bank _" << std::endl;
             } else if ( i == 0x8000 ) {
-                cout << "\n\t\t\t\t\t_ Video RAM _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Video RAM _" << std::endl;
             } else if ( i == 0xA000 ) {
-                cout << "\n\t\t\t\t\t_ External RAM _" << endl;
+                std::cout << "\n\t\t\t\t\t_ External RAM _" << std::endl;
             } else if ( i == 0xC000 ) {
-                cout << "\n\t\t\t\t\t_ Work RAM bank 0 _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Work RAM bank 0 _" << std::endl;
             } else if ( i == 0xD000 ) {
-                cout << "\n\t\t\t\t\t_ Work RAM bank 1 _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Work RAM bank 1 _" << std::endl;
             } else if ( i == 0xE000 ) {
-                cout << "\n\t\t\t\t\t_ Work RAM bank 0 _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Work RAM bank 0 _" << std::endl;
             } else if ( i == 0xFE00 ) {
-                cout << "\n\t\t\t\t\t_ Sprite Attribute Table _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Sprite Attribute Table _" << std::endl;
             } else if ( i == 0xFEA0 ) {
-                cout << "\n\t\t\t\t\t_ Not usable _" << endl;
+                std::cout << "\n\t\t\t\t\t_ Not usable _" << std::endl;
             } else if ( i == 0xFF00 ) {
-                cout << "\n\t\t\t\t\t_ I/O Ports _" << endl;
+                std::cout << "\n\t\t\t\t\t_ I/O Ports _" << std::endl;
             } else if ( i == 0xFF80 ) {
-                cout << "\n\t\t\t\t\t_ High RAM _" << endl;
+                std::cout << "\n\t\t\t\t\t_ High RAM _" << std::endl;
             }
             printf("%04lX ", i) ;
         }

@@ -1,6 +1,14 @@
 #include "Audio.h"
+
 #include "Sound_Queue.h"
 #include "Gb_Apu.h"
+#include <iostream>
+
+#ifdef __APPLE__
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 Audio::Audio() {
     soundEnabled = true;

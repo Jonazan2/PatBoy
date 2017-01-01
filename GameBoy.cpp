@@ -1,10 +1,19 @@
 #include "GameBoy.h"
 
+#include <iostream>
+#include <thread>
+
+#ifdef __APPLE__
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
+
 const int MAX_CYCLES = 70224;
 const float FPS = 59.7;
 const float DELAY_TIME = 1000.0f / FPS;
 
-GameBoy::GameBoy(const string path) {
+GameBoy::GameBoy(const std::string path) {
     this->audio = new Audio();
     this->audio->reset();
     this->cartridge = new Cartridge(path);

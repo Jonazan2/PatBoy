@@ -1,15 +1,7 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
-
-#include <iostream>
 #include "Types.h"
 #include "Multi_Buffer.h"
-
-#ifdef __APPLE__
-#include <SDL2/SDL.h>
-#else
-#include <SDL.h>
-#endif
 
 class Gb_Apu;
 class Sound_Queue;

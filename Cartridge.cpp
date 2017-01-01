@@ -41,11 +41,12 @@ void Cartridge::extractHeaderData() {
     }
     title = nameByte;
     
-    this->cgbFlag = CGB_Flag(rom[0x0143]);
-    this->sgbFlag = SGB_Flag(rom[0x0146]);
+    this->cgbFlag = GameColorFlag(rom[0x0143]);
+    this->sgbFlag = SuperGameBoyFlag(rom[0x0146]);
     this->cartridgeType = CartridgeType(rom[0x0147]);
     
-    if ( cartridgeType ==     MBC3_TIMER_BATTERY || cartridgeType == MBC3_TIMER_RAM_BATTERY ) {
+    if ( cartridgeType == CartridgeType::MBC3_TIMER_BATTERY ||
+		 cartridgeType == CartridgeType::MBC3_TIMER_RAM_BATTERY ) {
         hasRealTimeClock = true;
     }
     
@@ -58,7 +59,6 @@ void Cartridge::extractHeaderData() {
 }
 
 void Cartridge::printHeaderData() const {
-    
     cout << "===== " << title << " =====" << endl;
     cout << "CGB: " << getCGBFlagName() << endl;
     cout << "SGB: " << getSGBFlagName() << endl;
@@ -72,42 +72,46 @@ void Cartridge::printHeaderData() const {
 
 void Cartridge::extractRamBanks() {
     int banks;
-        string name;
-        switch ( ramSize ) {
-            case NONE_RAM:  banks = 0; break;
-            case KB_RAM_2:  banks = 0; break;
-            case KB_RAM_8:  banks = 0; break;
-            case KB_RAM_32: banks = 4; break;
-        }
+    string name;
+    switch ( ramSize ) {
+		case RamSize::NONE_RAM:  banks = 0; break;
+        case RamSize::KB_RAM_2:  banks = 0; break;
+        case RamSize::KB_RAM_8:  banks = 0; break;
+        case RamSize::KB_RAM_32: banks = 4; break;
+    }
     this->ramBanks = banks;
 }
 
 void Cartridge::extractRomBanks() {
     int banks;
     switch ( cartridgeSize ) {
-        case KB_32:  banks = 0;  break;
-        case KB_64:  banks = 4;  break;
-        case KB_128: banks = 8;  break;
-        case KB_256: banks = 16; break;
-        case KB_512: banks = 32; break;
-        case MB_1:
-            if ( cartridgeType == MBC1 || cartridgeType == MBC1_RAM || cartridgeType == MBC1_RAM_BATTERY ) {
+		case CartridgeSize::KB_32:  banks = 0;  break;
+        case CartridgeSize::KB_64:  banks = 4;  break;
+        case CartridgeSize::KB_128: banks = 8;  break;
+        case CartridgeSize::KB_256: banks = 16; break;
+        case CartridgeSize::KB_512: banks = 32; break;
+        case CartridgeSize::MB_1:
+            if ( cartridgeType == CartridgeType::MBC1 ||
+				 cartridgeType == CartridgeType::MBC1_RAM ||
+				 cartridgeType == CartridgeType::MBC1_RAM_BATTERY ) {
                 banks = 63;
             } else {
                 banks = 64;
             }
             break;
-        case MB_2:
-            if ( cartridgeType == MBC1 || cartridgeType == MBC1_RAM || cartridgeType == MBC1_RAM_BATTERY ) {
+        case CartridgeSize::MB_2:
+            if ( cartridgeType == CartridgeType::MBC1 ||
+				 cartridgeType == CartridgeType::MBC1_RAM ||
+				 cartridgeType == CartridgeType::MBC1_RAM_BATTERY ) {
                 banks = 125;
             } else {
                 banks = 128;
             }
             break;
-        case MB_4:   banks = 256; break;
-        case MB_1_1: banks = 72;  break;
-        case MB_1_2: banks = 80;  break;
-        case MB_1_5: banks = 96;  break;
+        case CartridgeSize::MB_4:   banks = 256; break;
+        case CartridgeSize::MB_1_1: banks = 72;  break;
+        case CartridgeSize::MB_1_2: banks = 80;  break;
+        case CartridgeSize::MB_1_5: banks = 96;  break;
     }
     this->romBanks = banks;
 }
@@ -115,10 +119,10 @@ void Cartridge::extractRomBanks() {
 string Cartridge::getRamSizeName() const {
     string name;
     switch ( ramSize ) {
-        case NONE_RAM:  name = "Cartridge without RAM"; break;
-        case KB_RAM_2:  name = "2 Kilobytes";           break;
-        case KB_RAM_8:  name = "8 Kylobytes";           break;
-        case KB_RAM_32: name = "32 Kylobytes";          break;
+		case RamSize::NONE_RAM:  name = "Cartridge without RAM"; break;
+        case RamSize::KB_RAM_2:  name = "2 Kilobytes";           break;
+        case RamSize::KB_RAM_8:  name = "8 Kylobytes";           break;
+        case RamSize::KB_RAM_32: name = "32 Kylobytes";          break;
     }
     return name;
 }
@@ -126,34 +130,34 @@ string Cartridge::getRamSizeName() const {
 string Cartridge::getCartridgeTypeName() const {
     string type;
     switch ( cartridgeType ) {
-        case ROM_ONLY:                type = "ROM only";                          break;
-        case MBC1:                    type = "MBC1";                              break;
-        case MBC1_RAM:                type = "MBC1 with RAM";                     break;
-        case MBC1_RAM_BATTERY:        type = "MBC1 with RAM and battery";         break;
-        case MBC2:                    type = "MBC2";                              break;
-        case MBC2_BATTERY:            type = "MBC2 with battery";                 break;
-        case ROM_RAM:                 type = "ROM with RAM";                      break;
-        case ROM_RAM_BATTERY:         type = "ROM with RAM and battery";          break;
-        case MMM01:                   type = "MMM01";                             break;
-        case MMM01_RAM:               type = "MMM01 with RAM";                    break;
-        case MMM01_RAM_BATTERY:       type = "MMM01 with RAM and battery";        break;
-        case MBC3_TIMER_BATTERY:      type = "MBC3 with timer and battery";       break;
-        case MBC3_TIMER_RAM_BATTERY:  type = "MBC3 with timer, RAM and battery";  break;
-        case MBC3:                    type = "MBC3";                              break;
-        case MBC3_RAM:                type = "MBC3 with RAM";                     break;
-        case MBC3_RAM_BATTERY:        type = "MBC3 with RAM and battery";         break;
-        case MBC4:                    type = "MBC4";                              break;
-        case MBC4_RAM:                type = "MBC4 with RAM";                     break;
-        case MBC4_RAM_BATTERY:        type = "MBC4 with RAM and battery";         break;
-        case MBC5:                    type = "MBC5";                              break;
-        case MBC5_RAM:                type = "MBC5 with RAM";                     break;
-        case MBC5_RAM_BATTERY:        type = "MBC5 with RAM and battery";         break;
-        case MBC5_RUMBLE:             type = "MBC5 with rumble";                  break;
-        case MBC5_RUMBLE_RAM_BATTERY: type = "MBC5 with rumble, RAM and battery"; break;
-        case POCKET_CAMERA:           type = "Pocket camera";                     break;
-        case BANDAI_TAMA5:            type = "Bandai Tama 5";                     break;
-        case HuC3:                    type = "HuC3";                              break;
-        case HuC1_RAM_BATTERY:        type = "HuC1 with RAM and battery";         break;
+		case CartridgeType::ROM_ONLY:                type = "ROM only";                          break;
+        case CartridgeType::MBC1:                    type = "MBC1";                              break;
+        case CartridgeType::MBC1_RAM:                type = "MBC1 with RAM";                     break;
+        case CartridgeType::MBC1_RAM_BATTERY:        type = "MBC1 with RAM and battery";         break;
+        case CartridgeType::MBC2:                    type = "MBC2";                              break;
+        case CartridgeType::MBC2_BATTERY:            type = "MBC2 with battery";                 break;
+        case CartridgeType::ROM_RAM:                 type = "ROM with RAM";                      break;
+        case CartridgeType::ROM_RAM_BATTERY:         type = "ROM with RAM and battery";          break;
+        case CartridgeType::MMM01:                   type = "MMM01";                             break;
+        case CartridgeType::MMM01_RAM:               type = "MMM01 with RAM";                    break;
+        case CartridgeType::MMM01_RAM_BATTERY:       type = "MMM01 with RAM and battery";        break;
+        case CartridgeType::MBC3_TIMER_BATTERY:      type = "MBC3 with timer and battery";       break;
+        case CartridgeType::MBC3_TIMER_RAM_BATTERY:  type = "MBC3 with timer, RAM and battery";  break;
+        case CartridgeType::MBC3:                    type = "MBC3";                              break;
+        case CartridgeType::MBC3_RAM:                type = "MBC3 with RAM";                     break;
+        case CartridgeType::MBC3_RAM_BATTERY:        type = "MBC3 with RAM and battery";         break;
+        case CartridgeType::MBC4:                    type = "MBC4";                              break;
+        case CartridgeType::MBC4_RAM:                type = "MBC4 with RAM";                     break;
+        case CartridgeType::MBC4_RAM_BATTERY:        type = "MBC4 with RAM and battery";         break;
+        case CartridgeType::MBC5:                    type = "MBC5";                              break;
+        case CartridgeType::MBC5_RAM:                type = "MBC5 with RAM";                     break;
+        case CartridgeType::MBC5_RAM_BATTERY:        type = "MBC5 with RAM and battery";         break;
+        case CartridgeType::MBC5_RUMBLE:             type = "MBC5 with rumble";                  break;
+        case CartridgeType::MBC5_RUMBLE_RAM_BATTERY: type = "MBC5 with rumble, RAM and battery"; break;
+        case CartridgeType::POCKET_CAMERA:           type = "Pocket camera";                     break;
+        case CartridgeType::BANDAI_TAMA5:            type = "Bandai Tama 5";                     break;
+        case CartridgeType::HuC3:                    type = "HuC3";                              break;
+        case CartridgeType::HuC1_RAM_BATTERY:        type = "HuC1 with RAM and battery";         break;
     }
     return type;
 }
@@ -161,26 +165,26 @@ string Cartridge::getCartridgeTypeName() const {
 string Cartridge::getCartridgeSizeName() const {
     string name;
     switch ( cartridgeSize ) {
-        case KB_32:  name = "32 Kilobytes";  break;
-        case KB_64:  name = "64 Kilobytes";  break;
-        case KB_128: name = "128 Kilobytes"; break;
-        case KB_256: name = "256 Kilobytes"; break;
-        case KB_512: name = "512 Kilobytes"; break;
-        case MB_1:   name = "1 Megabytes";   break;
-        case MB_2:   name = "2 Megabytes";   break;
-        case MB_4:   name = "4 Megabytes";   break;
-        case MB_1_1: name = "1.1 Megabytes"; break;
-        case MB_1_2: name = "1.2 Megabytes"; break;
-        case MB_1_5: name = "1.5 Megabytes"; break;
+		case CartridgeSize::KB_32:	name = "32 Kilobytes";  break;
+        case CartridgeSize::KB_64:  name = "64 Kilobytes";  break;
+        case CartridgeSize::KB_128: name = "128 Kilobytes"; break;
+        case CartridgeSize::KB_256: name = "256 Kilobytes"; break;
+        case CartridgeSize::KB_512: name = "512 Kilobytes"; break;
+        case CartridgeSize::MB_1:   name = "1 Megabytes";   break;
+        case CartridgeSize::MB_2:   name = "2 Megabytes";   break;
+        case CartridgeSize::MB_4:   name = "4 Megabytes";   break;
+        case CartridgeSize::MB_1_1: name = "1.1 Megabytes"; break;
+        case CartridgeSize::MB_1_2: name = "1.2 Megabytes"; break;
+        case CartridgeSize::MB_1_5: name = "1.5 Megabytes"; break;
     }
     return name;
 }
 
 string Cartridge::getCGBFlagName() const {
     string cgb;
-    if ( cgbFlag == CGB_SUPPORT ) {
+    if ( cgbFlag == GameColorFlag::CGB_SUPPORT ) {
         cgb = "Game Boy Color functions supported";
-    } else if ( cgbFlag == CGB_ONLY ) {
+    } else if ( cgbFlag == GameColorFlag::CGB_ONLY ) {
         cgb = "Game Boy Color game";
     } else {
         cgb = "No Game Boy Color";
@@ -190,9 +194,9 @@ string Cartridge::getCGBFlagName() const {
 
 string Cartridge::getSGBFlagName() const {
     string sgb;
-    if ( sgbFlag == SGB_FUNCTIONS ) {
+    if ( sgbFlag == SuperGameBoyFlag::SGB_FUNCTIONS ) {
         sgb = "Super Game Boy functions supported";
-    } else if ( sgbFlag == NO_SGB ) {
+    } else if ( sgbFlag == SuperGameBoyFlag::NO_SGB ) {
         sgb = "Super Game Boy functions not supported";
     }
     return sgb;
@@ -200,9 +204,9 @@ string Cartridge::getSGBFlagName() const {
 
 string Cartridge::getDestinationCodeName() const {
     string code;
-    if ( destinationCode == NO_JAPAN ) {
+    if ( destinationCode == DestinationCode::NO_JAPAN ) {
         code = "No Japan";
-    } else if ( destinationCode == JAPAN ) {
+    } else if ( destinationCode == DestinationCode::JAPAN ) {
         code = "Japan";
     }
     return code;

@@ -25,7 +25,7 @@ class Cartridge {
 public:
     
     /*! Cartridge's types */
-    enum CartridgeType {
+    enum class CartridgeType : byte {
         ROM_ONLY = 0x00,
         MBC1 = 0x01,
         MBC1_RAM = 0x02,
@@ -57,7 +57,7 @@ public:
     };
     
     /*! Cartridge's sizes */
-    enum CartridgeSize {
+    enum class CartridgeSize : byte {
         KB_32 = 0x00,
         KB_64 = 0x01,
         KB_128 = 0x02,
@@ -72,13 +72,13 @@ public:
     };
     
     /*! Destination codes */
-    enum DestinationCode {
+    enum class DestinationCode : byte {
         JAPAN = 0x00,
         NO_JAPAN = 0x01
     };
     
     /*! RAM sizes */
-    enum RamSize {
+    enum class RamSize : byte {
         NONE_RAM = 0x00,
         KB_RAM_2 = 0x01,
         KB_RAM_8 = 0x02,
@@ -86,13 +86,13 @@ public:
     };
     
     /*! Game Color Flag values */
-    enum CGB_Flag {
+    enum class GameColorFlag : byte {
         CGB_SUPPORT = 0x80,
         CGB_ONLY = 0xC0
     };
     
     /*! Super Game Boy Flag values */
-    enum SGB_Flag {
+    enum class SuperGameBoyFlag : byte {
         NO_SGB = 0x00,
         SGB_FUNCTIONS = 0x03
     };
@@ -109,8 +109,8 @@ private:
     DestinationCode destinationCode;
     CartridgeSize cartridgeSize;
     CartridgeType cartridgeType;
-    CGB_Flag cgbFlag;
-    SGB_Flag sgbFlag;
+	GameColorFlag cgbFlag;
+    SuperGameBoyFlag sgbFlag;
     RamSize ramSize;
     void extractHeaderData();
     void extractRomBanks();

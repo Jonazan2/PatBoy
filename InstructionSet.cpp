@@ -293,16 +293,16 @@ void InstructionSet::scf(byte *flags) {
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {
     switch ( flag ) {
-        case ZERO_FLAG:
+		case Flag::ZERO_FLAG:
             setBit(reg, ZERO_FLAG);
             break;
-        case ADD_SUB_FLAG:
+        case Flag::ADD_SUB_FLAG:
             setBit(reg, ADD_SUB_FLAG);
             break;
-        case HALF_CARRY_FLAG:
+        case Flag::HALF_CARRY_FLAG:
             setBit(reg, HALF_CARRY_FLAG);
             break;
-        case CARRY_FLAG:
+        case Flag::CARRY_FLAG:
             setBit(reg, CARRY_FLAG);
             break;
             break;

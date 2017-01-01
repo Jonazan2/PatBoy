@@ -76,7 +76,7 @@ byte MemoryMBC3::readWithChip(const word address) const {
 void MemoryMBC3::writeWithChip(const word address, const byte data) {
     switch ( address & 0xE000 ) {
         case 0x0000: {
-            if ( cartridge->getRamSize() > 0 ) {
+            if ( cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM ) {
                 ramEnabled = (data & 0x0F) == 0x0A;
             }
             RTCEnabled = (data & 0x0F) == 0x0A;

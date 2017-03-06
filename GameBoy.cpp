@@ -10,7 +10,7 @@
 #endif
 
 const int MAX_CYCLES = 70224;
-const float FPS = 59.7;
+const float FPS = 59.7f;
 const float DELAY_TIME = 1000.0f / FPS;
 
 GameBoy::GameBoy(const std::string path) {

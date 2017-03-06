@@ -55,7 +55,7 @@ private:
     
     unsigned short divRegister;
     unsigned int timaCounter;
-    int	currentClockSpeed;
+    unsigned int	currentClockSpeed;
     
     void serviceInterrupt(Interrupts);
     

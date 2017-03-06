@@ -65,7 +65,7 @@ public:
     void renderGame();
     
 private:
-        
+
     byte frameBuffer[GAMEBOY_HEIGHT][GAMEBOY_WIDTH][3];
     
     SDL_Window *window;
@@ -87,9 +87,41 @@ private:
     void drawScanline();
     byte getLCDMode() const;
     void renderBackground(byte);
-    void renderSprites(byte);
-    Colour getColour(const byte, const word) const;
-    RGB getPixelWithColour(const Colour);
+	void renderSprites(byte);
+
+	inline RGB& Video::getColour(const byte colourNumber, const byte palette) const {
+		short hi = 0;
+		short lo = 0;
+
+
+		switch (colourNumber) {
+		case 0: hi = 1; lo = 0; break;
+		case 1: hi = 3; lo = 2; break;
+		case 2: hi = 5; lo = 4; break;
+		case 3: hi = 7; lo = 6; break;
+		}
+
+		byte colour = 0;
+		colour = getBitValue(palette, hi) << 1;
+		colour |= getBitValue(palette, lo);
+
+		static RGB white = { 255,255,255 };
+		static RGB lightGray = { 0xCC,0xCC,0xCC };
+		static RGB darkGray = { 0x77,0x77,255 };
+		static RGB black = { 0x0,0x0,0x0 };
+
+		switch (colour) {
+		case Colour::white:
+			return std::move(white);
+		case Colour::lightGray:
+			return std::move(lightGray);
+		case Colour::darkGray:
+			return std::move(darkGray);
+		case Colour::black:
+			return std::move(black);
+		}
+	}
+
     bool createSDLWindow();
     void resetFrameBuffer();
     void printVideoRegistersState() const;

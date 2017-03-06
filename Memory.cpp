@@ -13,19 +13,13 @@ void Memory::init(CPU * cpu) {
 }
 
 byte Memory::read(const word address) const {
-    if (address >= 0x4000 && address <= 0x7FFF) {
-        return readWithChip(address);
-    } else if (address >= 0xA000 && address <= 0xBFFF) {
-        return readDirectly(address);
-    } else if (address == 0xFF00) {
-        return joypad->getState();
-    } else {
-        return map[address] ;
-    }
-}
-
-byte Memory::readDirectly(const word address) const {
-    return map[address];
+	if (address >= 0x4000 && address <= 0x7FFF) {
+		return readWithChip(address);
+	} else if (address == 0xFF00) {
+		return joypad->getState();
+	} else {
+		return readDirectly(address);
+	}
 }
 
 void Memory::write(const word address, const byte data) {
@@ -72,12 +66,8 @@ void Memory::write(const word address, const byte data) {
     } else if ( address >= 0xFF10 && address <= 0xFF3F ) {
         audio->writeAudioRegister(address, data);
     } else {
-        map[address] = data;
+		writeDirectly(address, data);
     }
-}
-
-void Memory::writeDirectly(const word address, const byte data) {
-    this->map[address] = data;
 }
 
 void Memory::DMA(byte data) {

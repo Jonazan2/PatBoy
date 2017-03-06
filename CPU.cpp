@@ -58,6 +58,7 @@ void CPU::reset() {
     divRegister = 0;
     currentClockSpeed = 1024;
     memory->reset();
+	halt = false;
 }
 
 void CPU::updateTimers(int cycles) {

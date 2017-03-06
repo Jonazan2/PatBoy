@@ -28,9 +28,9 @@ enum Flag {
 
 typedef union {
     struct {
-        int red;
-        int green;
-        int blue;
+        byte red;
+        byte green;
+        byte blue;
     };
 } RGB;
 

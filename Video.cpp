@@ -1,4 +1,5 @@
 #include "Video.h"
+#include <map>
 
 Video::Video(Memory *memory, CPU *cpu) {
     this->memory = memory;
@@ -112,7 +113,7 @@ bool Video::isLCDEnabled() const {
 }
 
 void Video::drawScanline() {
-    byte lcdControl = memory->readDirectly(LCDS_CONTROL);
+    const byte lcdControl = memory->readDirectly(LCDS_CONTROL);
 	if ( isBitSet(lcdControl, 0) ) {
 		renderBackground(lcdControl);
     } else if ( isBitSet(lcdControl, 1) ) {
@@ -121,20 +122,18 @@ void Video::drawScanline() {
 }
 
 void Video::renderBackground(byte lcdControl) {
-    word tileData = 0 ;
-    word backgroundMemory =0 ;
-    bool unsig = true ;
-
-    byte scrollY = memory->read(SCROLL_Y);
-    byte scrollX = memory->read(SCROLL_X);
-    byte windowY = memory->read(WINDOWS_Y);
-    byte windowX = memory->read(WINDOWS_X) - 7;
+    word tileData;
+    word backgroundMemory;
+    bool unsig = true;
     bool usingWindow = false;
 
+    byte scrollY = memory->readDirectly(SCROLL_Y);
+    byte scrollX = memory->readDirectly(SCROLL_X);
+    byte windowY = memory->readDirectly(WINDOWS_Y);
+    byte windowX = memory->readDirectly(WINDOWS_X) - 7;
+
     if ( isBitSet(lcdControl, 5) ) {
-        if (windowY <= memory->read(LY_REGISTER) ) {
-            usingWindow = true;
-        }
+		usingWindow = windowY <= memory->readDirectly(LY_REGISTER);
     }
 
     if ( isBitSet(lcdControl,4) ) {
@@ -161,29 +160,30 @@ void Video::renderBackground(byte lcdControl) {
 
     byte yPos = 0;
     if ( !usingWindow ) {
-        yPos = scrollY + memory->read(LY_REGISTER);
+        yPos = scrollY + memory->readDirectly(LY_REGISTER);
     } else {
         yPos = memory->read(LY_REGISTER) - windowY;
     }
 
     word tileRow = (((byte)(yPos/8))*32);
 
-    for ( int pixel = 0 ; pixel < 160; pixel++ ) {
-        byte xPos = pixel+scrollX;
 
-        if ( usingWindow ) {
-            if ( pixel >= windowX ) {
-                xPos = pixel - windowX;
-            }
+	const int scanline = memory->readDirectly(LY_REGISTER);
+	const byte palette = memory->readDirectly(0xFF47);
+    for ( int pixel = 0 ; pixel < 160; pixel++ ) {
+        byte xPos = pixel + scrollX;
+
+        if ( usingWindow && pixel >= windowX ) {
+			xPos = pixel - windowX;
         }
 
-        word tileCol = (xPos/8);
+        const word tileCol = (xPos/8);
         signed short tileNum;
         
         if( unsig ) {
-            tileNum = (byte)memory->read(backgroundMemory+tileRow + tileCol);
+            tileNum = (byte)memory->readDirectly(backgroundMemory+tileRow + tileCol);
         } else {
-            tileNum = (signed short)memory->read(backgroundMemory+tileRow + tileCol);
+            tileNum = (signed short)memory->readDirectly(backgroundMemory+tileRow + tileCol);
         }
 
         word tileLocation = tileData;
@@ -195,8 +195,8 @@ void Video::renderBackground(byte lcdControl) {
 
         byte line = yPos % 8;
         line *= 2;
-        byte data1 = memory->read(tileLocation + line);
-        byte data2 = memory->read(tileLocation + line + 1);
+        byte data1 = memory->readDirectly(tileLocation + line);
+        byte data2 = memory->readDirectly(tileLocation + line + 1);
 
         int colourBit = xPos % 8;
         colourBit -= 7;
@@ -206,53 +206,12 @@ void Video::renderBackground(byte lcdControl) {
         colourNum <<= 1;
         colourNum |= getBitValue(data1,colourBit);
 
-        Colour colour = getColour(colourNum, 0xFF47);
-        RGB pixelColours = getPixelWithColour(colour);
+        RGB colour = getColour(colourNum, palette);
 
-        int scanline = memory->read(LY_REGISTER);
-
-        frameBuffer[scanline][pixel][0] = pixelColours.red;
-        frameBuffer[scanline][pixel][1] = pixelColours.green;
-        frameBuffer[scanline][pixel][2] = pixelColours.blue;
+        frameBuffer[scanline][pixel][0] = colour.red;
+        frameBuffer[scanline][pixel][1] = colour.green;
+        frameBuffer[scanline][pixel][2] = colour.blue;
     }
-}
-
-RGB Video::getPixelWithColour(const Colour colour) {
-    RGB rgb;
-    switch( colour ) {
-        case white:	    rgb.red = 255;  rgb.green = 255;  rgb.blue = 255;  break;
-        case lightGray: rgb.red = 0xCC; rgb.green = 0xCC; rgb.blue = 0xCC; break;
-        case darkGray:	rgb.red = 0x77; rgb.green = 0x77; rgb.blue = 0x77; break;
-        case black:     rgb.red = 0x0;  rgb.green = 0x0;  rgb.blue = 0x0;  break;
-    }
-    return rgb;
-}
-
-Video::Colour Video::getColour(const byte colourNumber, const word address) const {
-	Colour res = white;
-	byte palette = memory->readDirectly(address);
-	int hi = 0;
-	int lo = 0;
-
-	switch ( colourNumber ) {
-        case 0: hi = 1; lo = 0; break;
-        case 1: hi = 3; lo = 2; break;
-        case 2: hi = 5; lo = 4; break;
-        case 3: hi = 7; lo = 6; break;
-	}
-
-	int colour = 0;
-	colour = getBitValue(palette, hi) << 1;
-	colour |= getBitValue(palette, lo) ;
-
-	switch ( colour ) {
-        case 0: res = white;       break;
-        case 1: res = lightGray;   break;
-        case 2: res = darkGray;    break;
-        case 3: res = black;       break;
-	}
-
-	return res;
 }
 
 void Video::renderSprites(byte lcdControl) {
@@ -281,6 +240,9 @@ void Video::renderSprites(byte lcdControl) {
             ysize = 16;
         }
 
+
+		byte palette = memory->readDirectly(0xFF49);
+		byte palette2 = memory->readDirectly(0xFF48);
         if ( (scanline >= yPos) && (scanline < (yPos+ysize)) ) {
             int line = scanline - yPos;
 
@@ -304,11 +266,11 @@ void Video::renderSprites(byte lcdControl) {
                 colourNum <<= 1;
                 colourNum |= getBitValue(data1,colourbit) ;
 
-                Colour colour;
+                RGB colour;
                 if ( isBitSet(attributes, 4) ) {
-                    colour = getColour(colourNum, 0xFF49);
+                    colour = getColour(colourNum, palette);
                 } else {
-                    colour = getColour(colourNum, 0xFF48);
+                    colour = getColour(colourNum, palette2);
                 }
 
                 
@@ -322,10 +284,9 @@ void Video::renderSprites(byte lcdControl) {
                 }
 
                 if ( !hidden ){
-                    RGB pixelColour = getPixelWithColour(colour);
-                    frameBuffer[scanline][pixel][0] = pixelColour.red;
-                    frameBuffer[scanline][pixel][1] = pixelColour.green;
-                    frameBuffer[scanline][pixel][2] = pixelColour.blue;
+                    frameBuffer[scanline][pixel][0] = colour.red;
+                    frameBuffer[scanline][pixel][1] = colour.green;
+                    frameBuffer[scanline][pixel][2] = colour.blue;
                 }
  			}
 		}

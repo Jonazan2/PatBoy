@@ -36,12 +36,18 @@ public:
     
     byte read(const word) const;
     virtual byte readWithChip(const word) const = 0;
-    byte readDirectly(const word) const;
-    
+
+	inline byte Memory::readDirectly(const word address) const {
+		return map[address];
+	}
+
     void write(const word, const byte);
     virtual void writeWithChip(const word, const byte) = 0;
-    void writeDirectly(const word, const byte);
-    
+
+	inline void Memory::writeDirectly(const word address, const byte data) {
+		this->map[address] = data;
+	}
+
     void dumpHexadecimalMemory() const;
     void reset();
     virtual ~Memory();

@@ -333,7 +333,7 @@ static const Opcode gameBoyOpcodes[256] = {
 	{ "SBC A,0x%02X", 1 },
 	{ "RST 0x18", 0 },
     
-	{ "LD (0xFF00+0x%02X),A", 0 },
+	{ "LD (0xFF00+0x%02X),A", 1 },
 	{ "POP HL", 0 },
 	{ "LD (0xFF00+C),A", 0 },
 	{ "unused opcode", 0 },
@@ -350,7 +350,7 @@ static const Opcode gameBoyOpcodes[256] = {
 	{ "XOR 0x%02X", 1 },
 	{ "RST 0x28", 0 },
     
-	{ "LD A,(0xFF00+0x%02X)", 0 },
+	{ "LD A,(0xFF00+0x%02X)", 1 },
 	{ "POP AF", 0 },
 	{ "LD A,(0xFF00+C)", 0 },
 	{ "DI", 0 },

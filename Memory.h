@@ -41,6 +41,10 @@ public:
 		return map[address];
 	}
 
+	inline byte * getMap() const {
+		return map;
+	}
+
 	inline word Memory::readWordDirectly(const word address) const {
 		Register aux;
 		aux.low = map[address];

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <vector>
+#include <set>
 #include <algorithm>
 #include <sstream>
 #include <thread>
@@ -50,16 +50,17 @@ public:
 
 		composeView(cpu, memory);
 		render();
+
+		update(0, cpu, memory);
 	}
 
 	void update(int cycles, CPU& cpu, Memory& memory) {
 
-		for (word breakpoint : breakpoints) {
-			if (cpu.getPC().value == breakpoint) {
-				handleBreakpointHit(cpu, memory);
-				return;
-			}
+		if (addresshasBreakpoint(cpu.getPC().value) || mode == Mode::BREAKPOINT) {
+			handleBreakpointHit(cpu, memory);
+			return;
 		}
+
 		// for every frame that we render in the emulator, we render a frame in the debugger
 		if (cycles >= 70224) {
 			if (mode == Mode::V_SYNC) {
@@ -83,14 +84,22 @@ private:
 	ImVec4 clear_color;
 	Mode mode;
 
-	std::vector<word> breakpoints;
+	std::set<word> breakpoints;
 
 	void composeView(CPU& cpu, Memory& memory) {
 		glfwPollEvents();
 		ImGui_ImplGlfwGL3_NewFrame();
 
+
+		ImGui::SetNextWindowSize(ImVec2(300, 650), ImGuiSetCond_FirstUseEver);
+		ImGui::Begin("CPU");
 		/* debugger controlers */
 		ImGui::Separator();
+		if (ImGui::Button("Next")) {
+			mode = Mode::BREAKPOINT;
+		}
+		ImGui::SameLine();
+
 		if (ImGui::Button("Continue")) {
 			mode = Mode::RUNNING;
 		}
@@ -107,7 +116,12 @@ private:
 		ImGui::Columns(2, "registers");
 		ImGui::Text("AF: 0x%04X", cpu.getPC().value);
 		ImGui::Text("DE: 0x%04X", cpu.getSP().value);
-		ImGui::Text("PC: 0x%04X", cpu.getPC().value);
+		if (mode == Mode::IDDLE || mode == Mode::BREAKPOINT) {
+			ImGui::TextColored(ImVec4(255, 0, 0, 255),"PC: 0x%04X", cpu.getPC().value);
+		} else {
+			ImGui::Text("PC: 0x%04X", cpu.getPC().value);
+		}
+		
 		ImGui::NextColumn();
 		ImGui::Text("BC: 0x%04X", cpu.getBC().value);
 		ImGui::Text("HL: 0x%04X", cpu.getHL().value);
@@ -133,58 +147,93 @@ private:
 		ImGui::Separator();
 		
 		/* opcodes */
-		ImGui::BeginChild("##header", ImVec2(0, ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().ItemSpacing.y));
-		ImGui::Columns(3);
-		ImGui::Text("Address"); ImGui::NextColumn();
-		ImGui::Text("Opcode"); ImGui::NextColumn();
-		ImGui::Text("Cycles"); ImGui::NextColumn();
-		ImGui::Columns(1);
+		int perItemWidth = 25;
+		ImGui::Text("%-*s%-*s%-*s%-*s", perItemWidth, "Address", perItemWidth, "Mnemonic", perItemWidth, "Opcode", perItemWidth, "Cycles");
 		ImGui::Separator();
-		ImGui::EndChild();
 
-		ImGui::BeginChild("##scrollingregion", ImVec2(0, 200));
-		ImGui::Columns(3);
-
-		byte previousOpcode = 0x00;
-		for (int i = 0; i < 0x7FFF; i++)
-		{
-			byte opcode = memory.readDirectly(i);
-			char label[32];
-			sprintf(label, "0x%04X", i);
-
-			if (ImGui::Selectable(label)) {
-				breakpoints.push_back(i);
-			}
-			ImGui::NextColumn();
-			
-			Opcode opcodeInfo;
-			if (previousOpcode != SPECIAL_OPCODE) {
-				opcodeInfo = gameBoyOpcodes[opcode];
-				if (opcodeInfo.additionalBytes == 2) {
-					ImGui::Text(opcodeInfo.name, memory.readWordDirectly(i + 1)); ImGui::NextColumn();
-				} else if (opcodeInfo.additionalBytes == 1) {
-					ImGui::Text(opcodeInfo.name, memory.readDirectly(i + 1)); ImGui::NextColumn();
-				} else {
-					ImGui::Text(opcodeInfo.name); ImGui::NextColumn();
-				}
-				ImGui::Text("%02d", opcodeInfo.timing); ImGui::NextColumn();
+		ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
+		ImGuiListClipper clipper(0x8000, ImGui::GetTextLineHeightWithSpacing());
+		while (clipper.Step()) {
+			byte previousOpcode = 0x00;
+			int end;
+			if (clipper.DisplayEnd < 0x7FFF - 50) {
+				end = clipper.DisplayEnd + 50;
 			} else {
-				opcodeInfo = specialGameBoyOpcodes[opcode];
-				if (opcodeInfo.additionalBytes != 0) {
-					
-					ImGui::Text(opcodeInfo.name); ImGui::NextColumn();
-				} else {
-					ImGui::Text(opcodeInfo.name); ImGui::NextColumn();
-				}
-				ImGui::Text("%02d", opcodeInfo.timing); ImGui::NextColumn();
+				end = clipper.DisplayEnd;
 			}
 
-			i = i + opcodeInfo.additionalBytes;
-			previousOpcode = opcode;
+			for (int i = clipper.DisplayStart; i < end; i++)
+			{
+				byte opcode = memory.readDirectly(i);
+				Opcode opcodeInfo;
+				if (previousOpcode != SPECIAL_OPCODE) {
+					opcodeInfo = gameBoyOpcodes[opcode];
+				}
+				else {
+					opcodeInfo = specialGameBoyOpcodes[opcode];
+				}
+
+				char address[32];
+				sprintf(address, "0x%04X", i);
+
+				char opcodeHex[32];
+				sprintf(opcodeHex, "0x%02X", opcode);
+
+				char name[32];
+				memset(name, 0, 32);
+				if (opcodeInfo.additionalBytes == 2) {
+					word add = memory.readWordDirectly(i + 1);
+					sprintf(name, opcodeInfo.name, add);
+				}
+				else if (opcodeInfo.additionalBytes == 1) {
+					sprintf(name, opcodeInfo.name, memory.readDirectly(i + 1));
+				}
+				else {
+					sprintf(name, opcodeInfo.name);
+				}
+
+				char text[128];
+				sprintf(text, "%-*s%-*s%-*s%d", perItemWidth, address, perItemWidth, name, perItemWidth, opcodeHex, opcodeInfo.timing);
+
+				bool alreadySelected = addresshasBreakpoint(i);
+				if (ImGui::Selectable(text, alreadySelected, ImGuiSelectableFlags_AllowDoubleClick)) {
+					if (alreadySelected) {
+						breakpoints.erase(i);
+					} else {
+						breakpoints.insert(i);
+					}
+				}
+
+				i = i + opcodeInfo.additionalBytes;
+				previousOpcode = opcode;
+			}
 		}
-		ImGui::Columns(1);
 		ImGui::EndChild();
 		ImGui::Separator();
+
+		/* breakpoints */
+		if (!breakpoints.empty()) {
+			ImGui::Text("Breakpoints");
+			ImGui::Separator();
+			ImGui::Columns(3, "mycolumns3", false);  // 3-ways, no border
+
+			std::set<word>::iterator it;
+			for (it = breakpoints.begin(); it != breakpoints.end(); ) {
+				char label[32];
+				sprintf(label, "0x%04X", *it);
+
+				if (ImGui::Selectable(label)) {
+					it = breakpoints.erase(it);
+				} else {
+					++it;
+				}
+				ImGui::NextColumn();
+			}
+			ImGui::Columns(1);
+		} else {
+			ImGui::Text("Breakpoints - Empty");
+			ImGui::Separator();
+		}
 
 		/* Interrupts */
 		const byte ieRegister = memory.readDirectly(IE_REGISTER);
@@ -219,6 +268,13 @@ private:
 		ImGui::Text("Joypad");
 		ImGui::Text(isBitSet(ifRegister, JOYPAD) ? "1" : "0"); ImGui::NextColumn();
 		ImGui::Columns(1);
+
+		ImGui::End();
+	}
+
+	bool addresshasBreakpoint(word address) {
+		std::set<word>::const_iterator it = breakpoints.find(address);
+		return it != breakpoints.end();
 	}
 
 	void handleBreakpointHit(CPU& cpu, Memory& memory) {

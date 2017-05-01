@@ -7,9 +7,10 @@
 #include "Video.h"
 #include "CPU.h"
 #include "Types.h"
-#include "MemoryFactory.h"
+#include "Memory/MemoryFactory.h"
 #include "Audio.h"
 #include "Joypad.h"
+#include "Debugger/Debugger.h"
 
 /**************************************************************************//**
  * \brief Class that models a Game Boy with all its systems.
@@ -30,6 +31,8 @@ private:
     CPU *cpu;
     Video *video;
     Joypad *joypad;
+
+	Debugger debugger;
     
 public:
     GameBoy(const std::string);

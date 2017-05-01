@@ -34,10 +34,9 @@ void Video::updateGraphics(short cycles) {
         } else {
             handleVBlankMode();
         }
-        
-        byte lyRegister = memory->readDirectly(LY_REGISTER);
+
         byte lyCompare = memory->readDirectly(LY_COMPARE);
-        if (lyCompare == lyRegister) {
+        if (lyCompare == currentScanline) {
             if (isBitSet(lcdStatus, 6)) {
                 cpu->requestInterrupt(Interrupts::LCD);
             }
@@ -108,15 +107,11 @@ void Video::handleOAMAndVRamMode() {
     memory->writeDirectly(LCD_STATUS, lcdStatus);
 }
 
-bool Video::isLCDEnabled() const {
-    return isBitSet(memory->read(LCDS_CONTROL), 7);
-}
-
 void Video::drawScanline() {
     const byte lcdControl = memory->readDirectly(LCDS_CONTROL);
 	if ( isBitSet(lcdControl, 0) ) {
 		renderBackground(lcdControl);
-    } else if ( isBitSet(lcdControl, 1) ) {
+    } else {
         renderSprites(lcdControl);
     }
 }
@@ -132,8 +127,10 @@ void Video::renderBackground(byte lcdControl) {
     byte windowY = memory->readDirectly(WINDOWS_Y);
     byte windowX = memory->readDirectly(WINDOWS_X) - 7;
 
+	const int scanline = memory->readDirectly(LY_REGISTER);
+
     if ( isBitSet(lcdControl, 5) ) {
-		usingWindow = windowY <= memory->readDirectly(LY_REGISTER);
+		usingWindow = windowY <= scanline;
     }
 
     if ( isBitSet(lcdControl,4) ) {
@@ -160,16 +157,13 @@ void Video::renderBackground(byte lcdControl) {
 
     byte yPos = 0;
     if ( !usingWindow ) {
-        yPos = scrollY + memory->readDirectly(LY_REGISTER);
+        yPos = scrollY + scanline;
     } else {
-        yPos = memory->read(LY_REGISTER) - windowY;
+        yPos = scanline - windowY;
     }
 
     word tileRow = (((byte)(yPos/8))*32);
 
-
-	const int scanline = memory->readDirectly(LY_REGISTER);
-	const byte palette = memory->readDirectly(0xFF47);
     for ( int pixel = 0 ; pixel < 160; pixel++ ) {
         byte xPos = pixel + scrollX;
 
@@ -206,7 +200,7 @@ void Video::renderBackground(byte lcdControl) {
         colourNum <<= 1;
         colourNum |= getBitValue(data1,colourBit);
 
-        RGB colour = getColour(colourNum, palette);
+        RGB colour = getColour(colourNum);
 
         frameBuffer[scanline][pixel][0] = colour.red;
         frameBuffer[scanline][pixel][1] = colour.green;
@@ -240,9 +234,6 @@ void Video::renderSprites(byte lcdControl) {
             ysize = 16;
         }
 
-
-		byte palette = memory->readDirectly(0xFF49);
-		byte palette2 = memory->readDirectly(0xFF48);
         if ( (scanline >= yPos) && (scanline < (yPos+ysize)) ) {
             int line = scanline - yPos;
 
@@ -266,14 +257,8 @@ void Video::renderSprites(byte lcdControl) {
                 colourNum <<= 1;
                 colourNum |= getBitValue(data1,colourbit) ;
 
-                RGB colour;
-                if ( isBitSet(attributes, 4) ) {
-                    colour = getColour(colourNum, palette);
-                } else {
-                    colour = getColour(colourNum, palette2);
-                }
+				RGB colour = getColour(colourNum);
 
-                
                 int xPix = 0 - tilePixel;
                 xPix += 7;
 
@@ -320,13 +305,7 @@ void Video::renderGame() {
 }
 
 void Video::resetFrameBuffer() {
-    for ( int x = 0 ; x < 144; x++ ) {
-        for ( int y = 0; y < 160; y++ ) {
-            frameBuffer[x][y][0] = 255;
-            frameBuffer[x][y][1] = 255;
-            frameBuffer[x][y][2] = 255;
-        }
-    }
+	memset(frameBuffer, 255, sizeof(frameBuffer));
 }
 
 void Video::printVideoRegistersState() const {

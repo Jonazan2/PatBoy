@@ -25,18 +25,14 @@ byte CPU::getCurrentOpcode() {
 unsigned int CPU::update() {
     unsigned int clockCycles = 0;
     byte opcode;
-    
-//    printRegisterState();
-    
+
     if ( !halt ) {
         opcode = getCurrentOpcode();
         
         if ( opcode == SPECIAL_OPCODE ) {
             opcode = getCurrentOpcode();
-//            printOpcodeName(opcode, true);
             clockCycles = (this->*extendedOpcodes[opcode])();
         } else {
-//            printOpcodeName(opcode, false);
             clockCycles = (this->*opcodes[opcode])();
         }
         
@@ -269,29 +265,6 @@ void CPU::checkCarryFlag(const word data) {
     }
 }
 
-void CPU::printOpcodeName(const byte opcode, const bool special) {
-    if (special) {
-        printf("%02X  %s\n", opcode, specialOpcodeNames[opcode]);
-    } else {
-        printf("%02X  %s\n", opcode,opcodeNames[opcode]);
-    }
-}
-
-void CPU::printRegisterState() {
-    printf("PC:%02X ", PC.value);
-    printf("A:%02X ", AF.hi);
-    printf("F:%02X ", AF.low);
-    printf("B:%02X ", BC.hi);
-    printf("C:%02X ", BC.low);
-    printf("D:%02X ", DE.hi);
-    printf("E:%02X ", DE.low);
-    printf("H:%02X ", HL.hi);
-    printf("L:%02X ", HL.low);
-    printf("SP:%04X ", SP.value);
-    printf("\n");
-}
-
-
 void CPU::requestInterrupt(Interrupts interrupt) {
     byte ifRegister = memory->read(IF_REGISTER);
     setBit(&ifRegister, interrupt);
@@ -301,6 +274,26 @@ void CPU::requestInterrupt(Interrupts interrupt) {
 
 Register CPU::getAF() {
     return AF;
+}
+
+Register CPU::getBC() {
+	return BC;
+}
+
+Register CPU::getDE() {
+	return DE;
+}
+
+Register CPU::getHL() {
+	return HL;
+}
+
+Register CPU::getPC() {
+	return PC;
+}
+
+Register CPU::getSP() {
+	return SP;
 }
 
 void CPU::chargeOpcodes() {

@@ -9,11 +9,7 @@
  * @param position Position of the bit that is going to be check
  */
 inline bool isBitSet(const byte value, const unsigned short position) {
-    bool resul = false;
-    if ( (value & ( 1 << position )) != 0 ) {
-        resul = true;
-    }
-    return resul;
+	return (value & (1 << position)) != 0;
 }
 
 /*!
@@ -22,8 +18,7 @@ inline bool isBitSet(const byte value, const unsigned short position) {
  * @param position Position of the bit that is going to be get
  */
 inline byte getBitValue(const byte inData, const unsigned short position) {
-    byte lMsk = 1 << position ;
-    return ( inData & lMsk ) ? 1 : 0 ;
+	return (inData >> position) & 1;
 }
 
 /*!

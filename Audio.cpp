@@ -1,7 +1,7 @@
 #include "Audio.h"
 
-#include "Sound_Queue.h"
-#include "Gb_Apu.h"
+#include "Audio/Sound_Queue.h"
+#include "Audio/Gb_Apu.h"
 #include <iostream>
 
 #ifdef __APPLE__

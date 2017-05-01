@@ -3,7 +3,7 @@
 
 #include "Types.h"
 #include "Memory.h"
-#include "InstructionSet.h"
+#include "Cpu/InstructionSet.h"
 #include "Utils.h"
 
 class Memory;
@@ -30,8 +30,14 @@ public:
     void resetTimaRegister();
     void setCurrentClockSpeed(const int);
     int getCurrrentClockSpeed() const;
+
     Register getAF();
-    
+	Register getBC();
+	Register getDE();
+	Register getHL();
+	Register getPC();
+	Register getSP();
+
     ~CPU();
     
 private:
@@ -69,10 +75,7 @@ private:
     void decrementStackPointer();
     void stackPush(const Register);
     void stackPop(Register *);
-    
-    void printRegisterState();
-    void printOpcodeName(const byte, const bool);
-    
+
     // Flag related operations
     void raiseFlag(Flag); // set flag = 1, if it is 1 doesn't change
     bool checkFlag(Flag); // return true if flag = 1

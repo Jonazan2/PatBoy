@@ -83,42 +83,31 @@ private:
     void handleOAMMode();
     void handleOAMAndVRamMode();
     
-    bool isLCDEnabled() const;
+	bool Video::isLCDEnabled() const {
+		return isBitSet(memory->read(LCDS_CONTROL), 7);
+	}
+
     void drawScanline();
     byte getLCDMode() const;
     void renderBackground(byte);
 	void renderSprites(byte);
 
-	inline RGB& Video::getColour(const byte colourNumber, const byte palette) const {
-		short hi = 0;
-		short lo = 0;
-
-
-		switch (colourNumber) {
-		case 0: hi = 1; lo = 0; break;
-		case 1: hi = 3; lo = 2; break;
-		case 2: hi = 5; lo = 4; break;
-		case 3: hi = 7; lo = 6; break;
-		}
-
-		byte colour = 0;
-		colour = getBitValue(palette, hi) << 1;
-		colour |= getBitValue(palette, lo);
-
+	inline RGB Video::getColour(const byte colourNumber) const {
 		static RGB white = { 255,255,255 };
 		static RGB lightGray = { 0xCC,0xCC,0xCC };
-		static RGB darkGray = { 0x77,0x77,255 };
+		static RGB darkGray = { 0x77,0x77,0x77 };
 		static RGB black = { 0x0,0x0,0x0 };
 
-		switch (colour) {
+		switch (colourNumber) {
 		case Colour::white:
-			return std::move(white);
+			return white;
 		case Colour::lightGray:
-			return std::move(lightGray);
+			return lightGray;
 		case Colour::darkGray:
-			return std::move(darkGray);
+			return darkGray;
 		case Colour::black:
-			return std::move(black);
+		default:
+			return black;
 		}
 	}
 

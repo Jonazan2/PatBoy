@@ -1,7 +1,7 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 #include "Types.h"
-#include "Multi_Buffer.h"
+#include "Audio/Multi_Buffer.h"
 
 class Gb_Apu;
 class Sound_Queue;

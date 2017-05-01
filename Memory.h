@@ -41,6 +41,13 @@ public:
 		return map[address];
 	}
 
+	inline word Memory::readWordDirectly(const word address) const {
+		Register aux;
+		aux.low = map[address];
+		aux.hi = map[address + 1];
+		return aux.value;
+	}
+
     void write(const word, const byte);
     virtual void writeWithChip(const word, const byte) = 0;
 

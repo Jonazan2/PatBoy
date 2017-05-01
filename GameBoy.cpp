@@ -27,19 +27,21 @@ GameBoy::GameBoy(const std::string path) {
 }
 
 void GameBoy::startEmulation() {
+	debugger.startDebugger(*cpu, *memory);
+
     bool quit = false;
 	SDL_Event event;
     
 	int cycles;
 	
-	std::chrono::time_point<std::chrono::system_clock> current, previous;
-	previous = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
+	previous = std::chrono::high_resolution_clock::now();
 
     while (!quit) {
-		current = std::chrono::system_clock::now();
+		current = std::chrono::high_resolution_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds> (current - previous);
 		previous = current;
-        
+		
 		while( SDL_PollEvent( &event ) ) {
             joypad->handleInput(event);
             
@@ -56,6 +58,7 @@ void GameBoy::startEmulation() {
 			audio->update(cyclesPerThisOpcode);
 			cpu->updateInterrupts();
 			cycles += cyclesPerThisOpcode;
+			debugger.update(cycles, *cpu, *memory);
 		}
 		video->renderGame();
 
@@ -67,10 +70,11 @@ void GameBoy::startEmulation() {
 			int waitTime = (int)(DELAY_TIME - elapsed.count());
 			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
 		} else {
-			printf("Time overpass: %f\n", elapsed.count() - DELAY_TIME);
+			printf("overpassed by %f\n", elapsed.count() - DELAY_TIME);
 		}
     }
 	SDL_Quit( ) ;
+	debugger.closeDebugger();
 }
 
 GameBoy::~GameBoy() {

@@ -160,7 +160,7 @@ static const Opcode gameBoyOpcodes[256] = {
 	{ "DEC SP", 0 },
 	{ "INC A", 0 },
 	{ "DEC A", 0 },
-	{ "LDA,0x%02X", 1 },
+	{ "LD A,0x%02X", 1 },
 	{ "CCF", 0 },
     
 	{ "LD B,B", 0 },

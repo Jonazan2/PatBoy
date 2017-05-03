@@ -31,12 +31,14 @@ public:
     void setCurrentClockSpeed(const int);
     int getCurrrentClockSpeed() const;
 
-    Register getAF();
-	Register getBC();
-	Register getDE();
-	Register getHL();
-	Register getPC();
-	Register getSP();
+    Register getAF() const;
+	Register getBC() const;
+	Register getDE() const;
+	Register getHL() const;
+	Register getPC() const;
+	Register getSP() const;
+	bool isIMEActive() const;
+
 
     ~CPU();
     

@@ -27,7 +27,7 @@ GameBoy::GameBoy(const std::string path) {
 }
 
 void GameBoy::startEmulation() {
-	debugger.startDebugger(*cpu, *memory);
+	debugger.startDebugger(*cpu, *memory, *video);
 
     bool quit = false;
 	SDL_Event event;
@@ -58,7 +58,7 @@ void GameBoy::startEmulation() {
 			audio->update(cyclesPerThisOpcode);
 			cpu->updateInterrupts();
 			cycles += cyclesPerThisOpcode;
-			debugger.update(cycles, *cpu, *memory);
+			debugger.update(cycles, *cpu, *memory, *video);
 		}
 		video->renderGame();
 

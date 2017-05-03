@@ -47,10 +47,10 @@ public:
     const int MIN_OAM_MODE_CYCLES = 77;
     const int MIN_OAM_AND_VRAM_MODE_CYCLES = 169;
     
-    const word LCDS_CONTROL = 0xFF40;
-    const word LCD_STATUS = 0xFF41;
-    const word LY_REGISTER = 0xFF44;
-    const word LY_COMPARE = 0xFF45;
+    static const word LCD_CONTROL = 0xFF40;
+    static const word LCDC_STATUS = 0xFF41;
+    static const word LY_REGISTER = 0xFF44;
+    static const word LY_COMPARE = 0xFF45;
     
     enum Colour {
         white,
@@ -84,7 +84,7 @@ private:
     void handleOAMAndVRamMode();
     
 	bool Video::isLCDEnabled() const {
-		return isBitSet(memory->read(LCDS_CONTROL), 7);
+		return isBitSet(memory->read(LCD_CONTROL), 7);
 	}
 
     void drawScanline();
@@ -113,6 +113,5 @@ private:
 
     bool createSDLWindow();
     void resetFrameBuffer();
-    void printVideoRegistersState() const;
 };
 #endif

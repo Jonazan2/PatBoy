@@ -2,6 +2,8 @@
 
 Memory::Memory(Cartridge *cartridge, Audio *audio, Joypad *joypad) {
     this->map = new byte[0x10000];
+	memset(map, 0, 0x10000);
+
     this->cartridge = cartridge;
     this->audio = audio;
     this->joypad = joypad;

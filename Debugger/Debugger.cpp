@@ -13,7 +13,7 @@ Debugger::Debugger() {
 	mode = Mode::RUNNING;
 }
 
-int Debugger::startDebugger(CPU& cpu, Memory& memory)
+int Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video)
 {
 	glfwInit();
 
@@ -32,26 +32,27 @@ int Debugger::startDebugger(CPU& cpu, Memory& memory)
 
 	ImGui_ImplGlfwGL3_Init(window, true);
 
-	composeView(cpu, memory);
-	render();
+	// we update first just in case we have a breakpoint in the first instruction
+	update(0, cpu, memory, video);
 
-	update(0, cpu, memory);
+	composeView(0, cpu, memory, video);
+	render();
 }
 
-void Debugger::update(int cycles, CPU& cpu, Memory& memory) {
+void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
 
 	if (addresshasBreakpoint(cpu.getPC().value) || mode == Mode::BREAKPOINT) {
-		handleBreakpointHit(cpu, memory);
+		handleBreakpointHit(cycles, cpu, memory, video);
 		return;
 	}
 
 	// for every frame that we render in the emulator, we render a frame in the debugger
 	if (cycles >= 70224) {
 		if (mode == Mode::V_SYNC) {
-			handleBreakpointHit(cpu, memory);
+			handleBreakpointHit(cycles, cpu, memory, video);
 		}
 
-		composeView(cpu, memory);
+		composeView(cycles, cpu, memory, video);
 		render();
 	}
 }
@@ -61,15 +62,18 @@ void Debugger::closeDebugger() {
 	glfwTerminate();
 }
 
-void Debugger::composeView(CPU& cpu, Memory& memory) {
+void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
 	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
 
-	startCPUView(cpu, memory);
+	startCPUView(cycles, cpu, memory);
+	startVideoView(cpu, memory, video);
 }
 
-void Debugger::startCPUView(CPU& cpu, Memory& memory) {
+void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memory) {
+	ImGui::SetNextWindowPos(ImVec2(0,0), ImGuiSetCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(300, 800), ImGuiSetCond_FirstUseEver);
+
 	ImGui::Begin("CPU");
 	/* debugger controlers */
 	ImGui::Separator();
@@ -231,7 +235,8 @@ void Debugger::startCPUView(CPU& cpu, Memory& memory) {
 
 	/* Interrupts */
 	const byte ieRegister = memory.readDirectly(IE_REGISTER);
-	ImGui::Text("Interrupts:");
+	ImGui::Text("Interrupts:"); ImGui::SameLine();
+	ImGui::Text("IME: %s", cpu.isIMEActive() ? "true" : "false");
 	ImGui::Separator();
 	ImGui::Text("Interrupt Enable (0xFFFF):");
 	ImGui::Columns(5, "flags");
@@ -263,10 +268,30 @@ void Debugger::startCPUView(CPU& cpu, Memory& memory) {
 	ImGui::Text(isBitSet(ifRegister, JOYPAD) ? "1" : "0"); ImGui::NextColumn();
 	ImGui::Columns(1);
 
+	/* cycles counter */
+	ImGui::Separator();
+	ImGui::Text("Cycles executed: %d", cycles);
+
 	ImGui::End();
 }
 
-void Debugger::handleBreakpointHit(CPU& cpu, Memory& memory) {
+void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video& video) {
+	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Video");
+	ImGui::Text("LCD Control: 0x%02X", memory.readDirectly(Video::LCD_CONTROL));
+	ImGui::Text("LCDC Status: 0x%02X", memory.readDirectly(Video::LCDC_STATUS));
+
+	byte yCoordinate = memory.readDirectly(Video::LY_REGISTER);
+	if (yCoordinate > 144) {
+		ImGui::TextColored(ImVec4(255,0,0,1), "LY: %d", yCoordinate);
+	} else {
+		ImGui::Text("LY: %d", yCoordinate);
+	}
+
+	ImGui::End();
+}
+
+void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
 	previous = std::chrono::high_resolution_clock::now();
 
@@ -276,7 +301,7 @@ void Debugger::handleBreakpointHit(CPU& cpu, Memory& memory) {
 		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds> (current - previous);
 		previous = current;
 
-		composeView(cpu, memory);
+		composeView(cycles, cpu, memory, video);
 		render();
 
 		static float DELAY_TIME = 1000.0f / 60;

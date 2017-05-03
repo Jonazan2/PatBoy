@@ -16,7 +16,7 @@ void Video::updateGraphics(short cycles) {
         scanlineCounter -= cycles;
         
         byte currentScanline = memory->readDirectly(LY_REGISTER);
-        byte lcdStatus = memory->readDirectly(LCD_STATUS);
+        byte lcdStatus = memory->readDirectly(LCDC_STATUS);
         mode = getLCDMode();
 
         if (currentScanline <= VERTICAL_BLANK_SCAN_LINE) {
@@ -44,7 +44,7 @@ void Video::updateGraphics(short cycles) {
         
     } else {
         scanlineCounter = MAX_VIDEO_CYCLES;
-        byte lcdStatus = memory->readDirectly(LCD_STATUS);
+        byte lcdStatus = memory->readDirectly(LCDC_STATUS);
         clearBit(&lcdStatus, 1);
         setBit(&lcdStatus, 0);
         memory->writeDirectly(LY_REGISTER, lcdStatus);
@@ -52,7 +52,7 @@ void Video::updateGraphics(short cycles) {
 }
 
 void Video::handleHBlankMode() {
-    byte lcdStatus = memory->readDirectly(LCD_STATUS);
+    byte lcdStatus = memory->readDirectly(LCDC_STATUS);
     byte scanline = memory->readDirectly(LY_REGISTER);
     memory->writeDirectly(LY_REGISTER, ++scanline);
     
@@ -61,7 +61,7 @@ void Video::handleHBlankMode() {
     } else {
         clearBit(&lcdStatus, 1);
         setBit(&lcdStatus, 0);
-        memory->writeDirectly(LCD_STATUS, lcdStatus);
+        memory->writeDirectly(LCDC_STATUS, lcdStatus);
         
         if (isBitSet(lcdStatus, 4)) {
             cpu->requestInterrupt(Interrupts::VBLANK);
@@ -70,7 +70,7 @@ void Video::handleHBlankMode() {
 }
 
 void Video::handleVBlankMode() {
-    byte lcdStatus = memory->readDirectly(LCD_STATUS);
+    byte lcdStatus = memory->readDirectly(LCDC_STATUS);
     byte scanline = memory->readDirectly(LY_REGISTER);
     memory->writeDirectly(LY_REGISTER, ++scanline);
     
@@ -79,7 +79,7 @@ void Video::handleVBlankMode() {
         memory->writeDirectly(LY_REGISTER, 0x0);
         setBit(&lcdStatus, 1);
         clearBit(&lcdStatus, 0);
-        memory->writeDirectly(LCD_STATUS, lcdStatus);
+        memory->writeDirectly(LCDC_STATUS, lcdStatus);
         
         
         if (isBitSet(lcdStatus, 5)) {
@@ -89,10 +89,10 @@ void Video::handleVBlankMode() {
 }
 
 void Video::handleOAMMode() {
-    byte lcdStatus = memory->readDirectly(LCD_STATUS);
+    byte lcdStatus = memory->readDirectly(LCDC_STATUS);
     setBit(&lcdStatus, 1);
     clearBit(&lcdStatus, 0);
-    memory->writeDirectly(LCD_STATUS, lcdStatus);
+    memory->writeDirectly(LCDC_STATUS, lcdStatus);
     
     if (isBitSet(lcdStatus, 3)) {
         cpu->requestInterrupt(Interrupts::LCD);
@@ -101,14 +101,14 @@ void Video::handleOAMMode() {
 }
 
 void Video::handleOAMAndVRamMode() {
-    byte lcdStatus = memory->readDirectly(LCD_STATUS);
+    byte lcdStatus = memory->readDirectly(LCDC_STATUS);
     setBit(&lcdStatus,1);
     setBit(&lcdStatus,0);
-    memory->writeDirectly(LCD_STATUS, lcdStatus);
+    memory->writeDirectly(LCDC_STATUS, lcdStatus);
 }
 
 void Video::drawScanline() {
-    const byte lcdControl = memory->readDirectly(LCDS_CONTROL);
+    const byte lcdControl = memory->readDirectly(LCD_CONTROL);
 	if ( isBitSet(lcdControl, 0) ) {
 		renderBackground(lcdControl);
     } else {
@@ -279,7 +279,7 @@ void Video::renderSprites(byte lcdControl) {
 }
 
 byte Video::getLCDMode() const {
-    byte lcdStatus = memory->readDirectly(LCD_STATUS);
+    byte lcdStatus = memory->readDirectly(LCDC_STATUS);
 	return lcdStatus & 0x3;
 }
 
@@ -306,15 +306,6 @@ void Video::renderGame() {
 
 void Video::resetFrameBuffer() {
 	memset(frameBuffer, 255, sizeof(frameBuffer));
-}
-
-void Video::printVideoRegistersState() const {
-    printf("LCDS CONTROL: %02X\t", memory->readDirectly(LCDS_CONTROL));
-    printf("LCD STATUS: %02X\t", memory->readDirectly(LCD_STATUS));
-    printf("LY_REGISTER: %02X\t" , memory->readDirectly(LY_REGISTER));
-    printf("LY_COMPARE: %02X\t", memory->readDirectly(LY_COMPARE));
-    printf("SCROLL X: %02X\t", memory->readDirectly(SCROLL_X));
-    printf("SCROLL Y: %02X\n\n", memory->readDirectly(SCROLL_Y));
 }
 
 Video::~Video() {

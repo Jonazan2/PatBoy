@@ -44,12 +44,12 @@ unsigned int CPU::update() {
 }
 
 void CPU::reset() {
-    AF.value = 0x01B0;
-    BC.value = 0x0013;
-    DE.value = 0x00D8;
-    HL.value = 0x014D;
+    AF.value = 0x1180;
+    BC.value = 0x0000;
+    DE.value = 0xFF56;
+    HL.value = 0x000D;
     SP.value = 0xFFFE;
-    PC.value = 0x100;
+    PC.value = 0x0100;
     timaCounter = 0;
     divRegister = 0;
     currentClockSpeed = 1024;
@@ -272,28 +272,32 @@ void CPU::requestInterrupt(Interrupts interrupt) {
 }
 
 
-Register CPU::getAF() {
+Register CPU::getAF() const {
     return AF;
 }
 
-Register CPU::getBC() {
+Register CPU::getBC() const {
 	return BC;
 }
 
-Register CPU::getDE() {
+Register CPU::getDE() const {
 	return DE;
 }
 
-Register CPU::getHL() {
+Register CPU::getHL() const {
 	return HL;
 }
 
-Register CPU::getPC() {
+Register CPU::getPC() const {
 	return PC;
 }
 
-Register CPU::getSP() {
+Register CPU::getSP() const {
 	return SP;
+}
+
+bool CPU::isIMEActive() const {
+	return ime;
 }
 
 void CPU::chargeOpcodes() {

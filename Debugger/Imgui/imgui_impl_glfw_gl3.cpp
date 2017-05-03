@@ -6,7 +6,7 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
-#include "Imgui/imgui.h"
+#include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 
 #include <GL/glew.h>

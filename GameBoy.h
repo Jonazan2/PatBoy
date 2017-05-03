@@ -31,9 +31,8 @@ private:
     CPU *cpu;
     Video *video;
     Joypad *joypad;
-
 	Debugger debugger;
-    
+
 public:
     GameBoy(const std::string);
     void startEmulation();

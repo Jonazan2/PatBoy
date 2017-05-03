@@ -89,7 +89,6 @@ private:
     void checkCarryFlag(const byte);
     void checkCarryFlag(const word);
     
-    // reset
     void reset();
     
     short invalidOpcode();

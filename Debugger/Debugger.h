@@ -68,8 +68,6 @@ public:
 			}
 
 			composeView(cpu, memory);
-
-			// Rendering
 			render();
 		}
 	}
@@ -114,8 +112,8 @@ private:
 		ImGui::Text("Registers:");
 		ImGui::Separator();
 		ImGui::Columns(2, "registers");
-		ImGui::Text("AF: 0x%04X", cpu.getPC().value);
-		ImGui::Text("DE: 0x%04X", cpu.getSP().value);
+		ImGui::Text("AF: 0x%04X", cpu.getAF().value);
+		ImGui::Text("DE: 0x%04X", cpu.getDE().value);
 		if (mode == Mode::IDDLE || mode == Mode::BREAKPOINT) {
 			ImGui::TextColored(ImVec4(255, 0, 0, 255),"PC: 0x%04X", cpu.getPC().value);
 		} else {
@@ -154,14 +152,14 @@ private:
 		ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
 		ImGuiListClipper clipper(0x8000, ImGui::GetTextLineHeightWithSpacing());
 		while (clipper.Step()) {
-			byte previousOpcode = 0x00;
-			int end;
+			int end, start;
 			if (clipper.DisplayEnd < 0x7FFF - 50) {
 				end = clipper.DisplayEnd + 50;
 			} else {
 				end = clipper.DisplayEnd;
 			}
 
+			byte previousOpcode = 0x00;
 			for (int i = clipper.DisplayStart; i < end; i++)
 			{
 				byte opcode = memory.readDirectly(i);

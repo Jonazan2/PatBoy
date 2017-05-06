@@ -16,11 +16,18 @@ class Debugger {
 public:
 	Debugger();
 
-	int startDebugger(const CPU& cpu, const Memory& memory, const Video& video);
+	void startDebugger(const CPU& cpu, const Memory& memory, const Video& video);
 	void update(int cycles, const CPU& cpu, const Memory& memory, const Video& video);
 	void closeDebugger();
 
 private:
+
+	const ImVec4 BACKGROUND_COLOR = {0.8f, 0.8f, 0.8f, 1.0f};
+
+	const int MEMORY_VIEW_ROWS = 16;
+	const int MEMORY_VIEW_MEMORY_SIZE = 0x10000;
+	const int MEMORY_VIEW_BASE_ADDRESS = 0x0000;
+
 	enum class Mode : int {
 		IDDLE,
 		BREAKPOINT,
@@ -30,15 +37,15 @@ private:
 
 	Mode mode;
 	GLFWwindow* window;
-	ImVec4 clear_color;
 	std::set<word> breakpoints;
 
 	void composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video);
 	void startCPUView(int cycles, const CPU& cpu, const Memory& memory);
 	void startVideoView(const CPU& cpu, const Memory& memory, const Video& video);
+	void startMemoryView(const Memory& memory);
 
 	bool addresshasBreakpoint(word address);
 	void handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video &video);
-	
+
 	void render();
 };

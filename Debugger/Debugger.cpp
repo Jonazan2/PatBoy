@@ -9,11 +9,10 @@
 #include "Utils.h"
 
 Debugger::Debugger() {
-	clear_color = ImColor(114, 144, 154);
 	mode = Mode::RUNNING;
 }
 
-int Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video)
+void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video)
 {
 	glfwInit();
 
@@ -68,11 +67,12 @@ void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, con
 
 	startCPUView(cycles, cpu, memory);
 	startVideoView(cpu, memory, video);
+	startMemoryView(memory);
 }
 
 void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memory) {
 	ImGui::SetNextWindowPos(ImVec2(0,0), ImGuiSetCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(300, 800), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(650, 800), ImGuiSetCond_FirstUseEver);
 
 	ImGui::Begin("CPU");
 	/* debugger controlers */
@@ -137,7 +137,8 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
 	ImGuiListClipper clipper(0x8000, ImGui::GetTextLineHeightWithSpacing());
 	while (clipper.Step()) {
-		int end, start;
+		
+		int end;
 		if (clipper.DisplayEnd < 0x7FFF - 50) {
 			end = clipper.DisplayEnd + 50;
 		}
@@ -277,6 +278,8 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 
 void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video& video) {
 	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(610, 80));
+
 	ImGui::Begin("Video");
 	ImGui::Text("LCD Control: 0x%02X", memory.readDirectly(Video::LCD_CONTROL));
 	ImGui::Text("LCDC Status: 0x%02X", memory.readDirectly(Video::LCDC_STATUS));
@@ -290,6 +293,67 @@ void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video&
 
 	ImGui::End();
 }
+
+void Debugger::startMemoryView(const Memory& memory) {
+	byte* mem_data = memory.getMap();
+
+	ImGui::SetNextWindowPos(ImVec2(650, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Memory");
+	ImGui::BeginChild("##scrolling", ImVec2(0, 0));
+
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+	int addr_digits_count = 0;
+	for (int n = MEMORY_VIEW_BASE_ADDRESS + MEMORY_VIEW_MEMORY_SIZE - 1; n > 0; n >>= 4) {
+		addr_digits_count++;
+	}
+
+	float glyph_width = ImGui::CalcTextSize("F").x;
+	float cell_width = glyph_width * 3;
+
+	float line_height = ImGui::GetTextLineHeight();
+	int line_total_count = (int)((MEMORY_VIEW_MEMORY_SIZE + MEMORY_VIEW_ROWS - 1) / MEMORY_VIEW_ROWS);
+	ImGuiListClipper clipper(line_total_count, line_height);
+	int visible_start_addr = clipper.DisplayStart * MEMORY_VIEW_ROWS;
+	int visible_end_addr = clipper.DisplayEnd * MEMORY_VIEW_ROWS;
+
+	bool data_next = false;
+	bool draw_separator = true;
+	for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; line_i++) {
+		int addr = line_i * MEMORY_VIEW_ROWS;
+		ImGui::Text("%0*X: ", addr_digits_count, MEMORY_VIEW_BASE_ADDRESS + addr);
+		ImGui::SameLine();
+
+		/* Draw Hexadecimal */
+		float line_start_x = ImGui::GetCursorPosX();
+		for (int n = 0; n < MEMORY_VIEW_ROWS && addr < MEMORY_VIEW_MEMORY_SIZE; n++, addr++) {
+			ImGui::SameLine(line_start_x + cell_width * n);
+			ImGui::Text("%02X ", mem_data[addr]);
+		}
+
+		ImGui::SameLine(line_start_x + cell_width * MEMORY_VIEW_ROWS + glyph_width * 2);
+
+		if (draw_separator) {
+			ImVec2 screen_pos = ImGui::GetCursorScreenPos();
+			ImGui::GetWindowDrawList()->AddLine(ImVec2(screen_pos.x - glyph_width, screen_pos.y - 9999), ImVec2(screen_pos.x - glyph_width, screen_pos.y + 9999), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]));
+			draw_separator = false;
+		}
+
+		/* Draw ASCII values */
+		addr = line_i * MEMORY_VIEW_ROWS;
+		for (int n = 0; n < MEMORY_VIEW_ROWS && addr < MEMORY_VIEW_MEMORY_SIZE; n++, addr++) {
+			if (n > 0) ImGui::SameLine();
+			int c = mem_data[addr];
+			ImGui::Text("%c", (c >= 32 && c < 128) ? c : '.');
+		}
+	}
+	clipper.End();
+	ImGui::PopStyleVar(2);
+	ImGui::EndChild();
+	ImGui::End();
+}
+
 
 void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
@@ -321,7 +385,7 @@ void Debugger::render() {
 	int display_w, display_h;
 	glfwGetFramebufferSize(window, &display_w, &display_h);
 	glViewport(0, 0, display_w, display_h);
-	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+	glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
 	glClear(GL_COLOR_BUFFER_BIT);
 	ImGui::Render();
 	glfwSwapBuffers(window);

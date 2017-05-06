@@ -31,7 +31,7 @@ void GameBoy::startEmulation() {
 
     bool quit = false;
 	SDL_Event event;
-    
+  
 	int cycles;
 	
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;

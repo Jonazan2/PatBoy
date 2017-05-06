@@ -1,4 +1,4 @@
-#include "InstructionSet.h"
+#include "Cpu/InstructionSet.h"
 
 /* ALU INSTRUCTIONS */
 

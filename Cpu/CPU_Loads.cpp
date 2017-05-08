@@ -590,24 +590,17 @@ short CPU::opcode0x6F() {
 ////////////////////////////////// ld   HL,SP+dd
 short CPU::opcode0xF8() {
     char n = memory->read(PC.value) ;
-    incrementProgramCounter();
-    clearFlag(ZERO_FLAG);
-    clearFlag(ADD_SUB_FLAG);
-    
-    word value = (SP.value + n) & 0xFFFF;
-    
-    HL.value = value;
-    
-    if( (SP.value + n) > 0xFFFF ) {
-        raiseFlag(CARRY_FLAG);
-    } else {
-        clearFlag(CARRY_FLAG);
-    }
-    
-    if( (SP.value & 0xF) + (n & 0xF) > 0xF ) {
-        raiseFlag(HALF_CARRY_FLAG);
-    } else {
-        clearFlag(HALF_CARRY_FLAG);
-    }
-    return 12;
+    word value = (SP.value + n);
+	
+	clearFlags();
+	if (((SP.value ^ n ^ value) & 0x100) == 0x100) {
+		raiseFlag(CARRY_FLAG);
+	}
+	if (((SP.value ^ n ^ value) & 0x10) == 0x10) {
+		raiseFlag(HALF_CARRY_FLAG);
+	}
+
+	HL.value = value;
+	incrementProgramCounter();
+	return 12;
 }

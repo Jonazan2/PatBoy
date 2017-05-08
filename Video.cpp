@@ -47,9 +47,9 @@ void Video::handleHBlankMode() {
 			setBit(&lcdStatus, 1);
 			memory->writeDirectly(LCDC_STATUS, lcdStatus);
 
-			if (isBitSet(lcdStatus, 4)) {
+			//if (isBitSet(lc dStatus, 4)) {
 				cpu->requestInterrupt(Interrupts::VBLANK);
-			}
+			//}
 		} else {
 			mode = Mode::OAM_RAM;
 		}

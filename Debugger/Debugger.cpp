@@ -77,12 +77,12 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Begin("CPU");
 	/* debugger controlers */
 	ImGui::Separator();
-	if (ImGui::Button("Next")) {
+	if (ImGui::Button("Next instruction")) {
 		mode = Mode::BREAKPOINT;
 	}
 	ImGui::SameLine();
 
-	if (ImGui::Button("Continue")) {
+	if (ImGui::Button("Run")) {
 		mode = Mode::RUNNING;
 	}
 	ImGui::SameLine();
@@ -135,11 +135,11 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Separator();
 
 	ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
-	ImGuiListClipper clipper(0x8000, ImGui::GetTextLineHeightWithSpacing());
+	ImGuiListClipper clipper(0x10000, ImGui::GetTextLineHeightWithSpacing());
 	while (clipper.Step()) {
 		
-		int end;
-		if (clipper.DisplayEnd < 0x7FFF - 50) {
+		int end = clipper.DisplayEnd;
+		if (clipper.DisplayEnd < 0xFFFF - 50) {
 			end = clipper.DisplayEnd + 50;
 		}
 		else {
@@ -239,7 +239,7 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Text("Interrupts:"); ImGui::SameLine();
 	ImGui::Text("IME: %s", cpu.isIMEActive() ? "true" : "false");
 	ImGui::Separator();
-	ImGui::Text("Interrupt Enable (0xFFFF):");
+	ImGui::Text("Interrupt Enable (0xFFFF): 0x%02X", memory.readDirectly(0xFFFF));
 	ImGui::Columns(5, "flags");
 	ImGui::Text("V-Blank");
 	ImGui::Text(isBitSet(ieRegister, VBLANK) ? "1" : "0"); ImGui::NextColumn();
@@ -255,7 +255,7 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Separator();
 
 	const byte ifRegister = memory.readDirectly(IF_REGISTER);
-	ImGui::Text("Interrupt Flag (0xFF0F):");
+	ImGui::Text("Interrupt Flag (0xFF0F): 0x%02X", memory.readDirectly(0xFF0F));
 	ImGui::Columns(5, "flags");
 	ImGui::Text("V-Blank");
 	ImGui::Text(isBitSet(ifRegister, VBLANK) ? "1" : "0"); ImGui::NextColumn();

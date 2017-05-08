@@ -108,18 +108,21 @@ void CPU::resetTimaRegister() {
 }
 
 void CPU::updateInterrupts() {
-	if ( ime ) {
-		byte requestFlag = memory->read(IF_REGISTER);
-		if ( requestFlag > 0 ) {
-			for ( int bit = 0; bit < 8; bit++ ) {
-				if ( isBitSet(requestFlag, bit) ) {
-					byte enabledReg = memory->read(IE_REGISTER);
-					if ( isBitSet(enabledReg,bit) ) {
-						serviceInterrupt(Interrupts(bit));
+	byte requestFlag = memory->read(IF_REGISTER);
+	if ( requestFlag > 0 ) {
+			if (ime) {
+				for (int bit = 0; bit < 8; bit++) {
+					if (isBitSet(requestFlag, bit)) {
+						byte enabledReg = memory->read(IE_REGISTER);
+						if (isBitSet(enabledReg, bit)) {
+							serviceInterrupt(Interrupts(bit));
+						}
 					}
 				}
 			}
-		}
+			else if (halt) {
+				halt = false;
+			}
 	}
 }
 

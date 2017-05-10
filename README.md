@@ -11,7 +11,7 @@ PatBoy follows GameBoy specification that can be found in the pandocs as well as
 The last addition to PatBoy has been a debugger implemented using the library [dearimgui](https://github.com/ocornut/imgui) for the UI. The debugger has breakpoints, step in and run until vsync features implemented as well as memory and video status views.
 
 <p align="center">
-  <img src="http://jonathanmcontreras.com/images/portfolio/debugger.png" alt="PatBoy Debugger"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/debugger-big.png" alt="PatBoy Debugger"/>
 </p>
 
 # Dependencies

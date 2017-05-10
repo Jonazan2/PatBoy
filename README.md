@@ -7,6 +7,13 @@ Game Boy emulator written in C++ with SDL2.
 # Specification
 PatBoy follows GameBoy specification that can be found in the pandocs as well as in the documentation provided by nintendo in the Game Boy Programming manual. The documentation needed for building a game boy emulator can be found in: http://bgb.bircd.org/pandocs.htm.
 
+# Debugger
+The last addition to PatBoy has been a debugger implemented using the library [dearimgui](https://github.com/ocornut/imgui) for the UI. The debugger has breakpoints, step in and run until vsync features implemented as well as memory and video status views.
+
+<p align="center">
+  <img src="http://jonathanmcontreras.com/images/portfolio/debugger.png" alt="PatBoy Debugger"/>
+</p>
+
 # Dependencies
 
 Patboy is using *SDL2* to render the emulator. We need to install SDL2 for Mac OS manually. Google Test is being used as test library for the project.

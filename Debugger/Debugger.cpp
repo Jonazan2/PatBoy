@@ -42,15 +42,11 @@ void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Vi
 
 	if (addresshasBreakpoint(cpu.getPC().value) || mode == Mode::BREAKPOINT) {
 		handleBreakpointHit(cycles, cpu, memory, video);
-		return;
-	}
-
-	// for every frame that we render in the emulator, we render a frame in the debugger
-	if (cycles >= 70224) {
+	} else if (cycles >= 70224) {
 		if (mode == Mode::V_SYNC) {
 			handleBreakpointHit(cycles, cpu, memory, video);
 		}
-
+		// for every frame (70224 cycles) that we render in the emulator, we render a frame in the debugger
 		composeView(cycles, cpu, memory, video);
 		render();
 	}

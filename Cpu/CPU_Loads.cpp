@@ -549,7 +549,9 @@ short CPU::opcode0xE1() {
 }// POP HL
 
 short CPU::opcode0xF1() {
-    stackPop(&AF);
+	stackPop(&AF);
+	// We must mask out the bits (0-3) of F in order to ignore their value
+	AF.low = AF.low & 0xF0;
     return 12;
 }// POP AF
 

@@ -7,7 +7,6 @@
 #include "Video.h"
 #include "CPU.h"
 #include "Types.h"
-#include "Memory/MemoryFactory.h"
 #include "Audio.h"
 #include "Joypad.h"
 #include "Debugger/Debugger.h"

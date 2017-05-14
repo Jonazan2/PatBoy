@@ -1,9 +1,27 @@
 #include "Memory.h"
+#include "Memory/MBC1.h"
+#include "Memory/RomOnly.h"
+
+MemoryChip* Memory::createMemoryChipForCartridge(Memory* memory, Cartridge* cartridge) {
+	MemoryChip* chip;
+	switch (cartridge->getCartridgeType()) {
+		case Cartridge::CartridgeType::MBC1:                    chip = new  MBC1(memory, cartridge);
+		case Cartridge::CartridgeType::MBC1_RAM:                chip = new  MBC1(memory, cartridge);       break;
+		case Cartridge::CartridgeType::MBC1_RAM_BATTERY:        chip = new  MBC1(memory, cartridge);       break;
+		case Cartridge::CartridgeType::ROM_RAM:                 chip = new  RomOnly(memory, cartridge);    break;
+		case Cartridge::CartridgeType::ROM_RAM_BATTERY:         chip = new  RomOnly(memory, cartridge);    break;
+		case Cartridge::CartridgeType::ROM_ONLY:				chip = new  RomOnly(memory, cartridge);    break;
+		default:												std::cout << "Memory chip not supported yet" << std::endl; exit(-1); break;
+	}
+
+	return chip;
+}
 
 Memory::Memory(Cartridge *cartridge, Audio *audio, Joypad *joypad) {
     this->map = new byte[0x10000];
 	memset(map, 0, 0x10000);
 
+	this->chip = Memory::createMemoryChipForCartridge(this, cartridge);
     this->cartridge = cartridge;
     this->audio = audio;
     this->joypad = joypad;
@@ -16,7 +34,7 @@ void Memory::init(CPU * cpu) {
 
 byte Memory::read(const word address) const {
 	if (address >= 0x4000 && address <= 0x7FFF) {
-		return readWithChip(address);
+		return chip->read(address);
 	} else if (address == 0xFF00) {
 		return joypad->getState();
 	} else {
@@ -26,7 +44,7 @@ byte Memory::read(const word address) const {
 
 void Memory::write(const word address, const byte data) {
     if (address < 0x8000) {
-        writeWithChip(address, data);
+		chip->write(address, data);
     } else if ( address < 0xA000) {
         map[address] = data;
     } else if ( (address >= 0xC000) && (address <= 0xDFFF) ){
@@ -76,57 +94,6 @@ void Memory::DMA(byte data) {
     for ( int i = 0; i < 0xA0; i++ ) {
         writeDirectly(0xFE00+i, readDirectly((cpu->getAF().hi << 8) + i));
     }
-}
-
-void Memory::dumpHexadecimalMemory() const {
-	std::cout << "\n\t\t\t\t\t\t==== Memory ==== " << std::endl;
-    long i;
-    unsigned char buff[17];
-    
-    for ( i = 0; i < 0x10000; i++ ) {
-        
-        if ( (i % 16) == 0 ) {
-            if ( i != 0 ){
-                printf(" %s\n", buff);
-            }
-            
-            if ( i == 0x0000 ) {
-                std::cout << "\n\t\t\t\t\t_ Cartridge fixed bank _" << std::endl;
-            } else if ( i == 0x4000 ) {
-                std::cout << "\n\t\t\t\t\t_ Cartridge ROM bank _" << std::endl;
-            } else if ( i == 0x8000 ) {
-                std::cout << "\n\t\t\t\t\t_ Video RAM _" << std::endl;
-            } else if ( i == 0xA000 ) {
-                std::cout << "\n\t\t\t\t\t_ External RAM _" << std::endl;
-            } else if ( i == 0xC000 ) {
-                std::cout << "\n\t\t\t\t\t_ Work RAM bank 0 _" << std::endl;
-            } else if ( i == 0xD000 ) {
-                std::cout << "\n\t\t\t\t\t_ Work RAM bank 1 _" << std::endl;
-            } else if ( i == 0xE000 ) {
-                std::cout << "\n\t\t\t\t\t_ Work RAM bank 0 _" << std::endl;
-            } else if ( i == 0xFE00 ) {
-                std::cout << "\n\t\t\t\t\t_ Sprite Attribute Table _" << std::endl;
-            } else if ( i == 0xFEA0 ) {
-                std::cout << "\n\t\t\t\t\t_ Not usable _" << std::endl;
-            } else if ( i == 0xFF00 ) {
-                std::cout << "\n\t\t\t\t\t_ I/O Ports _" << std::endl;
-            } else if ( i == 0xFF80 ) {
-                std::cout << "\n\t\t\t\t\t_ High RAM _" << std::endl;
-            }
-            printf("%04lX ", i) ;
-        }
-    
-        printf(" %02x", map[i]) ;
-        
-        
-        if ( (map[i] < 0x20) || (map[i] > 0x7E) ) {
-            buff[i % 16] = '.';
-        } else {
-            buff[i % 16] = map[i];
-        }
-        buff[(i % 16) + 1] = '\0';
-    }
-    printf("%s\n", buff) ;
 }
 
 void Memory::loadCartridge() const {

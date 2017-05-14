@@ -1,6 +1,4 @@
-#ifndef _MEMORY_ROM_ONLY_H_
-#define _MEMORY_ROM_ONLY_H_
-
+#pragma once
 #include "Memory.h"
 
 /**************************************************************************//**
@@ -9,14 +7,9 @@
 *
 ******************************************************************************/
 
-class MemoryRomOnly : public Memory {
-    
-private:
-    byte readWithChip(const word) const;
-    void writeWithChip(const word, const byte);
-    
-public:
-    MemoryRomOnly(Cartridge *, Audio *, Joypad *joypad);
+class RomOnly : public MemoryChip {
+	public:
+		RomOnly(Memory*, Cartridge *);
+		virtual byte read(word address) override;
+		virtual void write(word address, byte data) override;
 };
-
-#endif

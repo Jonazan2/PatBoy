@@ -18,8 +18,7 @@ GameBoy::GameBoy(const std::string path) {
     this->audio->reset();
     this->cartridge = new Cartridge(path);
     this->joypad = new Joypad();
-    MemoryFactory *factory = new MemoryFactory();
-    this->memory = factory->createMemoryChip(cartridge, audio, joypad);
+	this->memory = new Memory(cartridge, audio, joypad);
     this->cpu = new CPU(memory);
     this->memory->init(cpu);
     joypad->init(cpu, memory);

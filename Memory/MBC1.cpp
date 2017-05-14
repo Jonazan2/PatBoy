@@ -1,7 +1,7 @@
-#include "MemoryMBC1.h"
+#include "MBC1.h"
 
-MemoryMBC1::MemoryMBC1(Cartridge *cartridge, Audio *audio, Joypad *joypad):Memory(cartridge, audio, joypad) {
-    ramBanks = new byte[0x8000];
+MBC1::MBC1(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge }  {
+	ramBanks = new byte[0x8000];
     mode = 0;
     currentRAMBank = 0;
     currentROMBank = 1;
@@ -16,8 +16,7 @@ MemoryMBC1::MemoryMBC1(Cartridge *cartridge, Audio *audio, Joypad *joypad):Memor
     currentRAMAddress = 0;
 }
 
-byte MemoryMBC1::readWithChip(const word address) const {
-    
+byte MBC1::read(word address) {
     switch ( address & 0xE000 ) {
         case 0x4000:
         case 0x6000: {
@@ -37,12 +36,12 @@ byte MemoryMBC1::readWithChip(const word address) const {
             }
         
         } default: {
-            return readDirectly(address);
+            return memory->readDirectly(address);
         }
     }
 }
 
-void MemoryMBC1::writeWithChip(const word address, const byte data) {
+void MBC1::write(const word address, const byte data) {
     switch ( address & 0xE000 ) {
         case 0x0000: {
             if ( cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM ) {
@@ -58,7 +57,7 @@ void MemoryMBC1::writeWithChip(const word address, const byte data) {
             }
             
             if (currentROMBank == 0x00 || currentROMBank == 0x20
-                                       || currentROMBank == 0x40 || currentROMBank == 0x60) {
+                || currentROMBank == 0x40 || currentROMBank == 0x60) {
                 currentROMBank++;
             }
             
@@ -76,7 +75,7 @@ void MemoryMBC1::writeWithChip(const word address, const byte data) {
                 currentROMBank = (currentROMBank & 0x1F) | (higherRomBankBits << 5);
                 
                 if (currentROMBank == 0x00 || currentROMBank == 0x20
-                                           || currentROMBank == 0x40 || currentROMBank == 0x60) {
+                    || currentROMBank == 0x40 || currentROMBank == 0x60) {
                     currentROMBank++;
                 }
                 
@@ -86,11 +85,7 @@ void MemoryMBC1::writeWithChip(const word address, const byte data) {
             break;
             
         } case 0x6000: {
-            if ( (cartridge->getRamSize() != Cartridge::RamSize::KB_RAM_32) && (data & 0x01) ) {
-                printf("--> ** Attempting to change MBC1 to mode 1 with incorrect RAM banks %X %X", address, data);
-            } else {
-                mode = data & 0x01;
-            }
+			mode = data & 0x01;
             break;
             
         } case 0xA000: {
@@ -104,7 +99,7 @@ void MemoryMBC1::writeWithChip(const word address, const byte data) {
             break;
             
         } default: {
-            writeDirectly(address, data);
+            memory->writeDirectly(address, data);
             break;
         }
     }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <map>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -38,13 +39,17 @@ private:
 	Mode mode;
 	GLFWwindow* window;
 	std::set<word> breakpoints;
+	std::map<word, byte> watcher;
+	bool watcherAsBreakpoint;
 
 	void composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video);
 	void startCPUView(int cycles, const CPU& cpu, const Memory& memory);
 	void startVideoView(const CPU& cpu, const Memory& memory, const Video& video);
 	void startMemoryView(const Memory& memory);
 
-	bool addresshasBreakpoint(word address);
+	bool addresshasBreakpoint(word address) const;
+	bool watcherDataHasChanged(const Memory& memory) const;
+	void updateWatcherData(const Memory& memory);
 	void handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video &video);
 
 	void render();

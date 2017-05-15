@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <thread>
+#include <tuple>
 
 #include "Imgui/imgui_impl_glfw_gl3.h"
 
@@ -10,6 +11,7 @@
 
 Debugger::Debugger() {
 	mode = Mode::RUNNING;
+	watcherAsBreakpoint = false;
 }
 
 void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video)
@@ -19,7 +21,7 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	window = glfwCreateWindow(800, 800, "PatBoy Debugger", NULL, NULL);
+	window = glfwCreateWindow(1200, 800, "PatBoy Debugger", NULL, NULL);
 	glfwMakeContextCurrent(window);
 
 	GLint GlewInitResult = glewInit();
@@ -39,13 +41,20 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &
 }
 
 void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
+	if (!watcher.empty()) {
+		if (watcherAsBreakpoint && watcherDataHasChanged(memory)) {
+			mode = Mode::BREAKPOINT;
+		}
+		updateWatcherData(memory);
+	}
 
-	if (addresshasBreakpoint(cpu.getPC().value) || mode == Mode::BREAKPOINT) {
+	if (mode == Mode::BREAKPOINT || addresshasBreakpoint(cpu.getPC().value)) {
 		handleBreakpointHit(cycles, cpu, memory, video);
 	} else if (cycles >= 70224) {
 		if (mode == Mode::V_SYNC) {
 			handleBreakpointHit(cycles, cpu, memory, video);
 		}
+
 		// for every frame (70224 cycles) that we render in the emulator, we render a frame in the debugger
 		composeView(cycles, cpu, memory, video);
 		render();
@@ -201,7 +210,7 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f));
-		if (ImGui::Button("Delete all breakpoints")) {
+		if (ImGui::Button("Clear all breakpoints")) {
 			breakpoints.clear();
 		}
 		ImGui::PopStyleColor(2);
@@ -261,15 +270,15 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Text(isBitSet(ifRegister, TIMER) ? "1" : "0"); ImGui::NextColumn();
 	ImGui::Text("Serial");
 	ImGui::Text(isBitSet(ifRegister, SERIAL) ? "1" : "0"); ImGui::NextColumn();
-	ImGui::Text("Joypad");
-	ImGui::Text(isBitSet(ifRegister, JOYPAD) ? "1" : "0"); ImGui::NextColumn();
-	ImGui::Columns(1);
+ImGui::Text("Joypad");
+ImGui::Text(isBitSet(ifRegister, JOYPAD) ? "1" : "0"); ImGui::NextColumn();
+ImGui::Columns(1);
 
-	/* cycles counter */
-	ImGui::Separator();
-	ImGui::Text("Cycles executed: %d", cycles);
+/* cycles counter */
+ImGui::Separator();
+ImGui::Text("Cycles executed: %d", cycles);
 
-	ImGui::End();
+ImGui::End();
 }
 
 void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video& video) {
@@ -282,8 +291,9 @@ void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video&
 
 	byte yCoordinate = memory.readDirectly(Video::LY_REGISTER);
 	if (yCoordinate > 144) {
-		ImGui::TextColored(ImVec4(255,0,0,1), "LY: %d", yCoordinate);
-	} else {
+		ImGui::TextColored(ImVec4(255, 0, 0, 1), "LY: %d", yCoordinate);
+	}
+	else {
 		ImGui::Text("LY: %d", yCoordinate);
 	}
 
@@ -295,7 +305,7 @@ void Debugger::startMemoryView(const Memory& memory) {
 
 	ImGui::SetNextWindowPos(ImVec2(650, 0), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Memory");
-	ImGui::BeginChild("##scrolling", ImVec2(0, 0));
+	ImGui::BeginChild("##scrolling", ImVec2(0, 450));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
@@ -347,6 +357,62 @@ void Debugger::startMemoryView(const Memory& memory) {
 	clipper.End();
 	ImGui::PopStyleVar(2);
 	ImGui::EndChild();
+
+	/* Watcher */
+	ImGui::Separator();
+
+	ImGui::PushItemWidth(160);
+	ImGui::AlignFirstTextHeightToWidgets();
+	ImGui::Text("Add watcher:"); ImGui::SameLine();
+	ImGui::PopItemWidth();
+
+	ImGui::PushItemWidth(70);
+	char input[64];
+	memset(input, 0, sizeof(char) * 64);
+	if (ImGui::InputText("##addr", input, 64, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+		int address;
+		if (sscanf(input, "%X", &address)) {
+			word validAddress = address & 0xFFFF;
+			watcher.insert({ validAddress, mem_data[validAddress]});
+		}
+	}
+	ImGui::PopItemWidth();
+
+	if (!watcher.empty()) {
+		ImGui::SameLine();
+		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f));
+		if (ImGui::Button("Clear all watchers")) {
+			watcher.clear();
+			mode = Mode::RUNNING;
+		}
+		ImGui::PopStyleColor(2);
+		ImGui::SameLine();
+
+		ImGui::Checkbox("Data breakpoint", &watcherAsBreakpoint);
+
+		ImGui::Separator();
+		ImGui::Columns(3, "breakpoints");
+
+		std::map<word, byte>::iterator it;
+		for (it = watcher.begin(); it != watcher.end(); ) {
+			word address = it->first;
+			byte data = it->second;
+
+			char label[64];
+			sprintf(label, "0x%04X:  0x%02X  %c", address, data, (data >= 32 && data < 128) ? data : '.');
+			if (ImGui::Selectable(label)) {
+				it = watcher.erase(it);
+			}
+			else {
+				++it;
+			}
+			ImGui::NextColumn();
+		}
+		ImGui::Columns(1);
+		ImGui::Separator();
+	}
+
 	ImGui::End();
 }
 
@@ -372,9 +438,30 @@ void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& mem
 	}
 }
 
-bool Debugger::addresshasBreakpoint(word address) {
+bool Debugger::addresshasBreakpoint(word address) const {
 	std::set<word>::const_iterator it = breakpoints.find(address);
 	return it != breakpoints.end();
+}
+
+
+bool Debugger::watcherDataHasChanged(const Memory &memory) const {
+	std::map<word, byte>::const_iterator it;
+	for (it = watcher.begin(); it != watcher.end(); ++it) {
+		if (it->second != memory.readDirectly(it->first)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Debugger::updateWatcherData(const Memory& memory) {
+	std::map<word, byte>::iterator it;
+	for (it = watcher.begin(); it != watcher.end(); ++it) {
+		byte data = memory.readDirectly(it->first);
+		if (it->second != data) {
+			it->second = data;
+		}
+	}
 }
 
 void Debugger::render() {

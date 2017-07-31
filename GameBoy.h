@@ -22,8 +22,17 @@
 ******************************************************************************/
 
 class GameBoy {
+
+public:
+	GameBoy(const std::string);
+	void startEmulation();
+	~GameBoy();
     
 private:
+	const int MAX_CYCLES = 70224;
+	const float FPS = 59.7f;
+	const float DELAY_TIME = 1000.0f / FPS;
+
     Audio *audio;
     Cartridge *cartridge;
     Memory *memory;
@@ -32,10 +41,6 @@ private:
     Joypad *joypad;
 	Debugger debugger;
 
-public:
-    GameBoy(const std::string);
-    void startEmulation();
-    ~GameBoy();
 };
 
 #endif

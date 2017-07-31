@@ -9,10 +9,6 @@
 #include <SDL.h>
 #endif
 
-const int MAX_CYCLES = 70224;
-const float FPS = 59.7f;
-const float DELAY_TIME = 1000.0f / FPS;
-
 GameBoy::GameBoy(const std::string path) {
     this->audio = new Audio();
     this->audio->reset();
@@ -28,17 +24,16 @@ GameBoy::GameBoy(const std::string path) {
 void GameBoy::startEmulation() {
 	debugger.startDebugger(*cpu, *memory, *video, *cartridge);
 
-    bool quit = false;
-	SDL_Event event;
   
 	int cycles;
-	
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
 	previous = std::chrono::high_resolution_clock::now();
 
+	SDL_Event event;
+    bool quit = false;
     while (!quit) {
 		current = std::chrono::high_resolution_clock::now();
-		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds> (current - previous);
+		auto elapsed = std::chrono::duration_cast<std::chrono::duration<float, std::milli>> (current - previous);
 		previous = current;
 		
 		while( SDL_PollEvent( &event ) ) {
@@ -62,13 +57,13 @@ void GameBoy::startEmulation() {
 		video->renderGame();
 
 		if (elapsed.count() < DELAY_TIME) {
-			int waitTime = (int)(DELAY_TIME - elapsed.count());
-			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+			std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(DELAY_TIME - elapsed.count()));
 		} else {
 			printf("overpassed by %f\n", elapsed.count() - DELAY_TIME);
 		}
     }
-	SDL_Quit( ) ;
+
+	SDL_Quit();
 	debugger.closeDebugger();
 }
 

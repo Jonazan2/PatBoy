@@ -26,7 +26,7 @@ GameBoy::GameBoy(const std::string path) {
 }
 
 void GameBoy::startEmulation() {
-	debugger.startDebugger(*cpu, *memory, *video);
+	debugger.startDebugger(*cpu, *memory, *video, *cartridge);
 
     bool quit = false;
 	SDL_Event event;
@@ -57,13 +57,9 @@ void GameBoy::startEmulation() {
 			audio->update(cyclesPerThisOpcode);
 			cpu->updateInterrupts();
 			cycles += cyclesPerThisOpcode;
-			debugger.update(cycles, *cpu, *memory, *video);
+			debugger.update(cycles, *cpu, *memory, *video, *cartridge);
 		}
 		video->renderGame();
-
-		if (cartridge->hasRTC()) {
-			cartridge->updateRTC();
-		}
 
 		if (elapsed.count() < DELAY_TIME) {
 			int waitTime = (int)(DELAY_TIME - elapsed.count());

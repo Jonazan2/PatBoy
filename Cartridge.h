@@ -93,52 +93,48 @@ public:
         NO_SGB			= 0x00,
         SGB_FUNCTIONS	= 0x03
     };
-    
-private:
-    FILE * file;
-    byte * rom;
-	std::string path;
-	std::string title;
-    long romSize;
-    int romBanks;
-    int ramBanks;
-    bool hasRealTimeClock;
-    DestinationCode destinationCode;
-    CartridgeSize cartridgeSize;
-    CartridgeType cartridgeType;
-	GameColorFlag cgbFlag;
-    SuperGameBoyFlag sgbFlag;
-    RamSize ramSize;
-    void extractHeaderData();
-    void extractRomBanks();
-    void extractRamBanks();
-    void loadRom();
-    long getFileSize();
+
+	Cartridge(std::string);
+	~Cartridge();
+
+	std::string getTitle() const;
+	DestinationCode getDestinationCode() const;
+	CartridgeSize getCartridgeSize() const;
+	CartridgeType getCartridgeType() const;
+	RamSize getRamSize() const;
+	int getROMBanks() const;
+	int getRamBanks() const;
+	long getRomSize() const;
+	void dumpHexadecimalFile() const;
+	byte *getRom() const;
 	std::string getCartridgeTypeName() const;
 	std::string getCartridgeSizeName() const;
 	std::string getRamSizeName() const;
 	std::string getDestinationCodeName() const;
 	std::string getSGBFlagName() const;
 	std::string getCGBFlagName() const;
-	std::time_t currentRTCValue;
+	int getAmountOfRomBanks() const { return romBanks; };
+	int getAmountOfRamBanks() const { return ramBanks; };
 
-public:
-	Cartridge(std::string);
-	std::string getTitle() const;
-    DestinationCode getDestinationCode() const;
-    CartridgeSize getCartridgeSize() const;
-    CartridgeType getCartridgeType() const;
-    RamSize getRamSize() const;
-    int getROMBanks() const;
-    int getRamBanks() const;
-    long getRomSize() const;
-    byte *getRom() const;
-    void printHeaderData() const;
-    void dumpHexadecimalFile() const;
-    bool hasRTC() const;
-    time_t getCurrentRTCValue() const;
-    void updateRTC();
-    ~Cartridge();
+private:
+    byte * rom;
+	std::string path;
+	std::string title;
+    long romSize;
+    int romBanks;
+    int ramBanks;
+    DestinationCode destinationCode;
+    CartridgeSize cartridgeSize;
+    CartridgeType cartridgeType;
+	GameColorFlag cgbFlag;
+    SuperGameBoyFlag sgbFlag;
+    RamSize ramSize;
+
+    void extractHeaderData();
+    void extractRomBanks();
+    void extractRamBanks();
+    void loadRom();
+    long getFileSize(FILE *file);
 };
 
 #endif

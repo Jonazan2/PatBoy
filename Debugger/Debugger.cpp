@@ -14,7 +14,7 @@ Debugger::Debugger() {
 	watcherAsBreakpoint = false;
 }
 
-void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video)
+void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video, const Cartridge& cartridge)
 {
 	glfwInit();
 
@@ -34,13 +34,13 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &
 	ImGui_ImplGlfwGL3_Init(window, true);
 
 	// we update first just in case we have a breakpoint in the first instruction
-	update(0, cpu, memory, video);
+	update(0, cpu, memory, video, cartridge);
 
-	composeView(0, cpu, memory, video);
+	composeView(0, cpu, memory, video, cartridge);
 	render();
 }
 
-void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
+void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge &cartridge) {
 	if (!watcher.empty()) {
 		if (watcherAsBreakpoint && watcherDataHasChanged(memory)) {
 			mode = Mode::BREAKPOINT;
@@ -49,14 +49,14 @@ void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Vi
 	}
 
 	if (mode == Mode::BREAKPOINT || addresshasBreakpoint(cpu.getPC().value)) {
-		handleBreakpointHit(cycles, cpu, memory, video);
+		handleBreakpointHit(cycles, cpu, memory, video, cartridge);
 	} else if (cycles >= 70224) {
 		if (mode == Mode::V_SYNC) {
-			handleBreakpointHit(cycles, cpu, memory, video);
+			handleBreakpointHit(cycles, cpu, memory, video, cartridge);
 		}
 
 		// for every frame (70224 cycles) that we render in the emulator, we render a frame in the debugger
-		composeView(cycles, cpu, memory, video);
+		composeView(cycles, cpu, memory, video, cartridge);
 		render();
 	}
 }
@@ -66,13 +66,14 @@ void Debugger::closeDebugger() {
 	glfwTerminate();
 }
 
-void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
+void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge& cartridge) {
 	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
 
 	startCPUView(cycles, cpu, memory);
 	startVideoView(cpu, memory, video);
 	startMemoryView(memory);
+	startCartridgeView(cartridge);
 }
 
 void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memory) {
@@ -283,7 +284,7 @@ ImGui::End();
 
 void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video& video) {
 	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(610, 80));
+	ImGui::SetNextWindowSize(ImVec2(605, 80));
 
 	ImGui::Begin("Video");
 	ImGui::Text("LCD Control: 0x%02X", memory.readDirectly(Video::LCD_CONTROL));
@@ -303,7 +304,7 @@ void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video&
 void Debugger::startMemoryView(const Memory& memory) {
 	byte* mem_data = memory.getMap();
 
-	ImGui::SetNextWindowPos(ImVec2(650, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(650, 150), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Memory");
 	ImGui::BeginChild("##scrolling", ImVec2(0, 450));
 
@@ -416,8 +417,34 @@ void Debugger::startMemoryView(const Memory& memory) {
 	ImGui::End();
 }
 
+void Debugger::startCartridgeView(const Cartridge& cartridge) {
+	ImGui::SetNextWindowPos(ImVec2(610, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(475, 120));
 
-void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video& video) {
+	ImGui::Begin("Cartridge");
+
+	ImGui::Columns(2, "cartridge");
+	ImGui::Text("Title: %s", cartridge.getTitle().c_str());
+	ImGui::Text("Region: %s", cartridge.getDestinationCodeName().c_str());
+	ImGui::Text("CGB: %s", cartridge.getCGBFlagName().c_str());
+	ImGui::Text("SGB: %s", cartridge.getSGBFlagName().c_str());
+	ImGui::NextColumn();
+
+	ImGui::Text("ROM size: %s", cartridge.getCartridgeSizeName().c_str());
+	ImGui::Text("ROM banks: %d", cartridge.getAmountOfRomBanks());
+	ImGui::Text("RAM size: %s", cartridge.getRamSizeName().c_str());
+	ImGui::Text("RAM banks: %d", cartridge.getAmountOfRamBanks());
+	ImGui::Columns(1);
+
+	ImGui::Separator();
+	ImGui::Text("Cartridge type: %s", cartridge.getCartridgeTypeName().c_str());
+
+	ImGui::End();
+}
+
+
+
+void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge &cartridge) {
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
 	previous = std::chrono::high_resolution_clock::now();
 
@@ -427,7 +454,7 @@ void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& mem
 		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds> (current - previous);
 		previous = current;
 
-		composeView(cycles, cpu, memory, video);
+		composeView(cycles, cpu, memory, video, cartridge);
 		render();
 
 		static float DELAY_TIME = 1000.0f / 60;

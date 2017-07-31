@@ -4,27 +4,27 @@ using namespace std;
 
 Cartridge::Cartridge(string filePath) {
     this->path = filePath;
-    this->file = NULL;
-    this->hasRealTimeClock = false;
-    this->currentRTCValue = 0;
     loadRom();
     extractHeaderData();
 }
 
 void Cartridge::loadRom() {
-	if ( (file = fopen(path.c_str(), "rb")) == NULL ) {
+	FILE *file = fopen(path.c_str(), "rb");
+	if (file == nullptr) {
         exit(-1);
 	}
     
-    fseek(this->file, 0L, SEEK_END);
-    this->romSize = ftell(this->file);
+    fseek(file, 0L, SEEK_END);
+    this->romSize = ftell(file);
     fseek(file, 0L, SEEK_SET);
     
 	this->rom = new byte[romSize];
 	fread(rom, romSize, 1, file);
+
+	fclose(file);
 }
 
-long Cartridge::getFileSize() {
+long Cartridge::getFileSize(FILE *file) {
 	long currentPosition, endPosition;
 	currentPosition = ftell(file);
 	fseek(file, 0, 2);
@@ -45,29 +45,12 @@ void Cartridge::extractHeaderData() {
     this->sgbFlag = SuperGameBoyFlag(rom[0x0146]);
     this->cartridgeType = CartridgeType(rom[0x0147]);
     
-    if ( cartridgeType == CartridgeType::MBC3_TIMER_BATTERY ||
-		 cartridgeType == CartridgeType::MBC3_TIMER_RAM_BATTERY ) {
-        hasRealTimeClock = true;
-    }
-    
     this->cartridgeSize = CartridgeSize(rom[0x0148]);
     this->ramSize = RamSize(rom[0x0149]);
     this->destinationCode = DestinationCode(rom[0x014A]);
     
     extractRamBanks();
     extractRomBanks();
-}
-
-void Cartridge::printHeaderData() const {
-    cout << "===== " << title << " =====" << endl;
-    cout << "CGB: " << getCGBFlagName() << endl;
-    cout << "SGB: " << getSGBFlagName() << endl;
-    cout << "Cartridge type: " << getCartridgeTypeName() << endl;
-    cout << "Rom size: " << getCartridgeSizeName() <<endl ;
-    cout << "Number of rom banks: " << romBanks << endl;
-    cout << "Ram size: " << getRamSizeName() << endl;
-    cout << "Number of RAM banks: " << ramBanks << endl;
-    cout << "Destination code: " << getDestinationCodeName() << endl;
 }
 
 void Cartridge::extractRamBanks() {
@@ -119,10 +102,10 @@ void Cartridge::extractRomBanks() {
 string Cartridge::getRamSizeName() const {
     string name;
     switch ( ramSize ) {
-		case RamSize::NONE_RAM:  name = "Cartridge without RAM"; break;
-        case RamSize::KB_RAM_2:  name = "2 Kilobytes";           break;
-        case RamSize::KB_RAM_8:  name = "8 Kylobytes";           break;
-        case RamSize::KB_RAM_32: name = "32 Kylobytes";          break;
+		case RamSize::NONE_RAM:  name = "No RAM"; break;
+        case RamSize::KB_RAM_2:  name = "2 KB";           break;
+        case RamSize::KB_RAM_8:  name = "8 KB";           break;
+        case RamSize::KB_RAM_32: name = "32 KB";          break;
     }
     return name;
 }
@@ -165,17 +148,17 @@ string Cartridge::getCartridgeTypeName() const {
 string Cartridge::getCartridgeSizeName() const {
     string name;
     switch ( cartridgeSize ) {
-		case CartridgeSize::KB_32:	name = "32 Kilobytes";  break;
-        case CartridgeSize::KB_64:  name = "64 Kilobytes";  break;
-        case CartridgeSize::KB_128: name = "128 Kilobytes"; break;
-        case CartridgeSize::KB_256: name = "256 Kilobytes"; break;
-        case CartridgeSize::KB_512: name = "512 Kilobytes"; break;
-        case CartridgeSize::MB_1:   name = "1 Megabytes";   break;
-        case CartridgeSize::MB_2:   name = "2 Megabytes";   break;
-        case CartridgeSize::MB_4:   name = "4 Megabytes";   break;
-        case CartridgeSize::MB_1_1: name = "1.1 Megabytes"; break;
-        case CartridgeSize::MB_1_2: name = "1.2 Megabytes"; break;
-        case CartridgeSize::MB_1_5: name = "1.5 Megabytes"; break;
+		case CartridgeSize::KB_32:	name = "32 KB";  break;
+        case CartridgeSize::KB_64:  name = "64 KB";  break;
+        case CartridgeSize::KB_128: name = "128 KB"; break;
+        case CartridgeSize::KB_256: name = "256 KB"; break;
+        case CartridgeSize::KB_512: name = "512 KB"; break;
+        case CartridgeSize::MB_1:   name = "1 KB";   break;
+        case CartridgeSize::MB_2:   name = "2 KB";   break;
+        case CartridgeSize::MB_4:   name = "4 KB";   break;
+        case CartridgeSize::MB_1_1: name = "1.1 KB"; break;
+        case CartridgeSize::MB_1_2: name = "1.2 KB"; break;
+        case CartridgeSize::MB_1_5: name = "1.5 KB"; break;
     }
     return name;
 }
@@ -183,11 +166,11 @@ string Cartridge::getCartridgeSizeName() const {
 string Cartridge::getCGBFlagName() const {
     string cgb;
     if ( cgbFlag == GameColorFlag::CGB_SUPPORT ) {
-        cgb = "Game Boy Color functions supported";
+        cgb = "CGB functions";
     } else if ( cgbFlag == GameColorFlag::CGB_ONLY ) {
-        cgb = "Game Boy Color game";
+        cgb = "CGB game";
     } else {
-        cgb = "No Game Boy Color";
+        cgb = "-";
     }
     return cgb;
 }
@@ -195,9 +178,9 @@ string Cartridge::getCGBFlagName() const {
 string Cartridge::getSGBFlagName() const {
     string sgb;
     if ( sgbFlag == SuperGameBoyFlag::SGB_FUNCTIONS ) {
-        sgb = "Super Game Boy functions supported";
+        sgb = "supported";
     } else if ( sgbFlag == SuperGameBoyFlag::NO_SGB ) {
-        sgb = "Super Game Boy functions not supported";
+        sgb = "not supported";
     }
     return sgb;
 }
@@ -274,19 +257,6 @@ byte* Cartridge::getRom() const {
     return this->rom;
 }
 
-bool Cartridge::hasRTC() const {
-    return hasRealTimeClock;
-}
-
-time_t Cartridge::getCurrentRTCValue() const {
-    return currentRTCValue;
-}
-
-void Cartridge::updateRTC() {
-    time(&currentRTCValue);
-}
-
 Cartridge::~Cartridge(){
-    fclose(file);
     delete rom;
 }

@@ -10,16 +10,32 @@
 class MBC1 : public MemoryChip {
 	public:
 		MBC1(Memory* memory, Cartridge* cartridge);
-		virtual byte read(word address) override ;
-		void write(word address, byte data) override;
+		byte read(word address) final override;
+		void write(word address, byte data) final override;
     
 	private:
-		int mode;
-		int currentRAMBank;
-		int currentROMBank;
-		bool ramEnabled;
+		const byte SPECIAL_ROM_BANKS[4] = {0x00, 0x20, 0x40, 0x60};
+		const word RAM_BANK_SIZE		= 0x2000;
+		const word ROM_BANK_SIZE		= 0x4000;
+
+		enum class Mode : int {
+			ROM = 0,
+			RAM = 1
+		};
+
+		Mode mode;
+		byte currentRAMBank;
+		byte currentROMBank;
 		byte higherRomBankBits;
-		byte* ramBanks;
-		int currentROMAddress;
-		int currentRAMAddress;
+
+		byte* ram;
+		bool ramEnabled;
+
+		byte readFromRamBank(word address);
+		byte readFromRomBank(word address);
+
+		void writeToRamBank(word address, byte data);
+		void setRomBank(byte data);
+		void setRamOrUpperBitsOfRomBank(byte data);
+		void setMode(byte data);
 };

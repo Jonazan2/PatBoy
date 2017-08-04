@@ -1,107 +1,112 @@
 #include "MBC1.h"
 
 MBC1::MBC1(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge }  {
-	ramBanks = new byte[0x8000];
-    mode = 0;
+	mode = Mode::ROM;
+
+	ram = new byte[RAM_BANK_SIZE * 4];
+	memset(ram, 0xFF, sizeof(ram));
+    ramEnabled = false;
+
     currentRAMBank = 0;
     currentROMBank = 1;
     higherRomBankBits = 0;
-    ramEnabled = false;
-    
-    for ( int i = 0; i < 0x8000; i++ ) {
-        ramBanks[i] = 0xFF;
-    }
-    
-    currentROMAddress = 0x4000;
-    currentRAMAddress = 0;
 }
 
 byte MBC1::read(word address) {
-    switch ( address & 0xE000 ) {
-        case 0x4000:
-        case 0x6000: {
-            byte* rom = cartridge->getRom();
-            return rom[(address - 0x4000) + currentROMAddress];
-            break;
-        } case 0xA000: {
-            if ( ramEnabled ) {
-                if ( mode == 0 ) {
-                    return ramBanks[address - 0xA000];
-                }
-                else {
-                    return ramBanks[(address - 0xA000) + currentRAMAddress];
-                }
-            } else {
-                return 0xFF;
-            }
-        
-        } default: {
-            return memory->readDirectly(address);
-        }
-    }
+	if (address <= 0x3FFF) {
+		return memory->readDirectly(address);
+	} else if (address <= 0x7FFF) {
+		return readFromRomBank(address);
+	} else if (address <= 0xBFFF) {
+		return readFromRamBank(address);
+	}
+}
+
+byte MBC1::readFromRomBank(word address) {
+	int romAddress = currentROMBank * ROM_BANK_SIZE;
+	byte* rom = cartridge->getRom();
+	return rom[(address - 0x4000) + romAddress];
+}
+
+byte MBC1::readFromRamBank(word address) {
+	if (ramEnabled) {
+		if (mode == Mode::ROM) {
+			return ram[address - 0xA000];
+		} else {
+			int ramAddress = 0;
+			if (currentRAMBank != 0) {
+				ramAddress = currentRAMBank * RAM_BANK_SIZE;
+			}
+			return ram[(address - 0xA000) + ramAddress];
+		}
+	} else {
+		return 0xFF;
+	}
 }
 
 void MBC1::write(const word address, const byte data) {
-    switch ( address & 0xE000 ) {
-        case 0x0000: {
-            if ( cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM ) {
-                ramEnabled = ((data & 0x0F) == 0x0A);
-            }
-            break;
-            
-        } case 0x2000: {
-            if ( mode == 0 ) {
-                currentROMBank = (data & 0x1F) | (higherRomBankBits << 5);
-            } else {
-                currentROMBank = data & 0x1F;
-            }
-            
-            if (currentROMBank == 0x00 || currentROMBank == 0x20
-                || currentROMBank == 0x40 || currentROMBank == 0x60) {
-                currentROMBank++;
-            }
-            
-            currentROMBank &= (cartridge->getROMBanks() - 1);
-            currentROMAddress = currentROMBank * 0x4000;
-            break;
-            
-        } case 0x4000: {
-            if ( mode == 1 ) {
-                currentRAMBank = data & 0x03;
-                currentRAMBank &= (cartridge->getRamBanks() - 1);
-                currentRAMAddress = currentRAMBank * 0x2000;
-            } else {
-                higherRomBankBits = data & 0x03;
-                currentROMBank = (currentROMBank & 0x1F) | (higherRomBankBits << 5);
-                
-                if (currentROMBank == 0x00 || currentROMBank == 0x20
-                    || currentROMBank == 0x40 || currentROMBank == 0x60) {
-                    currentROMBank++;
-                }
-                
-                currentROMBank &= (cartridge->getROMBanks() - 1);
-                currentROMAddress = currentROMBank * 0x4000;
-            }
-            break;
-            
-        } case 0x6000: {
-			mode = data & 0x01;
-            break;
-            
-        } case 0xA000: {
-            if ( ramEnabled ) {
-                if ( mode == 0 ) {
-                    ramBanks[address - 0xA000] = data;
-                } else {
-                    ramBanks[(address - 0xA000) + currentRAMAddress] = data;
-                }
-            }
-            break;
-            
-        } default: {
-            memory->writeDirectly(address, data);
-            break;
-        }
-    }
+	if (address <= 0x1FFF) {
+		if (cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM) {
+			ramEnabled = ((data & 0x0F) == 0x0A);
+		}
+	} else if (address >= 0x2000 && address <= 0x3FFF) {
+		setRomBank(data);
+	} else if (address >= 0x4000 && address <= 0x5FFF) {
+		setRamOrUpperBitsOfRomBank(data);
+	} else if (address >= 0x6000 && address <= 0x7FFF) {
+		setMode(data);
+	} else if (address >= 0xA000 && address <= 0xBFFF) {
+		writeToRamBank(address, data);
+	} else {
+		memory->writeDirectly(address, data);
+	}
+}
 
+void MBC1::writeToRamBank(word address, byte data) {
+	if (ramEnabled) {
+		if (mode == Mode::ROM) {
+			ram[address - 0xA000] = data;
+		} else {
+			word ramAddress = currentRAMBank * RAM_BANK_SIZE;
+			ram[(address - 0xA000) + ramAddress] = data;
+		}
+	}
+}
+
+void MBC1::setRomBank(byte data) {
+	if (mode == Mode::ROM) {
+		currentROMBank = (data & 0x1F) | (higherRomBankBits << 5);
+	} else {
+		currentROMBank = data & 0x1F;
+	}
+
+	for (byte specialBank : SPECIAL_ROM_BANKS) {
+		if (currentROMBank == specialBank) {
+			currentROMBank++;
+		}
+	}
+
+	currentROMBank &= (cartridge->getROMBanks() - 1);
+}
+
+void MBC1::setRamOrUpperBitsOfRomBank(byte data) {
+	if (mode == Mode::RAM) {
+		currentRAMBank = data & 0x03;
+		currentRAMBank &= (cartridge->getRamBanks() - 1);
+	} else {
+		higherRomBankBits = data & 0x03;
+		currentROMBank = (currentROMBank & 0x1F) | (higherRomBankBits << 5);
+
+		for (byte specialBank : SPECIAL_ROM_BANKS) {
+			if (currentROMBank == specialBank) {
+				currentROMBank++;
+			}
+		}
+
+		currentROMBank &= (cartridge->getROMBanks() - 1);
+	}
+}
+
+void MBC1::setMode(byte data) {
+	mode = Mode(data & 0x01);
 }

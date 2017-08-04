@@ -33,7 +33,7 @@ void Memory::init(CPU * cpu) {
 }
 
 byte Memory::read(const word address) const {
-	if (address >= 0x4000 && address <= 0x7FFF) {
+	if (address < 0xBFFF) {
 		return chip->read(address);
 	} else if (address == 0xFF00) {
 		return joypad->getState();
@@ -43,10 +43,8 @@ byte Memory::read(const word address) const {
 }
 
 void Memory::write(const word address, const byte data) {
-    if (address < 0x8000) {
+    if (address < 0xBFFF) {
 		chip->write(address, data);
-    } else if ( address < 0xA000) {
-        map[address] = data;
     } else if ( (address >= 0xC000) && (address <= 0xDFFF) ){
         map[address] = data;
     } else if ( (address > 0xE000) && (address <= 0xFDFF) ) {

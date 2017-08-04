@@ -3,7 +3,7 @@
 RomOnly::RomOnly(Memory* memory, Cartridge* cartridge) : MemoryChip(memory, cartridge) {}
 
 byte RomOnly::read(word address) {
-	if ( address >= 0xA000 && address < 0xC000 ) {
+	if ( address >= 0xA000 && address <= 0xBFFF ) {
         if ( cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM ) {
             return memory->readDirectly(address);
         } else {
@@ -17,7 +17,7 @@ byte RomOnly::read(word address) {
 void RomOnly::write(word address, byte data) {
     if ( address < 0x8000 ) {
         // trapped address
-    } else if ( address >= 0xA000 && address < 0xC000 ) {
+    } else if ( address >= 0xA000 && address < 0xBFFF) {
         if ( cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM ) {
             memory->writeDirectly(address, data);
         }

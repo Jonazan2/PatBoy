@@ -1,102 +1,86 @@
 #include "CPU.h"
 
 short CPU::opcode0x07() {
-    
-	bool isMSBSet = isBitSet(AF.hi, 7);
-    
-	clearFlags();
-    
+	byte bit = AF.hi & 0x80;
 	AF.hi <<= 1;
     
-	if (isMSBSet) {
-		raiseFlag(CARRY_FLAG);
-        setBit(&AF.hi, 0);
+	clearFlags();
+	if (bit == 0x01) {
+		raiseFlag(CARRY_FLAG);;
 	}
-    
-	if (AF.hi == 0) {
+	if (AF.hi == 0x0) {
 		raiseFlag(ZERO_FLAG);
     }
-    
-    return 8;
+
+    return 4;
 }
 
 short CPU::opcode0x0F() {
-	bool isLSBSet = isBitSet(AF.hi, 0);
-    
-	clearFlags();
-    
+	byte bitZero = AF.hi & 0x01;
 	AF.hi >>= 1;
-    
-	if (isLSBSet) {
-		raiseFlag(CARRY_FLAG);
-        setBit(&AF.hi, 7);
+
+	clearFlags();
+	if (bitZero == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
 	}
-    
-	if (AF.hi == 0) {
-		raiseFlag(ZERO_FLAG);
-    }
-    return 8;
+	if (AF.hi == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG);
+	}
+
+    return 4;
 }
 
-short CPU::opcode0x17() {
-	bool isCarrySet = checkFlag(CARRY_FLAG);
-	bool isMSBSet = isBitSet(AF.hi, 7);
-    
+short CPU::opcode0x17() {	
+	byte lastBit = AF.hi & 0x80;
+	AF.hi <<= 1;
+
+	if (checkFlag(Flag::CARRY_FLAG)) {
+		setBit(&AF.hi, 0);
+	} else {
+		clearBit(&AF.hi, 0);
+	}
+
 	clearFlags();
-    
-	AF.hi <<= 1 ;
-    
-	if (isMSBSet)
-		raiseFlag(CARRY_FLAG);
-    
-	if (isCarrySet)
-        setBit(&AF.hi, 0);
-    
-	if (AF.hi == 0)
+	if (lastBit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+	if (AF.hi == 0) {
 		raiseFlag(ZERO_FLAG);
-    return 8;
-}// RL A
+	}
+    return 4;
+}// RLA
 
 short CPU::opcode0x1F() {
-    
-	bool isCarrySet = checkFlag(CARRY_FLAG);
-	bool isLSBSet = isBitSet(AF.hi, 0);
-    
+	byte firstBit = AF.hi & 0x01;
+	AF.hi >>= 1;
+
+	if (checkFlag(Flag::CARRY_FLAG)) {
+		setBit(&AF.hi, 7);
+	} else {
+		clearBit(&AF.hi, 7);
+	}
+
 	clearFlags();
-    
-	AF.hi >>= 1 ;
-    
-	if ( isLSBSet ) {
-		raiseFlag(CARRY_FLAG);
-    }
-	
-    if ( isCarrySet ) {
-        setBit(&AF.hi, 7);
-    }
-	
-    if ( AF.hi == 0 ) {
+	if (firstBit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+	if (AF.hi == 0) {
 		raiseFlag(ZERO_FLAG);
-    }
-    
-    return 8;
+	}
+	return 4;
 }// RR A
 
 void CPU::rlc8bitRegister(byte * reg) {
-    
-	bool isMSBSet = isBitSet(*reg, 7) ;
-    
-	clearFlags();
-
+	byte bit= *reg & 0x80;
 	*reg <<= 1;
-    
-	if ( isMSBSet ) {
-		raiseFlag(CARRY_FLAG);
-		setBit(reg, 0);
+
+	clearFlags();
+	if (bit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
 	}
-    
-	if (*reg == 0) {
+	if (*reg == 0x00) {
 		raiseFlag(ZERO_FLAG);
-    }
+	}
 }
 
 short CPU::extendedOpcode0x00() {
@@ -131,23 +115,10 @@ short CPU::extendedOpcode0x05() {
 
 short CPU::extendedOpcode0x06() {
 	byte reg = memory->read(HL.value) ;
-    
-	bool isMSBSet = isBitSet(reg, 7) ;
-    
-	clearFlags();
-    
-	reg <<= 1;
-    
-	if ( isMSBSet ) {
-		raiseFlag(CARRY_FLAG);
-		setBit(&reg, 0);
-	}
-    
-	if ( reg == 0 ) {
-		raiseFlag(ZERO_FLAG);
-    }
+	rlc8bitRegister(&reg);
 	memory->write(HL.value, reg);
-    return 16;
+
+	return 16;
 }// RLC (HL)
 
 short CPU::extendedOpcode0x07() {
@@ -157,17 +128,13 @@ short CPU::extendedOpcode0x07() {
 
 
 void CPU::rrc8bitRegister(byte *reg) {
-	bool isLSBset = isBitSet(*reg, 0) ;
-    
+	byte zeroBit = *reg & 0x01;
+	*reg = *reg >> 1;
+
 	clearFlags();
-    
-	*reg >>= 1;
-    
-	if ( isLSBset ) {
+	if (zeroBit == 0x01) {
 		raiseFlag(CARRY_FLAG);
-		setBit(reg, 7);
 	}
-    
 	if (*reg == 0) {
 		raiseFlag(ZERO_FLAG);
     }
@@ -205,48 +172,44 @@ short CPU::extendedOpcode0x0D() {
 
 short CPU::extendedOpcode0x0E() {
 	byte reg = memory->read(HL.value) ;
-    
-	bool isLSBset = isBitSet(reg, 0) ;
-    
-	clearFlags();
-    
-	reg >>= 1;
-    
-	if ( isLSBset ) {
-		raiseFlag(CARRY_FLAG);
-		setBit(&reg, 7);
-	}
-    
-	if ( reg == 0 ) {
-		raiseFlag(ZERO_FLAG);
-    }
+	rrc8bitRegister(&reg);
 	memory->write(HL.value, reg);
     return 16;
 }// RRC (HL)
 
 short CPU::extendedOpcode0x0F() {
-    rrc8bitRegister(&AF.hi);
+	byte bit = AF.hi & 0x01;
+	AF.hi >>= 1;
+
+	clearFlags();
+	if (bit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+
+	if (AF.hi == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG);
+	}
+
     return 8;
 }// RRC A
 
 void CPU::rl8bitRegister(byte *reg) {
-	bool isMSBSet = isBitSet(*reg, 7) ;
-    
+	byte lastBit = *reg & 0x80;
+	*reg <<= 1;
+
+	if (checkFlag(Flag::CARRY_FLAG)) {
+		setBit(&AF.hi, 7);
+	} else {
+		clearBit(&AF.hi, 7);
+	}
+
 	clearFlags();
-    
-	*reg <<= 1 ;
-    
-	if ( isMSBSet ) {
-		raiseFlag(CARRY_FLAG);
-    }
-    
-	if ( checkFlag(CARRY_FLAG) ) {
-		setBit(reg, 0);
-    }
-    
-	if ( *reg == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
+	if (lastBit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+	if (AF.hi == 0) {
+		raiseFlag(ZERO_FLAG);
+	}
 }
 
 short CPU::extendedOpcode0x10() {
@@ -281,51 +244,47 @@ short CPU::extendedOpcode0x15() {
 
 short CPU::extendedOpcode0x16() {
 	byte reg = memory->read(HL.value);
-	bool isLSBSet = isBitSet(reg, 0);
-    
-	clearFlags();
-    
-	reg >>= 1 ;
-    
-	if ( isLSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-	if ( checkFlag(CARRY_FLAG) ) {
-		setBit(&reg, 7);
-    }
-
-	if (reg == 0) {
-        raiseFlag(ZERO_FLAG);
-    }
-    
+	rl8bitRegister(&reg);
 	memory->write(HL.value, reg);
     return 16;
 }// rl (HL)
 
 short CPU::extendedOpcode0x17() {
-    rl8bitRegister(&AF.hi);
-    return 8;
-}// rl A
+
+	byte bit = AF.hi & 0x80;
+
+	byte carry = checkFlag(Flag::CARRY_FLAG) ? 0x01 : 0x00;
+	AF.hi <<= carry;
+
+	clearFlags();
+	if (bit == 0x01) {
+		raiseFlag(CARRY_FLAG);;
+	}
+
+	if (AF.hi == 0x0) {
+		raiseFlag(ZERO_FLAG);
+	}
+
+	return 8;
+}
 
 void CPU::rr8bitRegister(byte *reg) {
-	bool isLSBSet = isBitSet(*reg, 0);
-	
-    clearFlags();
-    
-	*reg >>= 1 ;
-    
-	if ( isLSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-	if ( checkFlag(CARRY_FLAG) ) {
-        setBit(reg, 7);
-    }
-    
-	if ( *reg == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
+	byte zeroBit = *reg & 0x01;
+	*reg = *reg >> 1;
+
+	if (checkFlag(Flag::CARRY_FLAG)) {
+		setBit(reg, 7);
+	} else {
+		clearBit(reg, 7);
+	}
+
+	clearFlags();
+	if (zeroBit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+	if (*reg == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG);
+	}
 }
 
 short CPU::extendedOpcode0x18() {
@@ -359,27 +318,8 @@ short CPU::extendedOpcode0x1D() {
 }// rr L
 
 short CPU::extendedOpcode0x1E() {
-    
 	byte reg = memory->read(HL.value);
-    
-	bool isLSBSet = isBitSet(reg, 0) ;
-    
-	clearFlags();
-    
-	reg >>= 1 ;
-    
-	if ( isLSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-	if ( checkFlag(CARRY_FLAG) ) {
-        setBit(&reg, 7);
-    }
-    
-	if ( reg == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
-    
+	rr8bitRegister(&reg);
     memory->write(HL.value, reg);
     return 16;
 }// rr (HL)
@@ -390,16 +330,13 @@ short CPU::extendedOpcode0x1F() {
 }// rr A
 
 void CPU::sla8bitRegister(byte *reg) {
-	bool isMSBSet = isBitSet(*reg, 7);
-    
+	byte lastBit = *reg & 0x80;
 	*reg <<= 1;
-    
+
 	clearFlags();
-    
-	if ( isMSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
+	if (lastBit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
     if ( *reg == 0 ) {
         raiseFlag(ZERO_FLAG);
     }
@@ -437,20 +374,7 @@ short CPU::extendedOpcode0x25() {
 
 short CPU::extendedOpcode0x26() {
     byte reg = memory->read(HL.value);
-	bool isMSBSet = isBitSet(reg, 7);
-    
-	reg <<= 1;
-    
-	clearFlags();
-    
-	if ( isMSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( reg == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
-    
+	sla8bitRegister(&reg);
     memory->write(HL.value, reg);
     return 16;
 }// sla (HL)
@@ -462,25 +386,24 @@ short CPU::extendedOpcode0x27() {
 
 
 void CPU::sra8bitRegister(byte * reg) {
-    
-	bool isLSBSet = isBitSet(*reg, 0);
-	bool isMSBSet = isBitSet(*reg,7);
-    
-	clearFlags();
-    
+	byte firstBit = *reg & 0x01;
+	byte lastBit = *reg & 0x80;
+	
 	*reg >>= 1;
-    
-	if ( isMSBSet ) {
-        setBit(reg, 7);
-    }
-    
-	if ( isLSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( *reg == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
+
+	if (lastBit == 0x01) {
+		setBit(reg, 7);
+	} else {
+		clearBit(reg, 7);
+	}
+
+	clearFlags();
+	if (firstBit == 0x01) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+	if (*reg == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG);
+	}
 }
 
 short CPU::extendedOpcode0x28() {
@@ -514,26 +437,9 @@ short CPU::extendedOpcode0x2D(){
 }// sra L
 
 short CPU::extendedOpcode0x2E() {
-    byte result = memory->read(HL.value);
-    
-	bool isLSBSet = isBitSet(result, 0);
-	bool isMSBSet = isBitSet(result,7);
-    
-	clearFlags();
-    
-	result >>= 1;
-    
-	if ( isMSBSet ) {
-        setBit(&result, 7);
-    }
-    
-	if ( isLSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-    if ( result == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
+    byte data = memory->read(HL.value);
+	sra8bitRegister(&data);
+	memory->write(HL.value, data);
     return 16;
 }// sra (HL)
 
@@ -601,17 +507,16 @@ short CPU::extendedOpcode0x37() {
 }// swap A
 
 void CPU::srl8bitRegister(byte *reg) {
-	bool isLSBSet = isBitSet(*reg, 0);
-    
-	clearFlags();
-    
+	byte firstBit = *reg & 0x01;
 	*reg >>= 1;
-    
-	if ( isLSBSet ) {
+
+	clearBit(reg, 7);
+
+	clearFlags();
+	if (firstBit == 0x01) {
         raiseFlag(CARRY_FLAG);
     }
-    
-	if ( *reg == 0 ) {
+	if (*reg == 0) {
         raiseFlag(ZERO_FLAG);
     }
 }
@@ -647,20 +552,9 @@ short CPU::extendedOpcode0x3D() {
 }// SRL L
 
 short CPU::extendedOpcode0x3E() {
-    byte result = memory->read(HL.value);
-	bool isLSBSet = isBitSet(result, 0);
-    
-	clearFlags();
-    
-	result >>= 1;
-    
-	if ( isLSBSet ) {
-        raiseFlag(CARRY_FLAG);
-    }
-    
-	if ( result == 0 ) {
-        raiseFlag(ZERO_FLAG);
-    }
+    byte data = memory->read(HL.value);
+	srl8bitRegister(&data);
+	memory->write(HL.value, data);
     return 16;
 }// SRL (HL)
 

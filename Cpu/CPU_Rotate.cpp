@@ -300,7 +300,7 @@ short CPU::extendedOpcode0x1A() {
 }// rr D
 
 short CPU::extendedOpcode0x1B() {
-    rr8bitRegister(&DE.hi);
+    rr8bitRegister(&DE.low);
     return 8;
 }// rr E
 

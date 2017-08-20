@@ -206,8 +206,22 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	/* breakpoints */
 	if (!breakpoints.empty()) {
 		ImGui::AlignFirstTextHeightToWidgets();
-		ImGui::Text("Breakpoints");
+		ImGui::Text("Add breakpoint:");
 		ImGui::SameLine();
+
+		ImGui::PushItemWidth(70);
+		char input[64];
+		memset(input, 0, sizeof(char) * 64);
+		if (ImGui::InputText("##addr", input, 64, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+			int address;
+			if (sscanf(input, "%X", &address)) {
+				word validAddress = address & 0xFFFF;
+				breakpoints.insert(validAddress);
+			}
+		}
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
 
 		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f));

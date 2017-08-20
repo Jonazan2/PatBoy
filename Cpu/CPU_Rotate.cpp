@@ -64,9 +64,6 @@ short CPU::opcode0x1F() {
 	if (firstBit == 0x01) {
 		raiseFlag(Flag::CARRY_FLAG);
 	}
-	if (AF.hi == 0) {
-		raiseFlag(ZERO_FLAG);
-	}
 	return 4;
 }// RR A
 

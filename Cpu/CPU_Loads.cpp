@@ -152,7 +152,6 @@ void CPU::load8BitRegister(byte *reg, const byte data) {
 }
 
 // LD A,r -------------
-
 short CPU::opcode0x7F() {
     load8BitRegister(&AF.hi, AF.hi);
     return 4;

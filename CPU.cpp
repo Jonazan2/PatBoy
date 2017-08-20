@@ -158,7 +158,6 @@ void CPU::raiseFlag(Flag flag) {
         case CARRY_FLAG:
             setBit(&AF.low, CARRY_FLAG);
             break;
-            break;
     }
 }
 
@@ -519,7 +518,6 @@ void CPU::chargeOpcodes() {
     opcodes[0xC8] = &CPU::opcode0xC8;
     opcodes[0xC9] = &CPU::opcode0xC9;
     opcodes[0xCA] = &CPU::opcode0xCA;
-    //opcodes[0xCB] = &CPU::opcode0xCB;
     opcodes[0xCC] = &CPU::opcode0xCC;
     opcodes[0xCD] = &CPU::opcode0xCD;
     opcodes[0xCE] = &CPU::opcode0xCE;

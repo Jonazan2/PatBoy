@@ -539,8 +539,20 @@ short CPU::opcode0x27() {
 }
 
 short CPU::opcode0xE8() {
-    byte data = memory->read(PC.value);
+    char data = memory->read(PC.value);
     incrementProgramCounter();
-    instructionSet->addStackPointer(&SP, data, &AF.low);
-    return 16;
+
+	clearFlags();
+
+	if (((SP.value & 0x0F) + (data & 0x0F)) > 0x0F) {
+		raiseFlag(HALF_CARRY_FLAG);
+	}
+
+	if (((SP.value & 0xFF) + (data & 0xFF)) > 0xFF) {
+		raiseFlag(CARRY_FLAG);
+	}
+
+	SP.value += static_cast<word>(data);
+
+	return 16;
 }

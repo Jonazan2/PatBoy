@@ -511,7 +511,7 @@ short CPU::opcode0xBC() {
 }// CP A, H
 
 short CPU::opcode0xBD() {
-    instructionSet->compare8BitRegister(AF.hi, HL.hi, &AF.low);
+    instructionSet->compare8BitRegister(AF.hi, HL.low, &AF.low);
     return 4;
 }// CP A, L
 

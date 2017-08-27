@@ -140,89 +140,97 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Text("%-*s%-*s%-*s%-*s", perItemWidth, "Address", perItemWidth, "Mnemonic", perItemWidth, "Opcode", perItemWidth, "Cycles");
 	ImGui::Separator();
 
+	ImGui::BeginGroup();
 	ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
-	ImGuiListClipper clipper(0x10000, ImGui::GetTextLineHeightWithSpacing());
-	while (clipper.Step()) {
-		
-		int end = clipper.DisplayEnd;
-		if (clipper.DisplayEnd < 0xFFFF - 50) {
-			end = clipper.DisplayEnd + 50;
+	ImGuiListClipper clipper(0xFFFF, ImGui::GetTextLineHeightWithSpacing());
+
+	if (mode == Mode::IDDLE || mode == Mode::BREAKPOINT) {
+		ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + (cpu.getPC().value * ImGui::GetTextLineHeightWithSpacing()), 0.5f);
+		clipper.DisplayEnd += 16;
+	} else {
+		clipper.DisplayEnd = clipper.DisplayStart + 30;
+	}
+
+	byte previousOpcode = 0x00;
+	for (int i = clipper.DisplayStart; i <= clipper.DisplayEnd; i++) {
+
+		byte opcode = memory.readDirectly(i);
+		Opcode opcodeInfo;
+		if (previousOpcode != SPECIAL_OPCODE) {
+			opcodeInfo = gameBoyOpcodes[opcode];
 		}
 		else {
-			end = clipper.DisplayEnd;
+			opcodeInfo = specialGameBoyOpcodes[opcode];
 		}
 
-		byte previousOpcode = 0x00;
-		for (int i = clipper.DisplayStart; i < end; i++)
-		{
-			byte opcode = memory.readDirectly(i);
-			Opcode opcodeInfo;
-			if (previousOpcode != SPECIAL_OPCODE) {
-				opcodeInfo = gameBoyOpcodes[opcode];
-			}
-			else {
-				opcodeInfo = specialGameBoyOpcodes[opcode];
-			}
+		char address[32];
+		sprintf(address, "0x%04X", i);
 
-			char address[32];
-			sprintf(address, "0x%04X", i);
+		char opcodeHex[32];
+		sprintf(opcodeHex, "0x%02X", opcode);
 
-			char opcodeHex[32];
-			sprintf(opcodeHex, "0x%02X", opcode);
-
-			char name[32];
-			memset(name, 0, 32);
-			if (opcodeInfo.additionalBytes == 2) {
-				word add = memory.readWordDirectly(i + 1);
-				sprintf(name, opcodeInfo.name, add);
-			}
-			else if (opcodeInfo.additionalBytes == 1) {
-				sprintf(name, opcodeInfo.name, memory.readDirectly(i + 1));
-			}
-			else {
-				sprintf(name, opcodeInfo.name);
-			}
-
-			char text[128];
-			sprintf(text, "%-*s%-*s%-*s%d", perItemWidth, address, perItemWidth, name, perItemWidth, opcodeHex, opcodeInfo.timing);
-
-			bool alreadySelected = addresshasBreakpoint(i);
-			if (ImGui::Selectable(text, alreadySelected, ImGuiSelectableFlags_AllowDoubleClick)) {
-				if (alreadySelected) {
-					breakpoints.erase(i);
-				}
-				else {
-					breakpoints.insert(i);
-				}
-			}
-
-			i = i + opcodeInfo.additionalBytes;
-			previousOpcode = opcode;
+		char name[32];
+		memset(name, 0, 32);
+		if (opcodeInfo.additionalBytes == 2) {
+			word add = memory.readWordDirectly(i + 1);
+			sprintf(name, opcodeInfo.name, add);
 		}
+		else if (opcodeInfo.additionalBytes == 1) {
+			sprintf(name, opcodeInfo.name, memory.readDirectly(i + 1));
+		}
+		else {
+			sprintf(name, opcodeInfo.name);
+		}
+
+		char text[128];
+		sprintf(text, "%-*s%-*s%-*s%d", perItemWidth, address, perItemWidth, name, perItemWidth, opcodeHex, opcodeInfo.timing);
+
+		if ((mode == Mode::IDDLE || mode == Mode::BREAKPOINT) && i == cpu.getPC().value) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImColor(255, 140, 0));
+		}
+
+		bool alreadySelected = addresshasBreakpoint(i);
+		if (ImGui::Selectable(text, alreadySelected, ImGuiSelectableFlags_AllowDoubleClick)) {
+			if (alreadySelected) {
+				breakpoints.erase(i);
+			}
+			else {
+				breakpoints.insert(i);
+			}
+		}
+
+		if ((mode == Mode::IDDLE || mode == Mode::BREAKPOINT) && i == cpu.getPC().value) {
+			ImGui::PopStyleColor();
+		}
+
+		i = i + opcodeInfo.additionalBytes;
+		previousOpcode = opcode;
 	}
+	clipper.End();
 	ImGui::EndChild();
+	ImGui::EndGroup();
+
 	ImGui::Separator();
 
 	/* breakpoints */
-	if (!breakpoints.empty()) {
-		ImGui::AlignFirstTextHeightToWidgets();
-		ImGui::Text("Add breakpoint:");
-		ImGui::SameLine();
+	ImGui::AlignFirstTextHeightToWidgets();
+	ImGui::Text("Add breakpoint:");
+	ImGui::SameLine();
 
-		ImGui::PushItemWidth(70);
-		char input[64];
-		memset(input, 0, sizeof(char) * 64);
-		if (ImGui::InputText("##addr", input, 64, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-			int address;
-			if (sscanf(input, "%X", &address)) {
-				word validAddress = address & 0xFFFF;
-				breakpoints.insert(validAddress);
-			}
+	ImGui::PushItemWidth(70);
+	char input[64];
+	memset(input, 0, sizeof(char) * 64);
+	if (ImGui::InputText("##addr", input, 64, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+		int address;
+		if (sscanf(input, "%X", &address)) {
+			word validAddress = address & 0xFFFF;
+			breakpoints.insert(validAddress);
 		}
-		ImGui::PopItemWidth();
+	}
+	ImGui::PopItemWidth();
+
+	if (!breakpoints.empty()) {
 		ImGui::SameLine();
-
-
 		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f));
 		if (ImGui::Button("Clear all breakpoints")) {
@@ -247,12 +255,8 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 			ImGui::NextColumn();
 		}
 		ImGui::Columns(1);
-		ImGui::Separator();
 	}
-	else {
-		ImGui::Text("Breakpoints - Empty");
-		ImGui::Separator();
-	}
+	ImGui::Separator();
 
 	/* Interrupts */
 	const byte ieRegister = memory.readDirectly(IE_REGISTER);
@@ -285,15 +289,22 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Text(isBitSet(ifRegister, TIMER) ? "1" : "0"); ImGui::NextColumn();
 	ImGui::Text("Serial");
 	ImGui::Text(isBitSet(ifRegister, SERIAL) ? "1" : "0"); ImGui::NextColumn();
-ImGui::Text("Joypad");
-ImGui::Text(isBitSet(ifRegister, JOYPAD) ? "1" : "0"); ImGui::NextColumn();
-ImGui::Columns(1);
+	ImGui::Text("Joypad");
+	ImGui::Text(isBitSet(ifRegister, JOYPAD) ? "1" : "0"); ImGui::NextColumn();
+	ImGui::Columns(1);
 
-/* cycles counter */
-ImGui::Separator();
-ImGui::Text("Cycles executed: %d", cycles);
+	/* cycles counter */
+	ImGui::Separator();
 
-ImGui::End();
+	ImGui::AlignFirstTextHeightToWidgets();
+	ImGui::Text("Cycles:"); 
+	ImGui::SameLine(); 
+	char buf[32];
+	sprintf(buf, "%d/%d", cycles, 70224);
+	float progress = (float)cycles / 70224.0f;
+	ImGui::ProgressBar(progress, ImVec2(0.f, 0.f), buf);
+
+	ImGui::End();
 }
 
 void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video& video) {

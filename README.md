@@ -11,20 +11,16 @@ PatBoy follows GameBoy specification that can be found in the pandocs as well as
 The last addition to PatBoy has been a debugger implemented using the library [dearimgui](https://github.com/ocornut/imgui) for the UI. The debugger has breakpoints, step in and run until vsync features implemented as well as memory and video status views.
 
 <p align="center">
-  <img src="http://jonathanmcontreras.com/images/portfolio/debugger-big.png" alt="PatBoy Debugger"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/debugger-updated.png" alt="PatBoy Debugger"/>
 </p>
 
 # Dependencies
 
-Patboy is using *SDL2* to render the emulator. We need to install SDL2 for Mac OS manually. Google Test is being used as test library for the project.
+Patboy is using *SDL2* to render the emulator and OpenGL with dearimgui for the debugger. Google Test is being used as test library for the project.
 
 ### How to install SDL2
 
-SDL2 can be installed following this tutorial from the official page: https://wiki.libsdl.org/Installation. Some versions of the library need to be properly sign using the next commands, if we don't do it Xcode will crash while we are trying to run our application.
-
-```shell
-codesign -f -s - SDL2
-```
+SDL2 can be installed following this tutorial from the official page: https://wiki.libsdl.org/Installation.
 
 ### How to install GoogleTest
 

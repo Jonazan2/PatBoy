@@ -41,6 +41,7 @@ private:
 	std::set<word> breakpoints;
 	std::map<word, byte> watcher;
 	bool watcherAsBreakpoint;
+	bool instructionJump;
 
 	void composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge& cartridge);
 	void startCPUView(int cycles, const CPU& cpu, const Memory& memory);

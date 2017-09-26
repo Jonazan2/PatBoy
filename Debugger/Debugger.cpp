@@ -12,6 +12,7 @@
 Debugger::Debugger() {
 	mode = Mode::RUNNING;
 	watcherAsBreakpoint = false;
+	instructionJump = false;
 }
 
 void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video, const Cartridge& cartridge)
@@ -85,11 +86,13 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::Separator();
 	if (ImGui::Button("Next instruction")) {
 		mode = Mode::BREAKPOINT;
+		instructionJump = false;
 	}
 	ImGui::SameLine();
 
 	if (ImGui::Button("Run")) {
 		mode = Mode::RUNNING;
+		instructionJump = false;
 	}
 	ImGui::SameLine();
 
@@ -144,8 +147,9 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
 	ImGuiListClipper clipper(0xFFFF, ImGui::GetTextLineHeightWithSpacing());
 
-	if (mode == Mode::IDDLE || mode == Mode::BREAKPOINT) {
+	if ((mode == Mode::IDDLE || mode == Mode::BREAKPOINT) && !instructionJump) {
 		ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + (cpu.getPC().value * ImGui::GetTextLineHeightWithSpacing()), 0.5f);
+		instructionJump = true;
 		clipper.DisplayEnd += 16;
 	} else {
 		clipper.DisplayEnd = clipper.DisplayStart + 30;
@@ -411,6 +415,7 @@ void Debugger::startMemoryView(const Memory& memory) {
 		if (ImGui::Button("Clear all watchers")) {
 			watcher.clear();
 			mode = Mode::RUNNING;
+			instructionJump = false;
 		}
 		ImGui::PopStyleColor(2);
 		ImGui::SameLine();

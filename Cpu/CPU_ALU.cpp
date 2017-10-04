@@ -56,7 +56,7 @@ short CPU::opcode0x2C() {
 }// L increment
 
 short CPU::opcode0x34() {
-    byte result = memory->read(HL.value) + 1;
+    byte result = memory->read(HL.value);
     instructionSet->increment8BitRegister(&result, &AF.low);
     memory->write(HL.value, result);
     return 12;
@@ -118,7 +118,7 @@ short CPU::opcode0x3D() {
 }// DEC A
 
 short CPU::opcode0x35() {
-    byte data = memory->read(HL.value) - 1;
+    byte data = memory->read(HL.value);
     instructionSet->decrement8BitRegister(&data, &AF.low);
     memory->write(HL.value, data);
     return 12;

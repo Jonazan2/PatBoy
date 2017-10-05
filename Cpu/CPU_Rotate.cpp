@@ -1,16 +1,20 @@
 #include "CPU.h"
 
 short CPU::opcode0x07() {
-	byte bit = AF.hi & 0x80;
+	byte significantBit = AF.hi & 0x80;
 	AF.hi <<= 1;
-    
-	clearFlags();
-	if (bit == 0x01) {
-		raiseFlag(CARRY_FLAG);;
+
+	if (checkFlag(Flag::CARRY_FLAG)) {
+		setBit(&AF.hi, 0);
 	}
-	if (AF.hi == 0x0) {
-		raiseFlag(ZERO_FLAG);
-    }
+	else {
+		clearBit(&AF.hi, 0);
+	}
+
+	clearFlags();
+	if (significantBit != 0) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
 
     return 4;
 }
@@ -119,7 +123,24 @@ short CPU::extendedOpcode0x06() {
 }// RLC (HL)
 
 short CPU::extendedOpcode0x07() {
-    rlc8bitRegister(&AF.hi);
+	byte significantBit = AF.hi & 0x80;
+	AF.hi <<= 1;
+
+	if (checkFlag(Flag::CARRY_FLAG)) {
+		setBit(&AF.hi, 0);
+	} else {
+		clearBit(&AF.hi, 0);
+	}
+
+	clearFlags();
+	if (significantBit != 0) {
+		raiseFlag(Flag::CARRY_FLAG);
+	}
+
+	if (AF.hi == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG);
+	}
+
     return 8;
 }// RLC A
 
@@ -201,7 +222,7 @@ void CPU::rl8bitRegister(byte *reg) {
 	}
 
 	clearFlags();
-	if (lastBit == 0x01) {
+	if (lastBit != 0x00) {
 		raiseFlag(Flag::CARRY_FLAG);
 	}
 	if (AF.hi == 0) {
@@ -254,7 +275,7 @@ short CPU::extendedOpcode0x17() {
 	AF.hi <<= carry;
 
 	clearFlags();
-	if (bit == 0x01) {
+	if (bit != 0x80) {
 		raiseFlag(CARRY_FLAG);;
 	}
 
@@ -331,7 +352,7 @@ void CPU::sla8bitRegister(byte *reg) {
 	*reg <<= 1;
 
 	clearFlags();
-	if (lastBit == 0x01) {
+	if (lastBit != 0x00) {
 		raiseFlag(Flag::CARRY_FLAG);
 	}
     if ( *reg == 0 ) {
@@ -388,7 +409,7 @@ void CPU::sra8bitRegister(byte * reg) {
 	
 	*reg >>= 1;
 
-	if (lastBit == 0x01) {
+	if (lastBit != 0x00) {
 		setBit(reg, 7);
 	} else {
 		clearBit(reg, 7);

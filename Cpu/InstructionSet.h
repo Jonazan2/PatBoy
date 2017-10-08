@@ -26,7 +26,7 @@ public:
     void add8BitRegister(byte *, const byte, byte *);
     void adc8BitRegister(byte *, const byte, byte *);
     void sub8BitRegister(byte *, const byte, byte *);
-    void sbc8BitRegister(byte *, const byte, byte *);
+    void sbc8BitRegister(byte *, byte, byte *);
     void xor8BitRegister(byte *, const byte, byte *);
     void or8BitRegister(byte *, const byte, byte *);
     void and8BitRegister(byte *, const byte, byte *);

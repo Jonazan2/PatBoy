@@ -139,29 +139,25 @@ void InstructionSet::sub8BitRegister(byte *accumulator, const byte substract, by
     *accumulator = *accumulator - substract;
 }
 
-void InstructionSet::sbc8BitRegister(byte *accumulator, const byte substract, byte * flags) {
-    byte carry = getBitValue(*flags, CARRY_FLAG);
-    
-    raiseFlag(ADD_SUB_FLAG, flags);
-    if ((*accumulator - substract - carry) == 0x00) {
-        raiseFlag(ZERO_FLAG, flags);
-    } else {
-        clearFlag(ZERO_FLAG, flags);
-    }
-    
-    if ((*accumulator & 0x0F) < ((substract + carry) & 0x0F)) {
-        raiseFlag(HALF_CARRY_FLAG, flags);
-    } else {
-        clearFlag(HALF_CARRY_FLAG, flags);
-    }
-    
-    if (*accumulator < (substract + carry)) {
-        raiseFlag(CARRY_FLAG, flags);
-    } else {
-        clearFlag(CARRY_FLAG, flags);
-    }
-    
-    *accumulator = *accumulator - substract - carry;
+void InstructionSet::sbc8BitRegister(byte *accumulator, byte substract, byte * flags) {
+	int carry = checkFlag(Flag::CARRY_FLAG, *flags) ? 1 : 0;
+	int result = *accumulator - substract - carry;
+
+	clearFlags(flags);
+	raiseFlag(Flag::ADD_SUB_FLAG, flags);
+	if (static_cast<byte>(result) == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG, flags);
+	}
+
+	if (result < 0) {
+		raiseFlag(Flag::CARRY_FLAG, flags);
+	}
+
+	if (((*accumulator & 0x0F) - (substract & 0x0F) - carry) < 0) {
+		raiseFlag(Flag::HALF_CARRY_FLAG, flags);
+	}
+
+	*accumulator = static_cast<byte>(result);
 }
 
 
@@ -292,74 +288,19 @@ void InstructionSet::scf(byte *flags) {
 
 /* COMMON INSTRUCTIONS */
 void InstructionSet::raiseFlag(Flag flag, byte *reg) {
-    switch ( flag ) {
-		case Flag::ZERO_FLAG:
-            setBit(reg, ZERO_FLAG);
-            break;
-        case Flag::ADD_SUB_FLAG:
-            setBit(reg, ADD_SUB_FLAG);
-            break;
-        case Flag::HALF_CARRY_FLAG:
-            setBit(reg, HALF_CARRY_FLAG);
-            break;
-        case Flag::CARRY_FLAG:
-            setBit(reg, CARRY_FLAG);
-            break;
-            break;
-    }
+	setBit(reg, flag);
 }
 
 void InstructionSet::toggleFlag(Flag flag, byte *reg) {
-    switch ( flag ) {
-        case ZERO_FLAG:
-            toggleBit(reg, ZERO_FLAG);
-            break;
-        case ADD_SUB_FLAG:
-            toggleBit(reg, ADD_SUB_FLAG);
-            break;
-        case HALF_CARRY_FLAG:
-            toggleBit(reg, HALF_CARRY_FLAG);
-            break;
-        case CARRY_FLAG:
-            toggleBit(reg, CARRY_FLAG);
-            break;
-    }
+	toggleBit(reg, flag);
 }
 
 void InstructionSet::clearFlag(Flag flag, byte *reg) {
-    switch ( flag ) {
-        case ZERO_FLAG:
-            clearBit(reg, ZERO_FLAG);
-            break;
-        case ADD_SUB_FLAG:
-            clearBit(reg, ADD_SUB_FLAG);
-            break;
-        case HALF_CARRY_FLAG:
-            clearBit(reg, HALF_CARRY_FLAG);
-            break;
-        case CARRY_FLAG:
-            clearBit(reg, CARRY_FLAG);
-            break;
-    }
+	clearBit(reg, flag);
 }
 
 bool InstructionSet::checkFlag(Flag flag, const byte reg) {
-    bool result = false;
-    switch ( flag ) {
-        case ZERO_FLAG:
-            result = isBitSet(reg, ZERO_FLAG);
-            break;
-        case ADD_SUB_FLAG:
-            result = isBitSet(reg, ADD_SUB_FLAG);
-            break;
-        case HALF_CARRY_FLAG:
-            result = isBitSet(reg, HALF_CARRY_FLAG);
-            break;
-        case CARRY_FLAG:
-            result = isBitSet(reg, CARRY_FLAG);
-            break;
-    }
-    return result;
+	return isBitSet(reg, flag);
 }
 
 void InstructionSet::clearFlags(byte *reg) {

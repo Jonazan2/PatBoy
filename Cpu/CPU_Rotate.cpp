@@ -212,21 +212,22 @@ short CPU::extendedOpcode0x0F() {
 }// RRC A
 
 void CPU::rl8bitRegister(byte *reg) {
-	byte lastBit = *reg & 0x80;
-	*reg <<= 1;
+	byte significantBit = *reg & 0x80;
+	*reg = *reg << 1;
 
 	if (checkFlag(Flag::CARRY_FLAG)) {
-		setBit(&AF.hi, 7);
-	} else {
-		clearBit(&AF.hi, 7);
+		setBit(reg, 0);
+	}
+	else {
+		clearBit(reg, 0);
 	}
 
 	clearFlags();
-	if (lastBit != 0x00) {
+	if (significantBit != 0x00) {
 		raiseFlag(Flag::CARRY_FLAG);
 	}
-	if (AF.hi == 0) {
-		raiseFlag(ZERO_FLAG);
+	if (*reg == 0x00) {
+		raiseFlag(Flag::ZERO_FLAG);
 	}
 }
 
@@ -268,21 +269,7 @@ short CPU::extendedOpcode0x16() {
 }// rl (HL)
 
 short CPU::extendedOpcode0x17() {
-
-	byte bit = AF.hi & 0x80;
-
-	byte carry = checkFlag(Flag::CARRY_FLAG) ? 0x01 : 0x00;
-	AF.hi <<= carry;
-
-	clearFlags();
-	if (bit != 0x80) {
-		raiseFlag(CARRY_FLAG);;
-	}
-
-	if (AF.hi == 0x0) {
-		raiseFlag(ZERO_FLAG);
-	}
-
+	rl8bitRegister(&AF.hi);
 	return 8;
 }
 

@@ -1,42 +1,39 @@
 #include "CPU.h"
 
 short CPU::opcode0x07() {
-	byte significantBit = AF.hi & 0x80;
+	byte bit = AF.hi & 0x80;
 	AF.hi <<= 1;
 
-	if (checkFlag(Flag::CARRY_FLAG)) {
+	clearFlags();
+	if (bit != 0x00) {
+		raiseFlag(Flag::CARRY_FLAG);
 		setBit(&AF.hi, 0);
 	}
 	else {
 		clearBit(&AF.hi, 0);
 	}
 
-	clearFlags();
-	if (significantBit != 0) {
-		raiseFlag(Flag::CARRY_FLAG);
-	}
-
     return 4;
 }
 
 short CPU::opcode0x0F() {
-	byte bitZero = AF.hi & 0x01;
-	AF.hi >>= 1;
+	byte zeroBit = AF.hi & 0x01;
+	AF.hi = AF.hi >> 1;
 
 	clearFlags();
-	if (bitZero == 0x01) {
-		raiseFlag(Flag::CARRY_FLAG);
-	}
-	if (AF.hi == 0x00) {
-		raiseFlag(Flag::ZERO_FLAG);
+	if (zeroBit != 0x00) {
+		raiseFlag(CARRY_FLAG);
+		setBit(&AF.hi, 7);
+	} else {
+		clearBit(&AF.hi, 7);
 	}
 
     return 4;
-}
+} // RRC A
 
 short CPU::opcode0x17() {	
-	byte lastBit = AF.hi & 0x80;
-	AF.hi <<= 1;
+	byte significantBit = AF.hi & 0x80;
+	AF.hi = AF.hi << 1;
 
 	if (checkFlag(Flag::CARRY_FLAG)) {
 		setBit(&AF.hi, 0);
@@ -45,12 +42,10 @@ short CPU::opcode0x17() {
 	}
 
 	clearFlags();
-	if (lastBit == 0x01) {
+	if (significantBit != 0x00) {
 		raiseFlag(Flag::CARRY_FLAG);
 	}
-	if (AF.hi == 0) {
-		raiseFlag(ZERO_FLAG);
-	}
+
     return 4;
 }// RLA
 
@@ -69,16 +64,20 @@ short CPU::opcode0x1F() {
 		raiseFlag(Flag::CARRY_FLAG);
 	}
 	return 4;
-}// RR A
+}// RR A 
 
 void CPU::rlc8bitRegister(byte * reg) {
 	byte bit= *reg & 0x80;
 	*reg <<= 1;
 
 	clearFlags();
-	if (bit == 0x01) {
+	if (bit != 0x00) {
 		raiseFlag(Flag::CARRY_FLAG);
+		setBit(reg, 0);
+	} else {
+		clearBit(reg, 0);
 	}
+
 	if (*reg == 0x00) {
 		raiseFlag(ZERO_FLAG);
 	}
@@ -123,24 +122,7 @@ short CPU::extendedOpcode0x06() {
 }// RLC (HL)
 
 short CPU::extendedOpcode0x07() {
-	byte significantBit = AF.hi & 0x80;
-	AF.hi <<= 1;
-
-	if (checkFlag(Flag::CARRY_FLAG)) {
-		setBit(&AF.hi, 0);
-	} else {
-		clearBit(&AF.hi, 0);
-	}
-
-	clearFlags();
-	if (significantBit != 0) {
-		raiseFlag(Flag::CARRY_FLAG);
-	}
-
-	if (AF.hi == 0x00) {
-		raiseFlag(Flag::ZERO_FLAG);
-	}
-
+	rlc8bitRegister(&AF.hi);
     return 8;
 }// RLC A
 
@@ -150,9 +132,13 @@ void CPU::rrc8bitRegister(byte *reg) {
 	*reg = *reg >> 1;
 
 	clearFlags();
-	if (zeroBit == 0x01) {
+	if (zeroBit != 0x00) {
 		raiseFlag(CARRY_FLAG);
+		setBit(reg, 7);
+	} else {
+		clearBit(reg, 7);
 	}
+
 	if (*reg == 0) {
 		raiseFlag(ZERO_FLAG);
     }
@@ -196,18 +182,7 @@ short CPU::extendedOpcode0x0E() {
 }// RRC (HL)
 
 short CPU::extendedOpcode0x0F() {
-	byte bit = AF.hi & 0x01;
-	AF.hi >>= 1;
-
-	clearFlags();
-	if (bit == 0x01) {
-		raiseFlag(Flag::CARRY_FLAG);
-	}
-
-	if (AF.hi == 0x00) {
-		raiseFlag(Flag::ZERO_FLAG);
-	}
-
+	rrc8bitRegister(&AF.hi);
     return 8;
 }// RRC A
 

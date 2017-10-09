@@ -63,7 +63,7 @@ private:
     
     unsigned short divRegister;
     unsigned int timaCounter;
-    unsigned int	currentClockSpeed;
+    unsigned int currentClockSpeed;
     
     void serviceInterrupt(Interrupts);
     

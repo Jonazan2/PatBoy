@@ -68,25 +68,21 @@ void CPU::updateTimers(int cycles) {
         
 		// time to increment the timer
 		if ( timaCounter >= currentClockSpeed ) {
-			timaCounter = 0 ;
-			bool overflow = false ;
+			timaCounter -= currentClockSpeed;
+
 			if ( memory->readDirectly(0xFF05) == 0xFF ) {
-				overflow = true ;
-			}
-            
-            byte value = memory->readDirectly(0xFF05) + 1;
-            memory->writeDirectly(0xFF05, value);
-            
-			if (overflow) {
-                memory->writeDirectly(0xFF05, memory->readDirectly(0xFF06));
+				memory->writeDirectly(0xFF05, memory->readDirectly(0xFF06));
 				requestInterrupt(TIMER);
+			} else {
+				byte value = memory->readDirectly(0xFF05) + 1;
+				memory->writeDirectly(0xFF05, value);
 			}
 		}
 	}
     
 	// do divider register
 	if (divRegister >= 256) {
-		divRegister = 0;
+		divRegister = divRegister - 256;
         byte value = memory->readDirectly(0xFF04) + 1;
 		memory->writeDirectly(0xFF04, value);
 	}
@@ -104,7 +100,7 @@ void CPU::resetDivRegister() {
 }
 
 void CPU::resetTimaRegister() {
-    this->divRegister = 0;
+    this->timaCounter = 0;
 }
 
 void CPU::updateInterrupts() {

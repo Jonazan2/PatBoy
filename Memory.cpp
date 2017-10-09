@@ -70,6 +70,7 @@ void Memory::write(const word address, const byte data) {
         }
             
         if (clockSpeed != cpu->getCurrrentClockSpeed()){
+			map[0xFF05] = 0x00;
             cpu->resetTimaRegister();
             cpu->setCurrentClockSpeed(clockSpeed);
         }
@@ -83,6 +84,7 @@ void Memory::write(const word address, const byte data) {
         // Not allowed
     } else if ( address >= 0xFF10 && address <= 0xFF3F ) {
         audio->writeAudioRegister(address, data);
+		address[map] = data;
     } else {
 		writeDirectly(address, data);
     }
@@ -102,6 +104,7 @@ void Memory::loadCartridge() const {
 }
 
 void Memory::reset() {
+	map[0xFF04] = 0x1E;
 	map[0xFF05] = 0x00;
 	map[0xFF06] = 0x00;
 	map[0xFF07] = 0x00;

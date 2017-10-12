@@ -496,8 +496,13 @@ void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& mem
 }
 
 bool Debugger::addresshasBreakpoint(word address) const {
-	std::set<word>::const_iterator it = breakpoints.find(address);
-	return it != breakpoints.end();
+	for (word breakpoint : breakpoints) {
+		if (breakpoint == address) {
+			return true;
+		} else if (breakpoint > address) {
+			return false;
+		}
+	}
 }
 
 

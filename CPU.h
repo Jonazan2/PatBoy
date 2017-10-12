@@ -25,7 +25,7 @@ public:
     unsigned int update();
     void requestInterrupt(Interrupts);
     void updateTimers(int);
-    void updateInterrupts();
+    void updateInterrupts(short &);
     void resetDivRegister();
     void resetTimaRegister();
     void setCurrentClockSpeed(const int);
@@ -70,7 +70,6 @@ private:
     void chargeOpcodes();
     void chargeExtendedOpcodes();
     byte getCurrentOpcode();
-    short executeOpcode(byte);
     void incrementProgramCounter();
     void decrementProgramCounter();
     void incrementStackPointer();

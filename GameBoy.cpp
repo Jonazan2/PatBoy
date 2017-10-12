@@ -50,7 +50,7 @@ void GameBoy::startEmulation() {
 			cpu->updateTimers(cyclesPerThisOpcode);
 			video->updateGraphics(cyclesPerThisOpcode);
 			audio->update(cyclesPerThisOpcode);
-			cpu->updateInterrupts();
+			cpu->updateInterrupts(cyclesPerThisOpcode);
 			cycles += cyclesPerThisOpcode;
 			debugger.update(cycles, *cpu, *memory, *video, *cartridge);
 		}

@@ -69,11 +69,7 @@ void Memory::write(const word address, const byte data) {
             default: assert(false);      break;
         }
             
-        if (clockSpeed != cpu->getCurrrentClockSpeed()){
-			map[0xFF05] = 0x00;
-            cpu->resetTimaRegister();
-            cpu->setCurrentClockSpeed(clockSpeed);
-        }
+        cpu->setCurrentClockSpeed(clockSpeed);
     } else if (address == 0xFF41) {
         writeDirectly(0xFF41, 0x0);
     } else if (address == 0xFF46){

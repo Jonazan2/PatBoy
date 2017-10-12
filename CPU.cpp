@@ -58,11 +58,9 @@ void CPU::reset() {
 }
 
 void CPU::updateTimers(int cycles) {
-    
-    byte timerAtts = memory->readDirectly(0xFF07);
-    
 	divRegister += cycles ;
     
+    byte timerAtts = memory->readDirectly(0xFF07);
 	if ( isBitSet(timerAtts, 2) ) {
 		timaCounter += cycles ;
         
@@ -82,7 +80,7 @@ void CPU::updateTimers(int cycles) {
     
 	// do divider register
 	if (divRegister >= 256) {
-		divRegister = divRegister - 256;
+		divRegister -= 256;
         byte value = memory->readDirectly(0xFF04) + 1;
 		memory->writeDirectly(0xFF04, value);
 	}
@@ -103,7 +101,7 @@ void CPU::resetTimaRegister() {
     this->timaCounter = 0;
 }
 
-void CPU::updateInterrupts() {
+void CPU::updateInterrupts(short &cycles) {
 	byte requestFlag = memory->read(IF_REGISTER);
 	if ( requestFlag > 0 ) {
 			if (ime) {
@@ -112,6 +110,7 @@ void CPU::updateInterrupts() {
 						byte enabledReg = memory->read(IE_REGISTER);
 						if (isBitSet(enabledReg, bit)) {
 							serviceInterrupt(Interrupts(bit));
+							cycles += 20;
 						}
 					}
 				}

@@ -132,9 +132,8 @@ void Video::compareLYWithLYC() {
 
 void Video::drawScanline() {
     const byte lcdControl = memory->readDirectly(LCD_CONTROL);
-	if ( isBitSet(lcdControl, 0) ) {
+	if ( isBitSet(lcdControl, 7) ) {
 		renderBackground(lcdControl);
-    } else {
         renderSprites(lcdControl);
     }
 }
@@ -247,7 +246,6 @@ void Video::renderSprites(byte lcdControl) {
 
         bool yFlip =  isBitSet(attributes, 6);
         bool xFlip = isBitSet(attributes, 5);
-        bool hidden = isBitSet(attributes, 7);
 
         int scanline = memory->read(LY_REGISTER);
 
@@ -287,15 +285,9 @@ void Video::renderSprites(byte lcdControl) {
 
                 int pixel = xPos+xPix;
 
-                if ( hidden && frameBuffer[scanline][pixel][0] == white ) {
-                    hidden = false;
-                }
-
-                if ( !hidden ){
-                    frameBuffer[scanline][pixel][0] = colour.red;
-                    frameBuffer[scanline][pixel][1] = colour.green;
-                    frameBuffer[scanline][pixel][2] = colour.blue;
-                }
+                frameBuffer[scanline][pixel][0] = colour.red;
+                frameBuffer[scanline][pixel][1] = colour.green;
+                frameBuffer[scanline][pixel][2] = colour.blue;
  			}
 		}
 	}

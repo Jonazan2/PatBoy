@@ -164,7 +164,7 @@ short CPU::opcode0xCD() {
     PC.hi = hi;
     PC.low = low;
     
-    return 12;
+    return 24;
 }//  call nn
 
 short CPU::opcode0xC4() {
@@ -243,16 +243,15 @@ short CPU::opcode0xDC() {
 
 short CPU::opcode0xC9() {
     stackPop(&PC);
-    return 8;
+    return 16;
 }// ret
 
 short CPU::opcode0xC0() {
-	int cycles = 8;
-    if ( !checkFlag(ZERO_FLAG) ) {
+	if ( !checkFlag(ZERO_FLAG) ) {
         stackPop(&PC);
-		cycles = 20;
+		return 20;
     }
-    return cycles;
+    return 8;
 }// ret NZ
 
 short CPU::opcode0xC8() {

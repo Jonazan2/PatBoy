@@ -45,7 +45,9 @@ public:
     ~Video();
     void updateGraphics(short);
     void renderGame();
-    
+	void switchPallete();
+
+
 private:
 	const word SCROLL_Y = 0xFF42;
 	const word SCROLL_X = 0xFF43;
@@ -60,6 +62,9 @@ private:
 	const int MIN_OAM_MODE_CYCLES = 80;
 	const int MIN_LCD_TRANSFER_CYCLES = 172;
 	const int VBLANK_CYCLES = 4560;
+
+	static RGB CLASSIC_PALLETE[4];
+	static RGB GREY_PALLETE[4];
 
 	enum class Mode : byte {
 		H_BLANK = 0,
@@ -77,9 +82,10 @@ private:
     Memory *memory;
     
     Mode mode;
+	RGB *pallete;
     int videoCycles;
 	int vblankCycles;
-    
+
     void handleHBlankMode();
     void handleVBlankMode(short cycles);
     void handleOAMMode();
@@ -97,22 +103,7 @@ private:
 	void renderSprites(byte);
 
 	inline RGB Video::getColour(const byte colourNumber) const {
-		static RGB white = { 255,255,255 };
-		static RGB lightGray = { 0xCC,0xCC,0xCC };
-		static RGB darkGray = { 0x77,0x77,0x77 };
-		static RGB black = { 0x0,0x0,0x0 };
-
-		switch (colourNumber) {
-		case Colour::white:
-			return white;
-		case Colour::lightGray:
-			return lightGray;
-		case Colour::darkGray:
-			return darkGray;
-		case Colour::black:
-		default:
-			return black;
-		}
+		return pallete[colourNumber];
 	}
 
     bool createSDLWindow();

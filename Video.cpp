@@ -1,6 +1,9 @@
 #include "Video.h"
 #include <map>
 
+RGB Video::CLASSIC_PALLETE[4] = { { 155,188,15 }, { 139,172,15 }, { 48,98,48 }, { 15,56,15 } };
+RGB Video::GREY_PALLETE[4] = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 }, { 0x0,0x0,0x0 } };
+
 Video::Video(Memory *memory, CPU *cpu) {
     this->memory = memory;
     this->cpu = cpu;
@@ -11,6 +14,7 @@ Video::Video(Memory *memory, CPU *cpu) {
 	this->videoCycles = 0;
 	this->vblankCycles = 0;
 	this->mode = Video::Mode::OAM_RAM;
+	this->pallete = GREY_PALLETE;
 }
 
 void Video::updateGraphics(short cycles) {
@@ -316,6 +320,14 @@ void Video::renderGame() {
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
+}
+
+void Video::switchPallete() {
+	if (pallete == CLASSIC_PALLETE) {
+		pallete = GREY_PALLETE;
+	} else if (pallete == GREY_PALLETE) {
+		pallete = CLASSIC_PALLETE;
+	}
 }
 
 void Video::resetFrameBuffer() {

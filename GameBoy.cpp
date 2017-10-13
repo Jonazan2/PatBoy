@@ -23,7 +23,6 @@ GameBoy::GameBoy(const std::string path) {
 
 void GameBoy::startEmulation() {
 	debugger.startDebugger(*cpu, *memory, *video, *cartridge);
-
   
 	int cycles;
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
@@ -39,6 +38,12 @@ void GameBoy::startEmulation() {
 		while( SDL_PollEvent( &event ) ) {
             joypad->handleInput(event);
             
+			if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_F2) {
+					video->switchPallete();
+				}
+			}
+
 			if( event.type == SDL_QUIT ) {
 				quit = true;
 			}

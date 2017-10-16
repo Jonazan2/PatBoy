@@ -57,19 +57,15 @@ void Memory::write(const word address, const byte data) {
         cpu->resetDivRegister();
     }else if (address == 0xFF07) {
         map[address] = data ;
-            
-        int timerVal = data & 0x03 ;
-            
-        int clockSpeed = 0 ;
-        switch(timerVal) {
-            case 0:  clockSpeed = 1024;  break;
-            case 1:  clockSpeed = 16;    break;
-            case 2:  clockSpeed = 64;    break;
-            case 3:  clockSpeed = 256;   break;
+
+        switch(data & 0x03) {
+            case 0:  cpu->setCurrentClockSpeed(1024);  break;
+            case 1:  cpu->setCurrentClockSpeed(16);    break;
+            case 2:  cpu->setCurrentClockSpeed(64);    break;
+			case 3:  cpu->setCurrentClockSpeed(256);   break;
             default: assert(false);      break;
         }
-            
-        cpu->setCurrentClockSpeed(clockSpeed);
+
     } else if (address == 0xFF41) {
         writeDirectly(0xFF41, 0x0);
     } else if (address == 0xFF46){

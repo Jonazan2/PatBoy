@@ -30,7 +30,7 @@ public:
     
 private:
 	const int MAX_CYCLES = 70224;
-	const float FPS = 59.7f;
+	const float FPS = 59.73f;
 	const float DELAY_TIME = 1000.0f / FPS;
 
     Audio *audio;

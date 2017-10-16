@@ -1,48 +1,48 @@
 #include "CPU.h"
 short CPU::opcode0xC7() {
     instructionSet->rst(0x00, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x00
 
 short CPU::opcode0xCF() {
     instructionSet->rst(0x08, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x08
 
 short CPU::opcode0xD7() {
     instructionSet->rst(0x10, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x10
 
 short CPU::opcode0xDF() {
     instructionSet->rst(0x18, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x18
 
 short CPU::opcode0xE7() {
     instructionSet->rst(0x20, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x20
 
 short CPU::opcode0xEF() {
     instructionSet->rst(0x28, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x28
 
 short CPU::opcode0xF7() {
     instructionSet->rst(0x30, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x30
 
 short CPU::opcode0xFF() {
     instructionSet->rst(0x38, &SP, &PC, memory);
-    return 32;
+    return 16;
 }// call 0x38
 
 /////////////////////////////////////////////// JUMPS
 short CPU::opcode0x18(){
     PC.value = PC.value + 1 + static_cast<char>(memory->read(PC.value));
-    return 8;
+    return 12;
 } // JP PC, nn
 
 short CPU::opcode0x20(){
@@ -282,5 +282,5 @@ short CPU::opcode0xD9() {
     // RETI
     stackPop(&PC);
     ime = true;
-    return 8;
+    return 16;
 }

@@ -4,7 +4,7 @@
 //////////////////////////////// CPU CONTROL COMMANDS
 short CPU::opcode0x76() {
     halt = true;
-    return 4;
+    return 0;
 }
 
 short CPU::opcode0xF3() {
@@ -36,7 +36,7 @@ short CPU::opcode0x00() {
 /////////////////////////////////////////////// STOP
 short CPU::opcode0x10() {
     incrementProgramCounter();
-    return 4;
+    return 0;
 }
 
 short CPU::invalidOpcode() {

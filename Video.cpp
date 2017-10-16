@@ -34,7 +34,15 @@ void Video::updateGraphics(short cycles) {
 				handleLCDTransferMode();
 				break;
 		}
-    }
+	} else {
+		videoCycles = 0;
+		memory->writeDirectly(LY_REGISTER, 0);
+
+		byte lcdc = memory->readDirectly(LCDC_STATUS);
+		lcdc &= 0xFC;
+		memory->writeDirectly(LCDC_STATUS, lcdc);
+		mode = Video::Mode::H_BLANK;
+	}
 }
 
 void Video::handleHBlankMode() {
@@ -50,10 +58,7 @@ void Video::handleHBlankMode() {
 			byte lcdStatus = memory->readDirectly(LCDC_STATUS);
 			setBit(&lcdStatus, 1);
 			memory->writeDirectly(LCDC_STATUS, lcdStatus);
-
-			//if (isBitSet(lc dStatus, 4)) {
-				cpu->requestInterrupt(Interrupts::VBLANK);
-			//}
+			cpu->requestInterrupt(Interrupts::VBLANK);
 		} else {
 			mode = Mode::OAM_RAM;
 		}

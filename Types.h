@@ -33,6 +33,7 @@ typedef union {
         byte green;
         byte blue;
     };
+	int value;
 } RGB;
 
 enum TMA_CYCLES {

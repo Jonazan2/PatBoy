@@ -47,6 +47,7 @@ public:
     void renderGame();
 	void switchPallete();
 
+	void* getFrameBuffer() { return frameBuffer; }
 
 private:
 	const word SCROLL_Y = 0xFF42;
@@ -73,7 +74,7 @@ private:
 		LCD_TRANSFER = 3
 	};
 
-    byte frameBuffer[GAMEBOY_HEIGHT][GAMEBOY_WIDTH][3];
+    RGB frameBuffer[GAMEBOY_HEIGHT][GAMEBOY_WIDTH];
     
     SDL_Window *window;
     SDL_Renderer *renderer;

@@ -234,10 +234,9 @@ void Video::renderBackground(byte lcdControl) {
         colourNum |= getBitValue(data1,colourBit);
 
         RGB colour = getColour(colourNum);
-
-        frameBuffer[scanline][pixel][0] = colour.red;
-        frameBuffer[scanline][pixel][1] = colour.green;
-        frameBuffer[scanline][pixel][2] = colour.blue;
+		frameBuffer[scanline][pixel].red = colour.red;
+		frameBuffer[scanline][pixel].green = colour.green;
+		frameBuffer[scanline][pixel].blue = colour.blue;
     }
 }
 
@@ -296,10 +295,10 @@ void Video::renderSprites(byte lcdControl) {
 
                 int pixel = xPos+xPix;
 
-				if (colour.value != getColour(white).value) {
-					frameBuffer[scanline][pixel][0] = colour.red;
-					frameBuffer[scanline][pixel][1] = colour.green;
-					frameBuffer[scanline][pixel][2] = colour.blue;
+				if (!colour.isEqual(getColour(white))) {
+					frameBuffer[scanline][pixel].red = colour.red;
+					frameBuffer[scanline][pixel].green = colour.green;
+					frameBuffer[scanline][pixel].blue = colour.blue;
 				}
  			}
 		}

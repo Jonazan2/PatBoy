@@ -17,8 +17,8 @@ class Debugger {
 public:
 	Debugger();
 
-	void startDebugger(const CPU& cpu, const Memory& memory, const Video& video, const Cartridge& cartridge);
-	void update(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge& cartridge);
+	void startDebugger(const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge);
+	void update(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge);
 	void closeDebugger();
 
 private:
@@ -42,17 +42,20 @@ private:
 	std::map<word, byte> watcher;
 	bool watcherAsBreakpoint;
 	bool instructionJump;
+	ImTextureID frameBufferTexture;
+	bool showFrameBufferWindow;
 
-	void composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge& cartridge);
+
+	void composeView(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge);
 	void startCPUView(int cycles, const CPU& cpu, const Memory& memory);
-	void startVideoView(const CPU& cpu, const Memory& memory, const Video& video);
+	void startVideoView(const CPU& cpu, const Memory& memory, Video& video);
 	void startMemoryView(const Memory& memory);
 	void startCartridgeView(const Cartridge& cartridge);
 
 	bool addresshasBreakpoint(word address) const;
 	bool watcherDataHasChanged(const Memory& memory) const;
 	void updateWatcherData(const Memory& memory);
-	void handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video &video, const Cartridge& cartridge);
+	void handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, Video &video, const Cartridge& cartridge);
 
 	void render();
 };

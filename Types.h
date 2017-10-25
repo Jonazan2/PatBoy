@@ -27,14 +27,15 @@ enum Flag {
     CARRY_FLAG = 4
 };
 
-typedef union {
-    struct {
-        byte red;
-        byte green;
-        byte blue;
-    };
-	int value;
-} RGB;
+struct RGB {
+    byte red;
+    byte green;
+    byte blue;
+
+	bool isEqual(RGB other) {
+		return red == other.red && green == other.green && blue == other.blue;
+	}
+};
 
 enum TMA_CYCLES {
     TMA_4096 = 1024,

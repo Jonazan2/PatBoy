@@ -8,6 +8,7 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
+#include "Types.h"
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -20,16 +21,50 @@
 #include <GLFW/glfw3native.h>
 #endif
 
+#include <map>
+
 // Data
-static GLFWwindow*  g_Window = NULL;
-static double       g_Time = 0.0f;
-static bool         g_MousePressed[3] = { false, false, false };
-static float        g_MouseWheel = 0.0f;
-static GLuint       g_FontTexture = 0;
-static int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
-static int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
-static int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
-static unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+static GLFWwindow*						g_Window = NULL;
+static std::map<GLuint, void*>	g_TextureMap;
+static double							g_Time = 0.0f;
+static bool								g_MousePressed[3] = { false, false, false };
+static float							g_MouseWheel = 0.0f;
+static GLuint							g_FontTexture = 0;
+static int								g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
+static int								g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
+static int								g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
+static unsigned int						g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+
+ImTextureID ImGui_ImplGlfwGL3_CreateTexture(void* buffer)
+{
+	GLuint texture;
+	glGenTextures(1, &texture);
+	g_TextureMap[texture] = buffer;
+	return (ImTextureID) texture;
+}
+
+void ImGui_ImplGlfwGL3_UpdateTexture(ImTextureID textureId, void *buffer)
+{
+	g_TextureMap.at((GLuint)textureId) = buffer;
+}
+
+
+void ImGui_ImplGlfwGL3_Bind_Textures()
+{
+	for (std::pair<GLuint,	const void*> texture : g_TextureMap) {
+		glBindTexture(GL_TEXTURE_2D, texture.first); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+											   // set the texture wrapping parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	// set texture wrapping to GL_REPEAT (default wrapping method)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// set texture filtering parameters
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+		// load image, create texture and generate mipmaps
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 160, 144, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.second);
+	}
+}
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 // If text or lines are blurry when integrating ImGui in your engine:
@@ -61,6 +96,8 @@ void ImGui_ImplGlfwGL3_RenderDrawLists(ImDrawData* draw_data)
     GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
     GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
     GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+
+	ImGui_ImplGlfwGL3_Bind_Textures();
 
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
     glEnable(GL_BLEND);

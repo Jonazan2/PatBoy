@@ -13,13 +13,14 @@ Debugger::Debugger() {
 	mode = Mode::RUNNING;
 	watcherAsBreakpoint = false;
 	instructionJump = false;
+	showFrameBufferWindow = false;
 }
 
-void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &video, const Cartridge& cartridge)
+void Debugger::startDebugger(const CPU& cpu, const Memory& memory, Video &video, const Cartridge& cartridge)
 {
 	glfwInit();
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	window = glfwCreateWindow(1200, 800, "PatBoy Debugger", NULL, NULL);
@@ -33,6 +34,7 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &
 	}
 
 	ImGui_ImplGlfwGL3_Init(window, true);
+	frameBufferTexture = ImGui_ImplGlfwGL3_CreateTexture(video.getFrameBuffer());
 
 	// we update first just in case we have a breakpoint in the first instruction
 	update(0, cpu, memory, video, cartridge);
@@ -41,7 +43,7 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, const Video &
 	render();
 }
 
-void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge &cartridge) {
+void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge &cartridge) {
 	if (!watcher.empty()) {
 		if (watcherAsBreakpoint && watcherDataHasChanged(memory)) {
 			mode = Mode::BREAKPOINT;
@@ -67,7 +69,7 @@ void Debugger::closeDebugger() {
 	glfwTerminate();
 }
 
-void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge& cartridge) {
+void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge) {
 	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
 
@@ -311,11 +313,12 @@ void Debugger::startCPUView(const int cycles, const CPU& cpu, const Memory& memo
 	ImGui::End();
 }
 
-void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video& video) {
+void Debugger::startVideoView(const CPU& cpu, const Memory& memory, Video& video) {
 	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(605, 80));
 
 	ImGui::Begin("Video");
+	ImGui::Columns(2);
 	ImGui::Text("LCD Control: 0x%02X", memory.readDirectly(Video::LCD_CONTROL));
 	ImGui::Text("LCDC Status: 0x%02X", memory.readDirectly(Video::LCDC_STATUS));
 
@@ -325,6 +328,18 @@ void Debugger::startVideoView(const CPU& cpu, const Memory& memory, const Video&
 	}
 	else {
 		ImGui::Text("LY: %d", yCoordinate);
+	}
+
+	ImGui::NextColumn();
+	if (ImGui::Button(showFrameBufferWindow ? "Hide frame buffer" : "Show frame buffer")) {
+		showFrameBufferWindow = !showFrameBufferWindow;
+	}
+
+	if (showFrameBufferWindow) {
+		ImGui::SetNextWindowSize(ImVec2(160, 144), ImGuiSetCond_FirstUseEver);
+		ImGui::Begin("GameBoy");
+		ImGui::Image(frameBufferTexture, ImVec2(160, 144));
+		ImGui::End();
 	}
 
 	ImGui::End();
@@ -474,7 +489,7 @@ void Debugger::startCartridgeView(const Cartridge& cartridge) {
 
 
 
-void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, const Video& video, const Cartridge &cartridge) {
+void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge &cartridge) {
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
 	previous = std::chrono::high_resolution_clock::now();
 

@@ -94,7 +94,7 @@ public:
         SGB_FUNCTIONS	= 0x03
     };
 
-	Cartridge(std::string);
+	Cartridge(const std::string&);
 	~Cartridge();
 
 	std::string getTitle() const;

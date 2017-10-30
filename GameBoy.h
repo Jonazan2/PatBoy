@@ -24,7 +24,7 @@
 class GameBoy {
 
 public:
-	GameBoy(const std::string);
+	GameBoy(const std::string&);
 	void startEmulation();
 	~GameBoy();
     

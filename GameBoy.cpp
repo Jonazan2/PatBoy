@@ -9,7 +9,7 @@
 #include <SDL.h>
 #endif
 
-GameBoy::GameBoy(const std::string path) {
+GameBoy::GameBoy(const std::string &path) {
     this->audio = new Audio();
     this->audio->reset();
     this->cartridge = new Cartridge(path);

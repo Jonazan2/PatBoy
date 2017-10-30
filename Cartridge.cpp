@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Cartridge::Cartridge(string filePath) {
-    this->path = filePath;
+Cartridge::Cartridge(const string &filePath) {
+    path = filePath;
     loadRom();
     extractHeaderData();
 }

@@ -25,7 +25,7 @@
 
 // Data
 static GLFWwindow*						g_Window = NULL;
-static std::map<GLuint, void*>	g_TextureMap;
+static std::map<GLuint, Texture>	g_TextureMap;
 static double							g_Time = 0.0f;
 static bool								g_MousePressed[3] = { false, false, false };
 static float							g_MouseWheel = 0.0f;
@@ -35,34 +35,28 @@ static int								g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
 static int								g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
 static unsigned int						g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
 
-ImTextureID ImGui_ImplGlfwGL3_CreateTexture(void* buffer)
+ImTextureID ImGui_ImplGlfwGL3_CreateTexture(Texture& texture)
 {
-	GLuint texture;
-	glGenTextures(1, &texture);
-	g_TextureMap[texture] = buffer;
-	return (ImTextureID) texture;
+	GLuint id;
+	glGenTextures(1, &id);
+	texture.id = id;
+	g_TextureMap[id] = texture;
+	return (ImTextureID) id;
 }
 
 void ImGui_ImplGlfwGL3_UpdateTexture(ImTextureID textureId, void *buffer)
 {
-	g_TextureMap.at((GLuint)textureId) = buffer;
+	g_TextureMap.at((GLuint)textureId).buffer = buffer;
 }
 
 
 void ImGui_ImplGlfwGL3_Bind_Textures()
 {
-	for (std::pair<GLuint,	const void*> texture : g_TextureMap) {
-		glBindTexture(GL_TEXTURE_2D, texture.first); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-											   // set the texture wrapping parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	// set texture wrapping to GL_REPEAT (default wrapping method)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		// set texture filtering parameters
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	for (std::pair<GLuint,	Texture> texture : g_TextureMap) {
+		glBindTexture(GL_TEXTURE_2D, texture.first); 
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		// load image, create texture and generate mipmaps
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 160, 144, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.second);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.second.width, texture.second.height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture.second.buffer);
 	}
 }
 

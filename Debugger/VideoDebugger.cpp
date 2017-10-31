@@ -2,7 +2,11 @@
 
 #include "Debugger.h"
 
-VideoDebugger::VideoDebugger() : frameBufferTexture(nullptr), showFrameBufferWindow(false) {};
+VideoDebugger::VideoDebugger() : frameBufferTexture(nullptr), showFrameBufferWindow(false) ,
+	showTileBufferWindow(false) {
+
+	memset(tileBuffer, 0xFF, sizeof(tileBuffer));
+};
 
 void VideoDebugger::startView(const Memory& memory, Video& video) {
 	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
@@ -32,5 +36,50 @@ void VideoDebugger::startView(const Memory& memory, Video& video) {
 		ImGui::End();
 	}
 
+	if (ImGui::Button(showTileBufferWindow ? "Hide tiles" : "Show tiles")) {
+		showTileBufferWindow = !showTileBufferWindow;
+	}
+
+	if (showTileBufferWindow) {
+		updateTiles(memory);
+		ImGui::SetNextWindowSize(ImVec2(256, 384), ImGuiSetCond_FirstUseEver);
+		ImGui::Begin("Tiles");
+		ImGui::Image(tileBufferTexture, ImVec2(256, 384));
+		ImGui::End();
+	}
+
 	ImGui::End();
+}
+
+void VideoDebugger::updateTiles(const Memory& memory) {
+	word tileData = 0x8000;
+	for (int row = 0; row < 24; row++) {
+		for (int column = 0; column < 16; column++) {
+			word start = tileData + (16 * column);
+			updateTiles(memory, start, row, column);
+		}
+		tileData += 0x100;
+	}
+}
+
+void VideoDebugger::updateTiles(const Memory& memory, word start, byte row, byte column) {
+	static RGB GREY_PALLETE[4] = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 },{ 0x0,0x0,0x0 } };
+
+	for (int line = (row*8); line < 8 + (row * 8); line++, start+=2) {
+		byte upperByte = memory.read(start);
+		byte lowerByte = memory.read(start + 1);
+
+		for (int tileColumn = (column*8), position = 7; tileColumn < 8 + (column * 8); tileColumn++, position--) {
+			tileBuffer[line][tileColumn] = GREY_PALLETE[getColour(upperByte, lowerByte, position)];
+		}
+	}
+}
+
+byte VideoDebugger::getColour(byte upperByte, byte lowerByte, byte position) {
+	byte colour = 0;
+	if (isBitSet(upperByte, position))
+		setBit(&colour, 1);
+	if (isBitSet(lowerByte, position))
+		setBit(&colour, 0);
+	return colour;
 }

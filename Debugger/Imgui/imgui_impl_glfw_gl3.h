@@ -9,8 +9,15 @@
 struct GLFWwindow;
 #include "Types.h"
 
+typedef struct {
+	unsigned int id;
+	int width;
+	int height;
+	void* buffer;
+} Texture;
+
 IMGUI_API bool        ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks);
-IMGUI_API ImTextureID ImGui_ImplGlfwGL3_CreateTexture(void* buffer);
+IMGUI_API ImTextureID ImGui_ImplGlfwGL3_CreateTexture(Texture& buffer);
 IMGUI_API void		  ImGui_ImplGlfwGL3_Bind_Textures();
 IMGUI_API void        ImGui_ImplGlfwGL3_UpdateTexture(ImTextureID textureId, void* buffer);
 

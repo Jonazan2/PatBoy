@@ -40,7 +40,7 @@ byte MBC1::readFromRamBank(word address) {
 			return ram[(address - 0xA000) + ramAddress];
 		}
 	} else {
-		return 0xFF;
+		return memory->readDirectly(address);
 	}
 }
 

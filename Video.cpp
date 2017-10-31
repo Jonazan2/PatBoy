@@ -42,6 +42,8 @@ void Video::updateGraphics(short cycles) {
 		lcdc &= 0xFC;
 		memory->writeDirectly(LCDC_STATUS, lcdc);
 		mode = Video::Mode::H_BLANK;
+
+		compareLYWithLYC();
 	}
 }
 
@@ -51,6 +53,7 @@ void Video::handleHBlankMode() {
 
 		byte scanline = memory->readDirectly(LY_REGISTER);
 		memory->writeDirectly(LY_REGISTER, ++scanline);
+		compareLYWithLYC();
 		if (scanline == VERTICAL_BLANK_SCAN_LINE) {
 			mode = Mode::V_BLANK;
 
@@ -129,14 +132,19 @@ void Video::handleLCDTransferMode() {
 }
 
 void Video::compareLYWithLYC() {
-	byte lcdStatus = memory->readDirectly(LCDC_STATUS);
 	byte currentScanline = memory->readDirectly(LY_REGISTER);
 	byte lyCompare = memory->readDirectly(LY_COMPARE);
+	byte lcdStatus = memory->readDirectly(LCDC_STATUS);
+
 	if (lyCompare == currentScanline) {
+		setBit(&lcdStatus, 2);
 		if (isBitSet(lcdStatus, 6)) {
 			cpu->requestInterrupt(Interrupts::LCD);
 		}
+	} else {
+		clearBit(&lcdStatus, 2);
 	}
+	memory->writeDirectly(LCDC_STATUS, lcdStatus);
 }
 
 void Video::drawScanline() {
@@ -205,19 +213,21 @@ void Video::renderBackground(byte lcdControl) {
         }
 
         const word tileCol = (xPos/8);
-        signed short tileNum;
+        signed char tileNum;
         
         if( unsig ) {
-            tileNum = (byte)memory->readDirectly(backgroundMemory+tileRow + tileCol);
+            tileNum = static_cast<byte>(memory->readDirectly(backgroundMemory+tileRow + tileCol));
         } else {
-            tileNum = (signed short)memory->readDirectly(backgroundMemory+tileRow + tileCol);
+            tileNum = static_cast<signed char>(memory->readDirectly(backgroundMemory+tileRow + tileCol));
         }
 
         word tileLocation = tileData;
         if ( unsig ) {
             tileLocation += (tileNum * 16);
+			assert(tileLocation < 0x8FFF);
         } else {
-            tileLocation += ((tileNum+128) *16);
+            tileLocation += ((tileNum + 0x80) *16);
+			assert(tileLocation < 0x97FF);
         }
 
         byte line = yPos % 8;

@@ -67,7 +67,7 @@ void Memory::write(const word address, const byte data) {
         }
 
     } else if (address == 0xFF41) {
-        writeDirectly(0xFF41, 0x0);
+        // Not allowed
     } else if (address == 0xFF46){
         for (int i = 0; i < 0xA0; i++) {
             map[0xFE00 + i] = readDirectly((cpu->getAF().hi << 8) + i);

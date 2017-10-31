@@ -212,21 +212,15 @@ void Video::renderBackground(byte lcdControl) {
 			xPos = pixel - windowX;
         }
 
-        const word tileCol = (xPos/8);
+		word tileLocation = tileData;
         signed char tileNum;
-        
         if( unsig ) {
-            tileNum = static_cast<byte>(memory->readDirectly(backgroundMemory+tileRow + tileCol));
-        } else {
-            tileNum = static_cast<signed char>(memory->readDirectly(backgroundMemory+tileRow + tileCol));
-        }
-
-        word tileLocation = tileData;
-        if ( unsig ) {
-            tileLocation += (tileNum * 16);
+            tileNum = static_cast<byte>(memory->readDirectly(backgroundMemory+tileRow + (xPos / 8)));
+			tileLocation += (tileNum * 16);
 			assert(tileLocation < 0x8FFF);
         } else {
-            tileLocation += ((tileNum + 0x80) *16);
+            tileNum = static_cast<signed char>(memory->readDirectly(backgroundMemory+tileRow + (xPos / 8)));
+			tileLocation += ((tileNum + 0x80) * 16);
 			assert(tileLocation < 0x97FF);
         }
 
@@ -266,6 +260,7 @@ void Video::renderSprites(byte lcdControl) {
 
         bool yFlip =  isBitSet(attributes, 6);
         bool xFlip = isBitSet(attributes, 5);
+		bool hidden = isBitSet(attributes, 7);
 
         int scanline = memory->read(LY_REGISTER);
 
@@ -305,7 +300,7 @@ void Video::renderSprites(byte lcdControl) {
 
                 int pixel = xPos+xPix;
 
-				if (!colour.isEqual(getColour(white))) {
+				if (!colour.isEqual(getColour(white)) && !hidden) {
 					frameBuffer[scanline][pixel].red = colour.red;
 					frameBuffer[scanline][pixel].green = colour.green;
 					frameBuffer[scanline][pixel].blue = colour.blue;

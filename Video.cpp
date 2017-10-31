@@ -213,7 +213,7 @@ void Video::renderBackground(byte lcdControl) {
         }
 
 		word tileLocation = tileData;
-        signed char tileNum;
+        int tileNum;
         if( unsig ) {
             tileNum = static_cast<byte>(memory->readDirectly(backgroundMemory+tileRow + (xPos / 8)));
 			tileLocation += (tileNum * 16);
@@ -300,7 +300,8 @@ void Video::renderSprites(byte lcdControl) {
 
                 int pixel = xPos+xPix;
 
-				if (!colour.isEqual(getColour(white)) && !hidden) {
+				if ((!colour.isEqual(getColour(white)) && !hidden)
+					|| frameBuffer[scanline][pixel].isEqual(getColour(white))) {
 					frameBuffer[scanline][pixel].red = colour.red;
 					frameBuffer[scanline][pixel].green = colour.green;
 					frameBuffer[scanline][pixel].blue = colour.blue;

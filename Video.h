@@ -34,7 +34,7 @@ public:
     static const word LY_REGISTER = 0xFF44;
     static const word LY_COMPARE = 0xFF45;
     
-    enum Colour {
+    enum Colour : int {
         white,
         lightGray,
         darkGray,
@@ -48,6 +48,8 @@ public:
 	void switchPallete();
 
 	void* getFrameBuffer() { return frameBuffer; }
+
+	Colour getColourFromPallete(byte pallete, Colour originalColour);
 
 private:
 	const word SCROLL_Y = 0xFF42;

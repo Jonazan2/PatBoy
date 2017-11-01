@@ -204,6 +204,7 @@ void Video::renderBackground(byte lcdControl) {
     }
 
     word tileRow = (((byte)(yPos/8))*32);
+	byte backgroundPallete = memory->read(0xFF47);
 
     for ( int pixel = 0 ; pixel < 160; pixel++ ) {
         byte xPos = pixel + scrollX;
@@ -237,7 +238,7 @@ void Video::renderBackground(byte lcdControl) {
         colourNum <<= 1;
         colourNum |= getBitValue(data1,colourBit);
 
-        RGB colour = getColour(colourNum);
+        RGB colour = GREY_PALLETE[getColourFromPallete(backgroundPallete, Colour(colourNum))];
 		frameBuffer[scanline][pixel].red = colour.red;
 		frameBuffer[scanline][pixel].green = colour.green;
 		frameBuffer[scanline][pixel].blue = colour.blue;
@@ -251,12 +252,16 @@ void Video::renderSprites(byte lcdControl) {
         use8x16 = true;
     }
 
+	byte backgroundPallete = memory->read(0xFF47);
+	Colour whiteInBackground = getColourFromPallete(backgroundPallete, white);
+
     for (int sprite = 0 ; sprite < 40; sprite++) {
         byte index = sprite*4 ;
         byte yPos = memory->read(0xFE00+index) - 16;
         byte xPos = memory->read(0xFE00+index+1)-8;
         byte tileLocation = memory->read(0xFE00+index+2) ;
         byte attributes = memory->read(0xFE00+index+3) ;
+		byte pallete = memory->read(isBitSet(attributes, 4) ? 0xFF49 : 0xFF48);
 
         bool yFlip =  isBitSet(attributes, 6);
         bool xFlip = isBitSet(attributes, 5);
@@ -283,7 +288,7 @@ void Video::renderSprites(byte lcdControl) {
             byte data2 = memory->read((0x8000 + (tileLocation * 16)) + line+1);
 
             for ( int tilePixel = 7; tilePixel >= 0; tilePixel-- ) {
-                int colourbit = tilePixel ;
+                int colourbit = tilePixel;
                 if ( xFlip ) {
                     colourbit -= 7;
                     colourbit *= -1;
@@ -293,15 +298,15 @@ void Video::renderSprites(byte lcdControl) {
                 colourNum <<= 1;
                 colourNum |= getBitValue(data1,colourbit) ;
 
-				RGB colour = getColour(colourNum);
+				RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
 
                 int xPix = 0 - tilePixel;
                 xPix += 7;
 
                 int pixel = xPos+xPix;
 
-				if ((!colour.isEqual(getColour(white)) && !hidden)
-					|| frameBuffer[scanline][pixel].isEqual(getColour(white))) {
+				if (!colour.isEqual(GREY_PALLETE[getColourFromPallete(pallete, white)])
+					&& (!hidden || frameBuffer[scanline][pixel].isEqual(GREY_PALLETE[whiteInBackground]))) {
 					frameBuffer[scanline][pixel].red = colour.red;
 					frameBuffer[scanline][pixel].green = colour.green;
 					frameBuffer[scanline][pixel].blue = colour.blue;
@@ -315,6 +320,47 @@ Video::Mode Video::getLCDMode() const {
     byte lcdStatus = memory->readDirectly(LCDC_STATUS);
 	return Video::Mode(lcdStatus & 0x3);
 }
+
+Video::Colour Video::getColourFromPallete(byte pallete, Colour originalColour) {
+	byte colourNumber = 0;
+	switch (originalColour) {
+		case white:
+		if (getBitValue(pallete, 1)) {
+			setBit(&colourNumber, 1);
+		}
+		if (getBitValue(pallete, 0)) {
+			setBit(&colourNumber, 0);
+		}
+		break;
+		case lightGray:
+		if (getBitValue(pallete, 3)) {
+			setBit(&colourNumber, 1);
+		}
+		if (getBitValue(pallete, 2)) {
+			setBit(&colourNumber, 0);
+		}
+		break;
+		case darkGray:
+		if (getBitValue(pallete, 5)) {
+			setBit(&colourNumber, 1);
+		}
+		if (getBitValue(pallete, 4)) {
+			setBit(&colourNumber, 0);
+		}
+		break;
+		case black:
+		if (getBitValue(pallete, 7)) {
+			setBit(&colourNumber, 1);
+		}
+		if (getBitValue(pallete, 6)) {
+			setBit(&colourNumber, 0);
+		}
+		break;
+	}
+
+	return Colour(colourNumber);
+}
+
 
 bool Video::createSDLWindow() {
     if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
@@ -330,6 +376,7 @@ bool Video::createSDLWindow() {
 }
 
 void Video::renderGame() {
+	assert(renderer && texture);
     SDL_UpdateTexture(texture, NULL, this->frameBuffer, GAMEBOY_WIDTH * sizeof(byte) * 3);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);

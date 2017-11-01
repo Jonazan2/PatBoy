@@ -288,28 +288,29 @@ void Video::renderSprites(byte lcdControl) {
             byte data2 = memory->read((0x8000 + (tileLocation * 16)) + line+1);
 
             for ( int tilePixel = 7; tilePixel >= 0; tilePixel-- ) {
-                int colourbit = tilePixel;
-                if ( xFlip ) {
-                    colourbit -= 7;
-                    colourbit *= -1;
-                }
+                
+				int xPix = 0 - tilePixel;
+				xPix += 7;
 
-                int colourNum = getBitValue(data2,colourbit) ;
-                colourNum <<= 1;
-                colourNum |= getBitValue(data1,colourbit) ;
+				int pixel = xPos + xPix;
+				if (pixel < 160 && scanline < 144) {
 
-				RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
+					int colourbit = tilePixel;
+					if (xFlip) {
+						colourbit -= 7;
+						colourbit *= -1;
+					}
 
-                int xPix = 0 - tilePixel;
-                xPix += 7;
+					int colourNum = getBitValue(data2, colourbit);
+					colourNum <<= 1;
+					colourNum |= getBitValue(data1, colourbit);
 
-                int pixel = xPos+xPix;
-
-				if (!colour.isEqual(GREY_PALLETE[getColourFromPallete(pallete, white)])
-					&& (!hidden || frameBuffer[scanline][pixel].isEqual(GREY_PALLETE[whiteInBackground]))) {
-					frameBuffer[scanline][pixel].red = colour.red;
-					frameBuffer[scanline][pixel].green = colour.green;
-					frameBuffer[scanline][pixel].blue = colour.blue;
+					RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
+					if (!colour.isEqual(GREY_PALLETE[getColourFromPallete(pallete, white)])) {
+						frameBuffer[scanline][pixel].red = colour.red;
+						frameBuffer[scanline][pixel].green = colour.green;
+						frameBuffer[scanline][pixel].blue = colour.blue;
+					}
 				}
  			}
 		}

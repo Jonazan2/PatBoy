@@ -25,5 +25,5 @@ private:
 
 	void updateTiles(const Memory& memory);
 	void updateTiles(const Memory& memory, word start, byte row, byte column);
-	byte getColour(byte upperByte, byte lowerByte, byte position);
+	byte getColour(byte upperByte, byte lowerByte, byte position) const;
 };

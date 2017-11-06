@@ -75,7 +75,7 @@ void VideoDebugger::updateTiles(const Memory& memory, word start, byte row, byte
 	}
 }
 
-byte VideoDebugger::getColour(byte upperByte, byte lowerByte, byte position) {
+byte VideoDebugger::getColour(byte upperByte, byte lowerByte, byte position) const {
 	byte colour = 0;
 	if (isBitSet(upperByte, position))
 		setBit(&colour, 1);

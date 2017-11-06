@@ -1,16 +1,19 @@
 #include "Memory.h"
 #include "Memory/MBC1.h"
+#include "Memory/MBC2.h"
 #include "Memory/RomOnly.h"
 
 MemoryChip* Memory::createMemoryChipForCartridge(Memory* memory, Cartridge* cartridge) {
 	MemoryChip* chip;
 	switch (cartridge->getCartridgeType()) {
-		case Cartridge::CartridgeType::MBC1:                    chip = new  MBC1(memory, cartridge);
-		case Cartridge::CartridgeType::MBC1_RAM:                chip = new  MBC1(memory, cartridge);       break;
-		case Cartridge::CartridgeType::MBC1_RAM_BATTERY:        chip = new  MBC1(memory, cartridge);       break;
-		case Cartridge::CartridgeType::ROM_RAM:                 chip = new  RomOnly(memory, cartridge);    break;
-		case Cartridge::CartridgeType::ROM_RAM_BATTERY:         chip = new  RomOnly(memory, cartridge);    break;
-		case Cartridge::CartridgeType::ROM_ONLY:				chip = new  RomOnly(memory, cartridge);    break;
+		case Cartridge::CartridgeType::MBC2_BATTERY:			chip = new  MBC2(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC2:					chip = new  MBC2(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC1:                    chip = new  MBC1(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC1_RAM:                chip = new  MBC1(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC1_RAM_BATTERY:        chip = new  MBC1(memory, cartridge);		break;
+		case Cartridge::CartridgeType::ROM_RAM:                 chip = new  RomOnly(memory, cartridge);		break;
+		case Cartridge::CartridgeType::ROM_RAM_BATTERY:         chip = new  RomOnly(memory, cartridge);		break;
+		case Cartridge::CartridgeType::ROM_ONLY:				chip = new  RomOnly(memory, cartridge);		break;
 		default:												std::cout << "Memory chip not supported yet" << std::endl; exit(-1); break;
 	}
 

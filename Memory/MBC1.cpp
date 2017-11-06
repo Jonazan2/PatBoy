@@ -17,6 +17,8 @@ byte MBC1::read(word address) {
 		return memory->readDirectly(address);
 	} else if (address <= 0x7FFF) {
 		return readFromRomBank(address);
+	} else if (address <= 0x97FF) {
+		return memory->readDirectly(address);
 	} else if (address <= 0xBFFF) {
 		return readFromRamBank(address);
 	}
@@ -40,7 +42,7 @@ byte MBC1::readFromRamBank(word address) {
 			return ram[(address - 0xA000) + ramAddress];
 		}
 	} else {
-		return memory->readDirectly(address);
+		return 0xFF;
 	}
 }
 

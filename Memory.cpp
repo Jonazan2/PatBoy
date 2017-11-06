@@ -1,11 +1,18 @@
 #include "Memory.h"
 #include "Memory/MBC1.h"
 #include "Memory/MBC2.h"
+#include "Memory/MBC3.h"
 #include "Memory/RomOnly.h"
 
 MemoryChip* Memory::createMemoryChipForCartridge(Memory* memory, Cartridge* cartridge) {
 	MemoryChip* chip;
+
 	switch (cartridge->getCartridgeType()) {
+		case Cartridge::CartridgeType::MBC3:					chip = new  MBC3(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC3_RAM:				chip = new  MBC3(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC3_RAM_BATTERY:		chip = new  MBC3(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC3_TIMER_BATTERY:		chip = new  MBC3(memory, cartridge);		break;
+		case Cartridge::CartridgeType::MBC3_TIMER_RAM_BATTERY:	chip = new  MBC3(memory, cartridge);		break;
 		case Cartridge::CartridgeType::MBC2_BATTERY:			chip = new  MBC2(memory, cartridge);		break;
 		case Cartridge::CartridgeType::MBC2:					chip = new  MBC2(memory, cartridge);		break;
 		case Cartridge::CartridgeType::MBC1:                    chip = new  MBC1(memory, cartridge);		break;

@@ -1,5 +1,4 @@
-#ifndef _GAMEBOY_H_
-#define _GAMEBOY_H_
+#pragma once
 
 #include <string>
 #include "Cartridge.h"
@@ -40,7 +39,4 @@ private:
     Video *video;
     Joypad *joypad;
 	Debugger debugger;
-
 };
-
-#endif

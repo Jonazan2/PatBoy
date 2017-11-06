@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 
+
 #ifdef __APPLE__
 #include <SDL2/SDL.h>
 #else

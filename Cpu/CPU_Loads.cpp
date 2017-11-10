@@ -124,25 +124,25 @@ short CPU::opcode0xE2() {
 
 short CPU::opcode0x22() {
     memory->write(HL.value, AF.hi);
-    instructionSet->increment16BitRegister(&HL);
+    increment16BitRegister(&HL);
     return 8;
 } // LD (HLI),A (22) INC
 
 short CPU::opcode0x2A() {
     AF.hi = memory->read(HL.value);
-    instructionSet->increment16BitRegister(&HL);
+    increment16BitRegister(&HL);
     return 8;
 } // LDi A, (HL)
 
 short CPU::opcode0x32() {
     memory->write(HL.value, AF.hi);
-    instructionSet->decrement16BitRegister(&HL);
+    decrement16BitRegister(&HL);
     return 8;
 }
 
 short CPU::opcode0x3A() {
     AF.hi = memory->read(HL.value);
-    instructionSet->decrement16BitRegister(&HL);
+    decrement16BitRegister(&HL);
     return 8;
 } // LDi A, (HL)
 

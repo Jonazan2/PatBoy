@@ -18,15 +18,18 @@ short CPU::opcode0xFB() {
 }
 
 short CPU::opcode0x3F() {
-    instructionSet->ccf(&AF.low);
+	clearFlag(ADD_SUB_FLAG);
+	clearFlag(HALF_CARRY_FLAG);
+	toggleFlag(CARRY_FLAG);
     return 4;
 }// ccf -00c cy = cy xor 1
 
 short CPU::opcode0x37() {
-    instructionSet->scf(&AF.low);
-    return 4;
+	clearFlag(ADD_SUB_FLAG);
+	clearFlag(HALF_CARRY_FLAG);
+	raiseFlag(CARRY_FLAG);
+	return 4;
 }// scf -001 cy = 1
-
 
 short CPU::opcode0x00() {
     //NOP

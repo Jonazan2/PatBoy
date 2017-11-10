@@ -3,11 +3,9 @@
 
 #include "Types.h"
 #include "Memory.h"
-#include "Cpu/InstructionSet.h"
 #include "Utils.h"
 
 class Memory;
-class InstructionSet;
 
 /**************************************************************************//**
  * \brief Class that implements the CPU system of the Nintendo Game Boy
@@ -52,8 +50,6 @@ private:
     Register SP;
     Register PC;
     
-    InstructionSet *instructionSet;
-    
     bool halt;
     bool ime;
     
@@ -64,7 +60,8 @@ private:
     unsigned short divRegister;
     unsigned int timaCounter;
     unsigned int currentClockSpeed;
-    
+
+	void reset();
     void serviceInterrupt(Interrupts);
     
     void chargeOpcodes();
@@ -90,8 +87,6 @@ private:
     void checkCarryFlag(const byte);
     void checkCarryFlag(const word);
     
-    void reset();
-    
     short invalidOpcode();
     
     // 16 bits loads
@@ -104,12 +99,14 @@ private:
     short opcode0x08(); // LD (nn), SP
     
     // 16 bits increments
+	void increment16BitRegister(Register *);
     short opcode0x03(); // INC BC
     short opcode0x13(); // INC DE
     short opcode0x23(); // INC HL
     short opcode0x33(); // INC SP
     
     // 16 bits decrements
+	void decrement16BitRegister(Register *);
     short opcode0x0B();
     short opcode0x1B();
     short opcode0x2B();
@@ -223,6 +220,7 @@ private:
     short opcode0xF2(); // LD A, (FF00+C), 8
     
     // 8 bits add z0hc 4 cycles
+	void add8BitRegister(byte *accumulator, byte adding);
     short opcode0x87(); // ADD A, A
     short opcode0x80(); // ADD A, B
     short opcode0x81(); // ADD A, C
@@ -234,6 +232,7 @@ private:
     short opcode0xC6(); // ADD A, n 8
     
     // 8 bits adc (with carry flag) z0hc 4 cycles
+	void adc8BitRegister(byte *accumulator, byte adding);
     short opcode0x8F(); // ADC A, A
     short opcode0x88(); // ADC A, B
     short opcode0x89(); // ADC A, C
@@ -245,6 +244,7 @@ private:
     short opcode0xCE(); // ADC A, nn 8
     
     // 8-bit sub 4 cycles
+	void sub8BitRegister(byte *accumulator, byte substract);
     short opcode0x97(); // SUB A, A
     short opcode0x90(); // SUB A, B
     short opcode0x91(); // SUB A, C
@@ -256,6 +256,7 @@ private:
     short opcode0xD6(); // SUB A, n 8
     
     // 8-bit sbc (with carry flag) 4 cycles
+	void sbc8BitRegister(byte *accumulator, byte substract);
     short opcode0x9F(); // SBC A, A
     short opcode0x98(); // SBC A, B
     short opcode0x99(); // SBC A, C
@@ -267,6 +268,7 @@ private:
     short opcode0xDE(); // SBC A, n 8
     
     // 8 bit compare z1hc 4 cycles
+	void compare8BitRegister(byte accumulator, byte data);
     short opcode0xBF(); // CP A, A
     short opcode0xB8(); // CP A, B
     short opcode0xB9(); // CP A, C
@@ -278,6 +280,7 @@ private:
     short opcode0xFE(); // CP A, nn 8 cycles
     
     //8 bit increments -> flags affected
+	void increment8BitRegister(byte *);
     short opcode0x3C(); // A increment 4
     short opcode0x04(); // B increment
     short opcode0x0C(); // C increment
@@ -288,6 +291,7 @@ private:
     short opcode0x34(); // HL increment 12
     
     //8 bit decrements
+	void decrement8BitRegister(byte *reg);
     short opcode0x05(); // DEC B 4
     short opcode0x0D(); // DEC C
     short opcode0x15(); // DEC D
@@ -298,6 +302,7 @@ private:
     short opcode0x35(); // DEC HL 12
     
     // 8 bits XOR 4 cycles
+	void xor8BitRegister(byte *accumulator, const byte data);
     short opcode0xAF(); // XOR A, A
     short opcode0xA8(); // XOR A, B
     short opcode0xA9(); // XOR A, C
@@ -309,6 +314,7 @@ private:
     short opcode0xEE(); // XOR A, n 8
     
     // 8 bits OR 4 cycles
+	void or8BitRegister(byte *accumulator, byte data);
     short opcode0xB7(); // OR A, A
     short opcode0xB0(); // OR A, B
     short opcode0xB1(); // OR A, C
@@ -320,6 +326,7 @@ private:
     short opcode0xF6(); // OR A, n 8 cycles
     
     // 8 bit and
+	void and8BitRegister(byte *accumulator, byte data);
     short opcode0xA7(); // AND A, A
     short opcode0xA0(); // AND A, B
     short opcode0xA1(); // AND A, C
@@ -345,12 +352,14 @@ private:
     short opcode0xF1(); // POP AF -> F = F & 0xF0
     
     //16 bit add
+	void add16BitRegister(Register *original, const Register adding);
     short opcode0x09(); // HL = HL + BC 8
     short opcode0x19(); // HL = HL + DE
     short opcode0x29(); // HL = HL + HL
     short opcode0x39(); // HL = HL + SP
     
     //RST instructions
+	void rst(const word);
     short opcode0xC7(); // 0x00
     short opcode0xCF(); // 0x08
     short opcode0xD7(); // 0x10

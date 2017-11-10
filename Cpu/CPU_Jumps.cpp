@@ -1,41 +1,47 @@
 #include "CPU.h"
+
+void CPU::rst(const word address) {
+	stackPush(PC);
+	PC.value = address;
+}
+
 short CPU::opcode0xC7() {
-    instructionSet->rst(0x00, &SP, &PC, memory);
+    rst(0x00);
     return 16;
 }// call 0x00
 
 short CPU::opcode0xCF() {
-    instructionSet->rst(0x08, &SP, &PC, memory);
+    rst(0x08);
     return 16;
 }// call 0x08
 
 short CPU::opcode0xD7() {
-    instructionSet->rst(0x10, &SP, &PC, memory);
+    rst(0x10);
     return 16;
 }// call 0x10
 
 short CPU::opcode0xDF() {
-    instructionSet->rst(0x18, &SP, &PC, memory);
+    rst(0x18);
     return 16;
 }// call 0x18
 
 short CPU::opcode0xE7() {
-    instructionSet->rst(0x20, &SP, &PC, memory);
+    rst(0x20);
     return 16;
 }// call 0x20
 
 short CPU::opcode0xEF() {
-    instructionSet->rst(0x28, &SP, &PC, memory);
+    rst(0x28);
     return 16;
 }// call 0x28
 
 short CPU::opcode0xF7() {
-    instructionSet->rst(0x30, &SP, &PC, memory);
+    rst(0x30);
     return 16;
 }// call 0x30
 
 short CPU::opcode0xFF() {
-    instructionSet->rst(0x38, &SP, &PC, memory);
+    rst(0x38);
     return 16;
 }// call 0x38
 
@@ -86,7 +92,7 @@ short CPU::opcode0x38() {
 } // JR C,n
 
 short CPU::opcode0xE9() {
-    instructionSet->jump(&PC, HL.value);
+	PC.value = HL.value;
     return 4;
 }// JP HL  4
 
@@ -94,7 +100,7 @@ short CPU::opcode0xC3() {
     Register aux;
     aux.low = memory->read(PC.value);
     aux.hi = memory->read(PC.value + 1);
-    instructionSet->jump(&PC, aux.value);
+	PC.value = aux.value;
     return 16;
 }// JP nn 16
 

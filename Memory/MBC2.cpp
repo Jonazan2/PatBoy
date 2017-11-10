@@ -8,6 +8,10 @@ MBC2::MBC2(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge
     currentROMBank = 1;
 }
 
+MBC2::~MBC2() {
+	delete[] ram;
+}
+
 byte MBC2::read(word address) {
 	if (address <= 0x3FFF) {
 		return memory->readDirectly(address);
@@ -61,4 +65,30 @@ void MBC2::setRamState(word address) {
 	if (!isBitSet(upperByte, 0)) {
 		ramEnabled = !ramEnabled;
 	}
+}
+
+void MBC2::save(std::string &name) {
+	std::ofstream savefile(name + SAVE_FILE_EXTENSION, std::ofstream::binary);
+	if (savefile.is_open()) {
+		savefile.write(reinterpret_cast<char*>(ram), RAM_SIZE);
+	}
+	savefile.close();
+}
+
+void MBC2::load(std::string &name) {
+	std::ifstream savefile(name + SAVE_FILE_EXTENSION, std::ios::in | std::ios::binary | std::ios::ate);
+	if (savefile.is_open()) {
+		std::streampos size = savefile.tellg();
+		char* binary = new char[size];
+		savefile.seekg(0, std::ios::beg);
+		savefile.read(binary, size);
+		savefile.close();
+
+		for (int address = 0; address <= RAM_SIZE; address++) {
+			ram[address] = static_cast<byte>(binary[address]);
+		}
+
+		delete[] binary;
+	}
+	savefile.close();
 }

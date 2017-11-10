@@ -858,8 +858,3 @@ void CPU::chargeExtendedOpcodes() {
     extendedOpcodes[0xFE] = &CPU::extendedOpcode0xFE; // set 7, (HL)
     extendedOpcodes[0xFF] = &CPU::extendedOpcode0xFF; // set 7, A
 }
-
-CPU::~CPU() {
-    delete opcodes;
-	delete extendedOpcodes;
-}

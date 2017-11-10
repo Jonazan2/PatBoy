@@ -10,9 +10,13 @@
 class MBC2 : public MemoryChip {
 	public:
 		MBC2(Memory* memory, Cartridge* cartridge);
+		~MBC2();
+
 		byte read(word address) final override;
 		void write(word address, byte data) final override;
-    
+		void save(std::string &name) override;
+		void load(std::string &name) override;
+
 	private:
 		const word RAM_SIZE				= 0x200;
 		const word ROM_BANK_SIZE		= 0x4000;

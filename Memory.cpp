@@ -30,12 +30,16 @@ MemoryChip* Memory::createMemoryChipForCartridge(Memory* memory, Cartridge* cart
 Memory::Memory(Cartridge *cartridge, Audio *audio, Joypad *joypad) {
     this->map = new byte[0x10000];
 	memset(map, 0, 0x10000);
-
-	this->chip = Memory::createMemoryChipForCartridge(this, cartridge);
-    this->cartridge = cartridge;
     this->audio = audio;
     this->joypad = joypad;
+
+    this->cartridge = cartridge;
     loadCartridge();
+
+	this->chip = Memory::createMemoryChipForCartridge(this, cartridge);
+	if (cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM) {
+		chip->load(cartridge->getTitle());
+	}
 }
 
 void Memory::init(CPU * cpu) {
@@ -143,5 +147,9 @@ void Memory::reset() {
 }
 
 Memory::~Memory() {
+	if (cartridge->getRamSize() != Cartridge::RamSize::NONE_RAM) {
+		chip->save(cartridge->getTitle());
+	}
+
     delete []map;
 }

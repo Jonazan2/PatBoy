@@ -20,6 +20,8 @@ class CPU {
 
 public:
     CPU(Memory *);
+	~CPU() = default;
+
     unsigned int update();
     void requestInterrupt(Interrupts);
     void updateTimers(int);
@@ -37,9 +39,6 @@ public:
 	Register getSP() const;
 	bool isIMEActive() const;
 
-
-    ~CPU();
-    
 private:
     typedef short (CPU::*Opcode) (void);
     

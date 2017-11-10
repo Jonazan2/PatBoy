@@ -22,7 +22,7 @@ class Joypad;
 class Memory {
 public:
     Memory(Cartridge *, Audio *, Joypad *);
-	virtual ~Memory();
+	~Memory();
 
 	void init(CPU *);
 	void reset();

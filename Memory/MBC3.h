@@ -10,14 +10,17 @@
 class MBC3 : public MemoryChip {
 	public:
 		MBC3(Memory* memory, Cartridge* cartridge);
+		~MBC3();
+
 		byte read(word address) final override;
 		void write(word address, byte data) final override;
-    
+		void save(std::string &name) override;
+		void load(std::string &name) override;
+
 	private:
 		const byte SPECIAL_ROM_BANKS[4] = {0x00};
 		const word RAM_BANK_SIZE		= 0x2000;
 		const word ROM_BANK_SIZE		= 0x4000;
-
 
 		byte currentRAMBank;
 		byte currentROMBank;

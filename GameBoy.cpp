@@ -74,10 +74,10 @@ void GameBoy::startEmulation() {
 }
 
 GameBoy::~GameBoy() {
-    delete cartridge;
     delete audio;
     delete joypad;
     delete memory;
+    delete cartridge;
     delete video;
     delete cpu;
 }

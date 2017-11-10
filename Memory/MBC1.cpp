@@ -1,5 +1,7 @@
 #include "MBC1.h"
 
+#include <fstream>
+
 MBC1::MBC1(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge }  {
 	mode = Mode::ROM;
 
@@ -10,6 +12,10 @@ MBC1::MBC1(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge
     currentRAMBank = 0;
     currentROMBank = 1;
     higherRomBankBits = 0;
+}
+
+MBC1::~MBC1() {
+	delete[] ram;
 }
 
 byte MBC1::read(word address) {
@@ -111,4 +117,30 @@ void MBC1::setRamOrUpperBitsOfRomBank(byte data) {
 
 void MBC1::setMode(byte data) {
 	mode = Mode(data & 0x01);
+}
+
+void MBC1::save(std::string &name) {
+	std::ofstream savefile(name + SAVE_FILE_EXTENSION, std::ofstream::binary);
+	if (savefile.is_open()) {
+		savefile.write(reinterpret_cast<char*>(ram), RAM_BANK_SIZE);
+	}
+	savefile.close();
+}
+
+void MBC1::load(std::string &name) {
+	std::ifstream savefile(name + SAVE_FILE_EXTENSION, std::ios::in | std::ios::binary | std::ios::ate);
+	if (savefile.is_open()) {
+		std::streampos size = savefile.tellg();
+		char* binary = new char[size];
+		savefile.seekg(0, std::ios::beg);
+		savefile.read(binary, size);
+		savefile.close();
+
+		for (int address = 0; address <= RAM_BANK_SIZE; address++) {
+			ram[address] = static_cast<byte>(binary[address]);
+		}
+
+		delete[] binary;
+	}
+	savefile.close();
 }

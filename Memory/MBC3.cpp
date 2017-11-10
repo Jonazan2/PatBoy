@@ -9,6 +9,10 @@ MBC3::MBC3(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge
     currentROMBank = 1;
 }
 
+MBC3::~MBC3() {
+	delete[] ram;
+}
+
 byte MBC3::read(word address) {
 	if (address <= 0x3FFF) {
 		return memory->readDirectly(address);
@@ -80,4 +84,30 @@ void MBC3::writeToRamBank(word address, byte data) {
 		word ramAddress = currentRAMBank * RAM_BANK_SIZE;
 		ram[(address - 0xA000) + ramAddress] = data;
 	}
+}
+
+void MBC3::save(std::string &name) {
+	std::ofstream savefile(name + SAVE_FILE_EXTENSION, std::ofstream::binary);
+	if (savefile.is_open()) {
+		savefile.write(reinterpret_cast<char*>(ram), RAM_BANK_SIZE);
+	}
+	savefile.close();
+}
+
+void MBC3::load(std::string &name) {
+	std::ifstream savefile(name + SAVE_FILE_EXTENSION, std::ios::in | std::ios::binary | std::ios::ate);
+	if (savefile.is_open()) {
+		std::streampos size = savefile.tellg();
+		char* binary = new char[size];
+		savefile.seekg(0, std::ios::beg);
+		savefile.read(binary, size);
+		savefile.close();
+
+		for (int address = 0; address <= RAM_BANK_SIZE; address++) {
+			ram[address] = static_cast<byte>(binary[address]);
+		}
+
+		delete[] binary;
+	}
+	savefile.close();
 }

@@ -252,17 +252,17 @@ void Video::renderSprites(byte lcdControl) {
         use8x16 = true;
     }
 
-	byte backgroundPallete = memory->read(0xFF47);
-	Colour whiteInBackground = getColourFromPallete(backgroundPallete, white);
-
     for (int sprite = 0 ; sprite < 40; sprite++) {
         byte index = sprite*4 ;
+
+		// Read the sprite position and the its tile index
         byte yPos = memory->read(0xFE00+index) - 16;
         byte xPos = memory->read(0xFE00+index+1)-8;
-        byte tileLocation = memory->read(0xFE00+index+2) ;
-        byte attributes = memory->read(0xFE00+index+3) ;
-		byte pallete = memory->read(isBitSet(attributes, 4) ? 0xFF49 : 0xFF48);
+        byte tileIndex = memory->read(0xFE00+index+2) ;
 
+		// Read the sprite attributes
+		byte attributes = memory->read(0xFE00+index+3) ;
+		byte pallete = memory->read(isBitSet(attributes, 4) ? 0xFF49 : 0xFF48);
         bool yFlip =  isBitSet(attributes, 6);
         bool xFlip = isBitSet(attributes, 5);
 		bool hidden = isBitSet(attributes, 7);
@@ -284,8 +284,8 @@ void Video::renderSprites(byte lcdControl) {
             }
 
             line *= 2;
-            byte data1 = memory->read((0x8000 + (tileLocation * 16)) + line);
-            byte data2 = memory->read((0x8000 + (tileLocation * 16)) + line+1);
+            byte upperByte = memory->read((0x8000 + (tileIndex * 0x10)) + line);
+            byte lowerByte = memory->read((0x8000 + (tileIndex * 0x10)) + line+1);
 
             for ( int tilePixel = 7; tilePixel >= 0; tilePixel-- ) {
                 
@@ -295,21 +295,28 @@ void Video::renderSprites(byte lcdControl) {
 				int pixel = xPos + xPix;
 				if (pixel < 160 && scanline < 144) {
 
-					int colourbit = tilePixel;
+					int position = tilePixel;
 					if (xFlip) {
-						colourbit -= 7;
-						colourbit *= -1;
+						position -= 7;
+						position *= -1;
 					}
 
-					int colourNum = getBitValue(data2, colourbit);
-					colourNum <<= 1;
-					colourNum |= getBitValue(data1, colourbit);
+					byte colourNum = 0x00;
+					if (getBitValue(lowerByte, position)) {
+						setBit(&colourNum, 1);
+					}
+					if (getBitValue(upperByte, position)) {
+						setBit(&colourNum, 0);
+					}
 
-					RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
-					if (!colour.isEqual(GREY_PALLETE[getColourFromPallete(pallete, white)])) {
-						frameBuffer[scanline][pixel].red = colour.red;
-						frameBuffer[scanline][pixel].green = colour.green;
-						frameBuffer[scanline][pixel].blue = colour.blue;
+					if (colourNum != Colour::WHITE) {
+						bool showThroughBG = hidden && frameBuffer[scanline][pixel].isEqual(GREY_PALLETE[Colour::WHITE]);
+						if (!hidden || showThroughBG) {
+							RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
+							frameBuffer[scanline][pixel].red = colour.red;
+							frameBuffer[scanline][pixel].green = colour.green;
+							frameBuffer[scanline][pixel].blue = colour.blue;
+						}
 					}
 				}
  			}
@@ -325,7 +332,7 @@ Video::Mode Video::getLCDMode() const {
 Video::Colour Video::getColourFromPallete(byte pallete, Colour originalColour) {
 	byte colourNumber = 0;
 	switch (originalColour) {
-		case white:
+		case Colour::WHITE:
 		if (getBitValue(pallete, 1)) {
 			setBit(&colourNumber, 1);
 		}
@@ -333,7 +340,7 @@ Video::Colour Video::getColourFromPallete(byte pallete, Colour originalColour) {
 			setBit(&colourNumber, 0);
 		}
 		break;
-		case lightGray:
+		case Colour::LIGHT_GREY:
 		if (getBitValue(pallete, 3)) {
 			setBit(&colourNumber, 1);
 		}
@@ -341,7 +348,7 @@ Video::Colour Video::getColourFromPallete(byte pallete, Colour originalColour) {
 			setBit(&colourNumber, 0);
 		}
 		break;
-		case darkGray:
+		case Colour::DARK_GREY:
 		if (getBitValue(pallete, 5)) {
 			setBit(&colourNumber, 1);
 		}
@@ -349,7 +356,7 @@ Video::Colour Video::getColourFromPallete(byte pallete, Colour originalColour) {
 			setBit(&colourNumber, 0);
 		}
 		break;
-		case black:
+		case Colour::BLACK:
 		if (getBitValue(pallete, 7)) {
 			setBit(&colourNumber, 1);
 		}

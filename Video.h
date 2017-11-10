@@ -35,10 +35,10 @@ public:
     static const word LY_COMPARE = 0xFF45;
     
     enum Colour : int {
-        white,
-        lightGray,
-        darkGray,
-        black
+        WHITE,
+        LIGHT_GREY,
+        DARK_GREY,
+        BLACK
     };
     
     Video(Memory*, CPU*);

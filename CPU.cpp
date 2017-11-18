@@ -43,10 +43,10 @@ unsigned int CPU::update() {
 }
 
 void CPU::reset() {
-    AF.value = 0x1180;
-    BC.value = 0x0000;
-    DE.value = 0xFF56;
-    HL.value = 0x000D;
+    AF.value = 0x01B0;
+    BC.value = 0x0013;
+    DE.value = 0x00D8;
+    HL.value = 0x014D;
     SP.value = 0xFFFE;
     PC.value = 0x0100;
     timaCounter = 0;

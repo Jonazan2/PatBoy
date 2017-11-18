@@ -162,10 +162,10 @@ void Video::renderBackground(byte lcdControl) {
     word backgroundMemory;
     bool unsig = true;
 
-    byte scrollY = memory->readDirectly(SCROLL_Y);
-    byte scrollX = memory->readDirectly(SCROLL_X);
-    byte windowY = memory->readDirectly(WINDOWS_Y);
-    byte windowX = memory->readDirectly(WINDOWS_X);
+    byte scrollY = memory->read(SCROLL_Y);
+    byte scrollX = memory->read(SCROLL_X);
+    byte windowY = memory->read(WINDOWS_Y);
+    byte windowX = memory->read(WINDOWS_X);
 
 	if (windowX <= 0x07) {
 		windowX = 0x00;
@@ -221,19 +221,19 @@ void Video::renderBackground(byte lcdControl) {
 		word tileLocation = tileData;
         int tileNum;
         if( unsig ) {
-            tileNum = static_cast<byte>(memory->readDirectly(backgroundMemory+tileRow + (xPos / 8)));
+            tileNum = static_cast<byte>(memory->read(backgroundMemory+tileRow + (xPos / 8)));
 			tileLocation += (tileNum * 16);
 			assert(tileLocation < 0x8FFF);
         } else {
-            tileNum = static_cast<signed char>(memory->readDirectly(backgroundMemory+tileRow + (xPos / 8)));
+            tileNum = static_cast<signed char>(memory->read(backgroundMemory+tileRow + (xPos / 8)));
 			tileLocation += ((tileNum + 0x80) * 16);
 			assert(tileLocation < 0x97FF);
         }
 
         byte line = yPos % 8;
         line *= 2;
-        byte data1 = memory->readDirectly(tileLocation + line);
-        byte data2 = memory->readDirectly(tileLocation + line + 1);
+        byte data1 = memory->read(tileLocation + line);
+        byte data2 = memory->read(tileLocation + line + 1);
 
         int colourBit = xPos % 8;
         colourBit -= 7;

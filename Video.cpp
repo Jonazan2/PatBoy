@@ -161,17 +161,22 @@ void Video::renderBackground(byte lcdControl) {
     word tileData;
     word backgroundMemory;
     bool unsig = true;
-    bool usingWindow = false;
 
     byte scrollY = memory->readDirectly(SCROLL_Y);
     byte scrollX = memory->readDirectly(SCROLL_X);
     byte windowY = memory->readDirectly(WINDOWS_Y);
-    byte windowX = memory->readDirectly(WINDOWS_X) - 7;
+    byte windowX = memory->readDirectly(WINDOWS_X);
+
+	if (windowX <= 0x07) {
+		windowX = 0x00;
+	}
 
 	const int scanline = memory->readDirectly(LY_REGISTER);
 
+    bool usingWindow = false;
     if ( isBitSet(lcdControl, 5) ) {
-		usingWindow = windowY <= scanline;
+		if (windowY <= scanline)
+			usingWindow = true;
     }
 
     if ( isBitSet(lcdControl,4) ) {

@@ -48,6 +48,7 @@ private:
     Register HL;
     Register SP;
     Register PC;
+	Register previousPC;
     
     bool halt;
     bool ime;

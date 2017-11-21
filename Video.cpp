@@ -36,11 +36,11 @@ void Video::updateGraphics(short cycles) {
 		}
 	} else {
 		videoCycles = 0;
+		vblankCycles = 0;
 		memory->writeDirectly(LY_REGISTER, 0);
 
 		byte lcdc = memory->readDirectly(LCDC_STATUS);
-		lcdc &= 0xFC;
-		memory->writeDirectly(LCDC_STATUS, lcdc);
+		memory->writeDirectly(LCDC_STATUS, lcdc & 0xFC);
 		mode = Video::Mode::H_BLANK;
 
 		compareLYWithLYC();
@@ -49,7 +49,7 @@ void Video::updateGraphics(short cycles) {
 
 void Video::handleHBlankMode() {
     if (videoCycles >= MIN_HBLANK_MODE_CYCLES) {
-		videoCycles = 0;
+		videoCycles -= MIN_HBLANK_MODE_CYCLES;
 
 		byte scanline = memory->readDirectly(LY_REGISTER);
 		memory->writeDirectly(LY_REGISTER, ++scanline);
@@ -59,11 +59,19 @@ void Video::handleHBlankMode() {
 
 			/* Move to mode 1: VBLANK*/
 			byte lcdStatus = memory->readDirectly(LCDC_STATUS);
-			setBit(&lcdStatus, 1);
+			setBit(&lcdStatus, 0);
 			memory->writeDirectly(LCDC_STATUS, lcdStatus);
 			cpu->requestInterrupt(Interrupts::VBLANK);
 		} else {
 			mode = Mode::OAM_RAM;
+			byte lcdStatus = memory->readDirectly(LCDC_STATUS);
+			setBit(&lcdStatus, 1);
+			clearBit(&lcdStatus, 0);
+			memory->writeDirectly(LCDC_STATUS, lcdStatus);
+
+			if (isBitSet(lcdStatus, 5)) {
+				cpu->requestInterrupt(Interrupts::LCD);
+			}
 		}
     }
 }
@@ -71,10 +79,10 @@ void Video::handleHBlankMode() {
 void Video::handleVBlankMode(short cycles) {
 	vblankCycles += cycles;
 
+	byte scanline = memory->readDirectly(LY_REGISTER);
     if (vblankCycles >= MAX_VIDEO_CYCLES) {
 		vblankCycles = 0;
 
-		byte scanline = memory->readDirectly(LY_REGISTER);
 		if (scanline < VERTICAL_BLANK_SCAN_LINE_MAX) {
 			memory->writeDirectly(LY_REGISTER, ++scanline);
 		}
@@ -82,7 +90,6 @@ void Video::handleVBlankMode(short cycles) {
 	}
 
 	if (videoCycles >= VBLANK_CYCLES) {
-		videoCycles = 0;
 		vblankCycles = 0;
 
 		/* Reset scanlines to zero */
@@ -104,7 +111,7 @@ void Video::handleVBlankMode(short cycles) {
 
 void Video::handleOAMMode() {
 	if (videoCycles >= MIN_OAM_MODE_CYCLES) {
-		videoCycles = 0;
+		videoCycles -= MIN_OAM_MODE_CYCLES;
 
 		/* Move to mode 3 */
 		mode = Mode::LCD_TRANSFER;
@@ -117,7 +124,7 @@ void Video::handleOAMMode() {
 
 void Video::handleLCDTransferMode() {
 	if (videoCycles >= MIN_LCD_TRANSFER_CYCLES) {
-		videoCycles = 0;
+		videoCycles -= MIN_LCD_TRANSFER_CYCLES;
 
 		/* This can be optimize so it is done before we change the mode */
 		drawScanline();

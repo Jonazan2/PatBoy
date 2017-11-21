@@ -83,9 +83,8 @@ void Memory::write(const word address, const byte data) {
     } else if (address == 0xFF41) {
         // Not allowed
     } else if (address == 0xFF46){
-        for (int i = 0; i < 0xA0; i++) {
-            map[0xFE00 + i] = read((cpu->getAF().hi << 8) + i);
-        }
+		map[0xFF46] = data;
+		DMA(data);
     } else if ((address >= 0xFF4C) && (address <= 0xFF7F)) {
         // Not allowed
     } else if ( address >= 0xFF10 && address <= 0xFF3F ) {
@@ -98,7 +97,7 @@ void Memory::write(const word address, const byte data) {
 
 void Memory::DMA(byte data) {
     for ( int i = 0; i < 0xA0; i++ ) {
-        writeDirectly(0xFE00+i, readDirectly((cpu->getAF().hi << 8) + i));
+        writeDirectly(0xFE00+i, read((cpu->getAF().hi << 8) + i));
     }
 }
 

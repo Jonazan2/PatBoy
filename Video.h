@@ -48,7 +48,7 @@ public:
 	void switchPallete();
 
 	void* getFrameBuffer() { return frameBuffer; }
-
+	RGB* const getCurrentPallete() const { return pallete; }
 	Colour getColourFromPallete(byte pallete, Colour originalColour);
 
 private:

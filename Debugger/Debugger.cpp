@@ -36,6 +36,9 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, Video &video,
 	Texture tileTexture = { 0, 128, 192, videoDebugger.getTileBufferTexture() };
 	videoDebugger.setTileBufferTexture(ImGui_ImplGlfwGL3_CreateTexture(tileTexture));
 
+	Texture backgroundTexture = { 0, 256, 256, videoDebugger.getBackgroundBufferTexture() };
+	videoDebugger.setBackgroundBufferTexture(ImGui_ImplGlfwGL3_CreateTexture(backgroundTexture));
+
 	// we update first just in case we have a breakpoint in the first instruction
 	update(0, cpu, memory, video, cartridge);
 

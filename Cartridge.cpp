@@ -153,12 +153,12 @@ string Cartridge::getCartridgeSizeName() const {
         case CartridgeSize::KB_128: name = "128 KB"; break;
         case CartridgeSize::KB_256: name = "256 KB"; break;
         case CartridgeSize::KB_512: name = "512 KB"; break;
-        case CartridgeSize::MB_1:   name = "1 KB";   break;
-        case CartridgeSize::MB_2:   name = "2 KB";   break;
-        case CartridgeSize::MB_4:   name = "4 KB";   break;
-        case CartridgeSize::MB_1_1: name = "1.1 KB"; break;
-        case CartridgeSize::MB_1_2: name = "1.2 KB"; break;
-        case CartridgeSize::MB_1_5: name = "1.5 KB"; break;
+        case CartridgeSize::MB_1:   name = "1 MB";   break;
+        case CartridgeSize::MB_2:   name = "2 MB";   break;
+        case CartridgeSize::MB_4:   name = "4 MB";   break;
+        case CartridgeSize::MB_1_1: name = "1.1 MB"; break;
+        case CartridgeSize::MB_1_2: name = "1.2 MB"; break;
+        case CartridgeSize::MB_1_5: name = "1.5 MB"; break;
     }
     return name;
 }

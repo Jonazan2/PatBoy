@@ -165,10 +165,6 @@ void Video::drawScanline() {
 }
 
 void Video::renderBackground(byte lcdControl) {
-    word tileData;
-    word backgroundMemory;
-    bool unsig = true;
-
     byte scrollY = memory->read(SCROLL_Y);
     byte scrollX = memory->read(SCROLL_X);
     byte windowY = memory->read(WINDOWS_Y);
@@ -176,16 +172,15 @@ void Video::renderBackground(byte lcdControl) {
 
 	if (windowX <= 0x07) {
 		windowX = 0x00;
+	} else {
+		windowX -= 7;
 	}
 
 	const int scanline = memory->readDirectly(LY_REGISTER);
+	bool usingWindow = isBitSet(lcdControl, 5) && windowY <= scanline;
 
-    bool usingWindow = false;
-    if ( isBitSet(lcdControl, 5) ) {
-		if (windowY <= scanline)
-			usingWindow = true;
-    }
-
+	bool unsig = true;    
+	word tileData;
     if ( isBitSet(lcdControl,4) ) {
         tileData = 0x8000;
     } else {
@@ -193,62 +188,55 @@ void Video::renderBackground(byte lcdControl) {
         unsig= false;
     }
 
-    if ( !usingWindow ) {
-        if ( isBitSet(lcdControl, 3) ) {
-            backgroundMemory = 0x9C00;
-        } else {
-            backgroundMemory = 0x9800;
-        }
-    } else {
-        if ( isBitSet(lcdControl, 6) ) {
-            backgroundMemory = 0x9C00;
-        } else {
-            backgroundMemory = 0x9800;
-        }
-    }
-
-
-    byte yPos = 0;
-    if ( !usingWindow ) {
-        yPos = scrollY + scanline;
-    } else {
-        yPos = scanline - windowY;
-    }
-
-    word tileRow = (((byte)(yPos/8))*32);
 	byte backgroundPallete = memory->read(0xFF47);
-
+	word tileRow, tileLocation, tileMap;
+	byte xPos = 0, yPos = 0;
     for ( int pixel = 0 ; pixel < 160; pixel++ ) {
-        byte xPos = pixel + scrollX;
-
-        if ( usingWindow && pixel >= windowX ) {
+		
+		if (usingWindow && pixel >= windowX && scanline >= windowY) {
 			xPos = pixel - windowX;
-        }
+			yPos = scanline - windowY;
 
-		word tileLocation = tileData;
+			if (isBitSet(lcdControl, 6)) {
+				tileMap = 0x9C00;
+			} else {
+				tileMap = 0x9800;
+			}
+		} else {
+			xPos = pixel + scrollX;
+			yPos = scrollY + scanline;
+
+			if (isBitSet(lcdControl, 3)) {
+				tileMap = 0x9C00;
+			} else {
+				tileMap = 0x9800;
+			}
+		}
+		
+		tileRow = ((yPos / 8) * 32);
+		tileLocation = tileData;
         int tileNum;
         if( unsig ) {
-            tileNum = static_cast<byte>(memory->read(backgroundMemory+tileRow + (xPos / 8)));
+            tileNum = static_cast<byte>(memory->read(tileMap + tileRow + (xPos / 8)));
 			tileLocation += (tileNum * 16);
 			assert(tileLocation < 0x8FFF);
         } else {
-            tileNum = static_cast<signed char>(memory->read(backgroundMemory+tileRow + (xPos / 8)));
+            tileNum = static_cast<signed char>(memory->read(tileMap + tileRow + (xPos / 8)));
 			tileLocation += ((tileNum + 0x80) * 16);
 			assert(tileLocation < 0x97FF);
         }
 
-        byte line = yPos % 8;
-        line *= 2;
-        byte data1 = memory->read(tileLocation + line);
-        byte data2 = memory->read(tileLocation + line + 1);
+        byte address = (yPos % 8) * 2;
+        byte upperByte = memory->read(tileLocation + address);
+        byte lowerByte = memory->read(tileLocation + address + 1);
 
         int colourBit = xPos % 8;
         colourBit -= 7;
-        colourBit *= -1;
-        
-        int colourNum = getBitValue(data2, colourBit);
+        colourBit = -colourBit;
+
+        int colourNum = getBitValue(lowerByte, colourBit);
         colourNum <<= 1;
-        colourNum |= getBitValue(data1,colourBit);
+        colourNum |= getBitValue(upperByte,colourBit);
 
         RGB colour = GREY_PALLETE[getColourFromPallete(backgroundPallete, Colour(colourNum))];
 		frameBuffer[scanline][pixel].red = colour.red;
@@ -258,11 +246,7 @@ void Video::renderBackground(byte lcdControl) {
 }
 
 void Video::renderSprites(byte lcdControl) {
-    bool use8x16 = false;
-
-    if ( isBitSet(lcdControl, 2) ) {
-        use8x16 = true;
-    }
+	bool use8x16 = isBitSet(lcdControl, 2);
 
     for (int sprite = 0 ; sprite < 40; sprite++) {
         byte index = sprite*4 ;
@@ -412,7 +396,7 @@ void Video::switchPallete() {
 }
 
 void Video::resetFrameBuffer() {
-	memset(frameBuffer, 255, sizeof(frameBuffer));
+	memset(frameBuffer, 0xFF, sizeof(frameBuffer));
 }
 
 Video::~Video() {
@@ -421,4 +405,3 @@ Video::~Video() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
-

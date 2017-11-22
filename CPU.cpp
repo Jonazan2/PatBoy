@@ -27,14 +27,13 @@ unsigned int CPU::update() {
 
     if ( !halt ) {
         opcode = getCurrentOpcode();
-        
+
         if ( opcode == SPECIAL_OPCODE ) {
             opcode = getCurrentOpcode();
             clockCycles = (this->*extendedOpcodes[opcode])();
         } else {
             clockCycles = (this->*opcodes[opcode])();
         }
-        
     } else {
         clockCycles = 4;
     }

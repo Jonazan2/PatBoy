@@ -19,8 +19,12 @@ public:
 	void* getBackgroundBufferTexture() { return backgroundBuffer; }
 
 private:
+
+	static const RGB PINK;
+
 	void* frameBufferTexture;
 	bool showFrameBufferWindow;
+
 	void* tileBufferTexture;
 	bool showTileBufferWindow;
 	RGB tileBuffer[192][128];

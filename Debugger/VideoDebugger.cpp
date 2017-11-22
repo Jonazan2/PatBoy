@@ -2,6 +2,8 @@
 
 #include "Debugger.h"
 
+const RGB VideoDebugger::PINK = { 0xFF, 0x14, 0x93 };
+
 VideoDebugger::VideoDebugger() : frameBufferTexture(nullptr), showFrameBufferWindow(false) ,
 	showTileBufferWindow(false), showBackgroundBufferWindow(false) {
 
@@ -125,10 +127,8 @@ void VideoDebugger::drawWindowPosition(const Memory& memory, const Video &video)
 }
 
 void VideoDebugger::drawLine(byte x, byte y, byte length, bool vertical) {
-	static const RGB pink = { 0xFF, 0x14, 0x93 };
-
 	for (byte pixel = 0; pixel < length; pixel++) {
-		backgroundBuffer[y][x] = pink;
+		backgroundBuffer[y][x] = PINK;
 		vertical ? y++ : x++;
 	}
 }

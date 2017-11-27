@@ -37,7 +37,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 		float lineStartX = ImGui::GetCursorPosX();
 		for (int n = 0; n < MEMORY_VIEW_ROWS && addr < MEMORY_VIEW_MEMORY_SIZE; n++, addr++) {
 			ImGui::SameLine(lineStartX + cellWidth * n);
-			ImGui::Text("%02X ", memory.getMap()[addr]);
+			ImGui::Text("%02X ", memory.read(addr));
 		}
 
 		ImGui::SameLine(lineStartX + cellWidth * MEMORY_VIEW_ROWS + glyphWidth * 2);
@@ -52,7 +52,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 		addr = lineNumber * MEMORY_VIEW_ROWS;
 		for (int n = 0; n < MEMORY_VIEW_ROWS && addr < MEMORY_VIEW_MEMORY_SIZE; n++, addr++) {
 			if (n > 0) ImGui::SameLine();
-			int c = memory.getMap()[addr];
+			int c = memory.read(addr);
 			ImGui::Text("%c", (c >= 32 && c < 128) ? c : '.');
 		}
 	}
@@ -75,7 +75,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 		int address;
 		if (sscanf(input, "%X", &address)) {
 			word validAddress = address & 0xFFFF;
-			watcher.insert({ validAddress, memory.getMap()[validAddress] });
+			watcher.insert({ validAddress, memory.read(validAddress) });
 		}
 	}
 	ImGui::PopItemWidth();

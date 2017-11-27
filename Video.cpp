@@ -1,6 +1,9 @@
 #include "Video.h"
 #include <map>
 
+#define STB_IMAGE_IMPLEMENTATION 
+#include "Debugger/Imgui/stb_image.h"
+
 RGB Video::CLASSIC_PALLETE[4] = { { 155,188,15 }, { 139,172,15 }, { 48,98,48 }, { 15,56,15 } };
 RGB Video::GREY_PALLETE[4] = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 }, { 0x0,0x0,0x0 } };
 
@@ -373,10 +376,25 @@ bool Video::createSDLWindow() {
     
     window = SDL_CreateWindow("PatBoy", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               GAMEBOY_WIDTH, GAMEBOY_HEIGHT, 0);
+
+	setWindowIcon();
     renderer = SDL_CreateRenderer(window, -1, 0);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24,
                                 SDL_TEXTUREACCESS_STREAMING, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
     return true ;
+}
+
+bool Video::setWindowIcon() {
+	int req_format = STBI_rgb_alpha;
+	int width, height, orig_format;
+	icon = stbi_load("Resources/icon.png", &width, &height, &orig_format, req_format);
+	if (icon == nullptr) {
+		return false;
+	}
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*)icon, 16, 16, 32, 4 * width,
+		0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+	SDL_SetWindowIcon(window, surface);
 }
 
 void Video::renderGame() {
@@ -403,5 +421,6 @@ Video::~Video() {
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+	stbi_image_free(icon);
     SDL_Quit();
 }

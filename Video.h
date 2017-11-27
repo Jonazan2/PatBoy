@@ -83,7 +83,8 @@ private:
     SDL_Texture *texture;
     CPU *cpu;
     Memory *memory;
-    
+	void *icon;
+
     Mode mode;
 	RGB *pallete;
     int videoCycles;
@@ -110,6 +111,7 @@ private:
 	}
 
     bool createSDLWindow();
+	bool setWindowIcon();
     void resetFrameBuffer();
 };
 #endif

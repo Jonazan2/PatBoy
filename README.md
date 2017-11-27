@@ -41,4 +41,4 @@ The video status view allows users to display the content of the VRAM (without t
 
 # Dependencies
 
-Patboy is using [SDL2](https://wiki.libsdl.org/Installation) to render the emulator and (OpenGL)[https://www.opengl.org/] with [dearimgui](https://github.com/ocornut/imgui) by [Omar Cornut](https://github.com/ocornut) for the debugger. [Google Test](https://github.com/google/googletest) is being used as test library for the project.
+Patboy is using [SDL2](https://wiki.libsdl.org/Installation) to render the emulator and [OpenGL](https://www.opengl.org/) with [dearimgui](https://github.com/ocornut/imgui) by [Omar Cornut](https://github.com/ocornut) for the debugger. [Google Test](https://github.com/google/googletest) is being used as test library for the project.

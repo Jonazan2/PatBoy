@@ -41,12 +41,4 @@ The video status view allows users to display the content of the VRAM (without t
 
 # Dependencies
 
-Patboy is using *SDL2* to render the emulator and OpenGL with dearimgui for the debugger. Google Test is being used as test library for the project.
-
-### How to install SDL2
-
-SDL2 can be installed following this tutorial from the official page: https://wiki.libsdl.org/Installation.
-
-### How to install GoogleTest
-
-Google Test can be found in the following repository : https://github.com/google/googletest
+Patboy is using [SDL2](https://wiki.libsdl.org/Installation) to render the emulator and OpenGL with [dearimgui](https://github.com/ocornut/imgui) by [Omar Cornut](https://github.com/ocornut) for the debugger. [Google Test](https://github.com/google/googletest) is being used as test library for the project.

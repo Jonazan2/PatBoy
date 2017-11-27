@@ -32,7 +32,7 @@ The last addition to PatBoy has been a debugger implemented using the library [d
   <img src="http://jonathanmcontreras.com/images/portfolio/debugger-updated2.png" alt="PatBoy Debugger"/>
 </p>
 
-The video status view allows users to display the content of the VRAM (without the palletes applied for now) and the whole frame buffer (256x256 or 32 by 32 tiles) with a window that indicates the visible area at the time (160x144 or 20 by 18 tiles.
+The video status view allows users to display the content of the VRAM (without the palletes applied for now) and the whole frame buffer (256x256 or 32 by 32 tiles) with a window that indicates the visible area at the time (160x144 or 20 by 18 tiles).
 
 
 <p align="center">
@@ -41,4 +41,4 @@ The video status view allows users to display the content of the VRAM (without t
 
 # Dependencies
 
-Patboy is using [SDL2](https://wiki.libsdl.org/Installation) to render the emulator and OpenGL with [dearimgui](https://github.com/ocornut/imgui) by [Omar Cornut](https://github.com/ocornut) for the debugger. [Google Test](https://github.com/google/googletest) is being used as test library for the project.
+Patboy is using [SDL2](https://wiki.libsdl.org/Installation) to render the emulator and (OpenGL)[https://www.opengl.org/] with [dearimgui](https://github.com/ocornut/imgui) by [Omar Cornut](https://github.com/ocornut) for the debugger. [Google Test](https://github.com/google/googletest) is being used as test library for the project.

@@ -1,9 +1,27 @@
 # PatBoy
-Game Boy emulator written in C++ with SDL2.
+Game Boy emulator written in C++ with SDL2. It supports MBC1, MBC2 and MBC3, RAM saves and has a fully functional debugger.
 
 <p align="center">
-  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-tetris.png" alt="Tetris"/>
+
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-mario2.png" alt="DrMario"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-tetris2.png" alt="Tetris"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-zelda.png" alt="Mario2"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-street.png" alt="Mario2"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-metroid2.png" alt="Mario2"/>
+
 </p>
+
+
+<p align="center">
+
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-worldcup.png" alt="DrMario"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-castlevania.png" alt="Tetris"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-drmario.png" alt="Mario2"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-megaman2.png" alt="Mario2"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/patboy-tennis.png" alt="Mario2"/>
+
+</p>
+
 # Specification
 PatBoy follows GameBoy specification that can be found in the pandocs as well as in the documentation provided by nintendo in the Game Boy Programming manual. The documentation needed for building a game boy emulator can be found in: http://bgb.bircd.org/pandocs.htm.
 
@@ -11,17 +29,16 @@ PatBoy follows GameBoy specification that can be found in the pandocs as well as
 The last addition to PatBoy has been a debugger implemented using the library [dearimgui](https://github.com/ocornut/imgui) for the UI. The debugger has breakpoints, step in and run until vsync features implemented as well as memory and video status views.
 
 <p align="center">
-  <img src="http://jonathanmcontreras.com/images/portfolio/debugger-updated.png" alt="PatBoy Debugger"/>
+  <img src="http://jonathanmcontreras.com/images/portfolio/debugger-updated2.png" alt="PatBoy Debugger"/>
+</p>
+
+The video status view allows users to display the content of the VRAM (without the palletes applied for now) and the whole frame buffer (256x256 or 32 by 32 tiles) with a window that indicates the visible area at the time (160x144 or 20 by 18 tiles).
+
+
+<p align="center">
+  <img src="http://jonathanmcontreras.com/images/portfolio/debugger-video.png" alt="PatBoy Debugger Video"/>
 </p>
 
 # Dependencies
 
-Patboy is using *SDL2* to render the emulator and OpenGL with dearimgui for the debugger. Google Test is being used as test library for the project.
-
-### How to install SDL2
-
-SDL2 can be installed following this tutorial from the official page: https://wiki.libsdl.org/Installation.
-
-### How to install GoogleTest
-
-Google Test can be found in the following repository : https://github.com/google/googletest
+Patboy is using [SDL2](https://wiki.libsdl.org/Installation) to render the emulator and [OpenGL](https://www.opengl.org/) with [dearimgui](https://github.com/ocornut/imgui) by [Omar Cornut](https://github.com/ocornut) for the debugger. [Google Test](https://github.com/google/googletest) is being used as test library for the project.

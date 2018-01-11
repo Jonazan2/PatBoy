@@ -21,17 +21,21 @@ public:
 private:
 
 	static const RGB PINK;
+	static const int TILE_BUFFER_WIDTH = 128;
+	static const int TILE_BUFFER_HEIGHT = 192;
+	static const int BACKGROUND_BUFFER_WIDTH = 256;
+	static const int BACKGROUND_BUFFER_HEIGHT = 256;
 
 	void* frameBufferTexture;
 	bool showFrameBufferWindow;
 
 	void* tileBufferTexture;
 	bool showTileBufferWindow;
-	RGB tileBuffer[192][128];
+	RGB tileBuffer[TILE_BUFFER_WIDTH * TILE_BUFFER_HEIGHT];
 
 	void* backgroundBufferTexture;
 	bool showBackgroundBufferWindow;
-	RGB backgroundBuffer[256][256];
+	RGB backgroundBuffer[BACKGROUND_BUFFER_WIDTH * BACKGROUND_BUFFER_HEIGHT];
 
 	void updateBackground(const Memory &memory, const Video &video);
 	void updateBackground(const Memory &memory, const Video &video, word tileAddress, byte row, byte column);

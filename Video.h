@@ -76,7 +76,7 @@ private:
 		LCD_TRANSFER = 3
 	};
 
-    RGB frameBuffer[GAMEBOY_HEIGHT][GAMEBOY_WIDTH];
+    RGB frameBuffer[GAMEBOY_HEIGHT * GAMEBOY_WIDTH];
     
     SDL_Window *window;
     SDL_Renderer *renderer;

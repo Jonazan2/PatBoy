@@ -111,7 +111,8 @@ void VideoDebugger::updateBackground(const Memory& memory, const Video &video, w
 		byte lowerByte = memory.read(tileAddress + 1);
 
 		for (int tileColumn = (column * 8), position = 7; tileColumn < 8 + (column * 8); tileColumn++, position--) {
-			backgroundBuffer[line][tileColumn] = video.getCurrentPallete()[getColour(upperByte, lowerByte, position)];
+			int index = tileColumn + line * BACKGROUND_BUFFER_WIDTH;
+			backgroundBuffer[index] = video.getCurrentPallete()[getColour(upperByte, lowerByte, position)];
 		}
 	}
 }
@@ -128,7 +129,8 @@ void VideoDebugger::drawWindowPosition(const Memory& memory, const Video &video)
 
 void VideoDebugger::drawLine(byte x, byte y, byte length, bool vertical) {
 	for (byte pixel = 0; pixel < length; pixel++) {
-		backgroundBuffer[y][x] = PINK;
+		int index = x + y * BACKGROUND_BUFFER_WIDTH;
+		backgroundBuffer[index] = PINK;
 		vertical ? y++ : x++;
 	}
 }
@@ -151,7 +153,8 @@ void VideoDebugger::updateTiles(const Memory& memory, const Video &video, word s
 		byte lowerByte = memory.read(start + 1);
 
 		for (int tileColumn = (column*8), position = 7; tileColumn < 8 + (column * 8); tileColumn++, position--) {
-			tileBuffer[line][tileColumn] = video.getCurrentPallete()[getColour(upperByte, lowerByte, position)];
+			int index = tileColumn + line * TILE_BUFFER_WIDTH;
+			tileBuffer[index] = video.getCurrentPallete()[getColour(upperByte, lowerByte, position)];
 		}
 	}
 }

@@ -242,9 +242,10 @@ void Video::renderBackground(byte lcdControl) {
         colourNum |= getBitValue(upperByte,colourBit);
 
         RGB colour = GREY_PALLETE[getColourFromPallete(backgroundPallete, Colour(colourNum))];
-		frameBuffer[scanline][pixel].red = colour.red;
-		frameBuffer[scanline][pixel].green = colour.green;
-		frameBuffer[scanline][pixel].blue = colour.blue;
+		int index = pixel + (scanline * GAMEBOY_WIDTH);
+		frameBuffer[index].red = colour.red;
+		frameBuffer[index].green = colour.green;
+		frameBuffer[index].blue = colour.blue;
     }
 }
 
@@ -309,12 +310,14 @@ void Video::renderSprites(byte lcdControl) {
 					}
 
 					if (colourNum != Colour::WHITE) {
-						bool showThroughBG = hidden && frameBuffer[scanline][pixel].isEqual(GREY_PALLETE[Colour::WHITE]);
+						int index = pixel + (scanline * GAMEBOY_WIDTH);
+
+						bool showThroughBG = hidden && frameBuffer[index].isEqual(GREY_PALLETE[Colour::WHITE]);
 						if (!hidden || showThroughBG) {
 							RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
-							frameBuffer[scanline][pixel].red = colour.red;
-							frameBuffer[scanline][pixel].green = colour.green;
-							frameBuffer[scanline][pixel].blue = colour.blue;
+							frameBuffer[index].red = colour.red;
+							frameBuffer[index].green = colour.green;
+							frameBuffer[index].blue = colour.blue;
 						}
 					}
 				}

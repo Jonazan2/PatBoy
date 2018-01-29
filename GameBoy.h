@@ -38,5 +38,5 @@ private:
     CPU *cpu;
     Video *video;
     Joypad *joypad;
-	Debugger debugger;
+	Debugger *debugger;
 };

@@ -9,9 +9,10 @@
 
 #include "Utils.h"
 
-Debugger::Debugger() : mode (DebuggerMode::RUNNING) {}
+Debugger::Debugger(CPU* cpu, Memory *memory, Video *video, Cartridge *cartridge) 
+	: mode (DebuggerMode::RUNNING) , cpu(cpu), memory(memory), video(video), cartridge(cartridge) {}
 
-void Debugger::startDebugger(const CPU& cpu, const Memory& memory, Video &video, const Cartridge& cartridge)
+void Debugger::startDebugger()
 {
 	glfwInit();
 
@@ -30,7 +31,7 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, Video &video,
 
 	ImGui_ImplGlfwGL3_Init(window, true);
 
-	Texture frameTexture = {0, 160, 144, video.getFrameBuffer() };
+	Texture frameTexture = {0, 160, 144, video->getFrameBuffer() };
 	videoDebugger.setFrameBufferTexture(ImGui_ImplGlfwGL3_CreateTexture(frameTexture));
 
 	Texture tileTexture = { 0, 128, 192, videoDebugger.getTileBufferTexture() };
@@ -40,24 +41,23 @@ void Debugger::startDebugger(const CPU& cpu, const Memory& memory, Video &video,
 	videoDebugger.setBackgroundBufferTexture(ImGui_ImplGlfwGL3_CreateTexture(backgroundTexture));
 
 	// we update first just in case we have a breakpoint in the first instruction
-	update(0, cpu, memory, video, cartridge);
-
-	composeView(0, cpu, memory, video, cartridge);
+	update(0);
+	composeView(0);
 	render();
 }
 
-void Debugger::update(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge &cartridge) {
+void Debugger::update(unsigned int cycles) {
 	memoryDebugger.updateWatcher(memory, mode);
 
-	if (mode == DebuggerMode::BREAKPOINT || cpuDebugger.addresshasBreakpoint(cpu.getPC().value)) {
-		handleBreakpointHit(cycles, cpu, memory, video, cartridge);
+	if (mode == DebuggerMode::BREAKPOINT || cpuDebugger.addresshasBreakpoint(cpu->getPC().value)) {
+		handleBreakpointHit(cycles);
 	} else if (cycles >= 70224) {
 		if (mode == DebuggerMode::V_SYNC) {
-			handleBreakpointHit(cycles, cpu, memory, video, cartridge);
+			handleBreakpointHit(cycles);
 		}
 
 		// for every frame (70224 cycles) that we render in the emulator, we render a frame in the debugger
-		composeView(cycles, cpu, memory, video, cartridge);
+		composeView(cycles);
 		render();
 	}
 }
@@ -67,7 +67,7 @@ void Debugger::closeDebugger() {
 	glfwTerminate();
 }
 
-void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge) {
+void Debugger::composeView(unsigned int cycles) {
 	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
 
@@ -77,17 +77,17 @@ void Debugger::composeView(int cycles, const CPU& cpu, const Memory& memory, Vid
 	cartridgeDebugger.startView(cartridge);
 }
 
-void Debugger::handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge &cartridge) {
+void Debugger::handleBreakpointHit(unsigned int cycles) {
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
 	previous = std::chrono::high_resolution_clock::now();
 
-	mode = DebuggerMode::IDDLE;
-	while (mode == DebuggerMode::IDDLE) {
+	mode = DebuggerMode::IDLE;
+	while (mode == DebuggerMode::IDLE) {
 		current = std::chrono::high_resolution_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::duration<float, std::milli>> (current - previous);
 		previous = current;
 
-		composeView(cycles, cpu, memory, video, cartridge);
+		composeView(cycles);
 		render();
 
 		static float DELAY_TIME = 1000.0f / 57.3f;

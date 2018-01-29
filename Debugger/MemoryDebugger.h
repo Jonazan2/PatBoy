@@ -12,8 +12,8 @@ public:
 	MemoryDebugger();
 	~MemoryDebugger() = default;
 
-	void startView(const Memory& memory, DebuggerMode& mode);
-	void updateWatcher(const Memory& memory, DebuggerMode& mode);
+	void startView(const Memory *memory, DebuggerMode& mode);
+	void updateWatcher(const Memory *memory, DebuggerMode& mode);
 
 private:
 	const int MEMORY_VIEW_ROWS = 16;
@@ -23,6 +23,6 @@ private:
 	std::map<word, byte> watcher;
 	bool watcherAsBreakpoint;
 
-	bool watcherDataHasChanged(const Memory& memory) const;
-	void updateWatcherData(const Memory& memory);
+	bool watcherDataHasChanged(const Memory *memory) const;
+	void updateWatcherData(const Memory *memory);
 };

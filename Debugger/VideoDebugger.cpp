@@ -11,16 +11,16 @@ VideoDebugger::VideoDebugger() : frameBufferTexture(nullptr), showFrameBufferWin
 	memset(backgroundBuffer, 0xFF, sizeof(backgroundBuffer));
 };
 
-void VideoDebugger::startView(const Memory& memory, Video& video) {
+void VideoDebugger::startView(const Memory *memory, Video *video) {
 	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(605, 80));
 
 	ImGui::Begin("Video");
 	ImGui::Columns(2);
-	ImGui::Text("LCD Control: 0x%02X", memory.readDirectly(Video::LCD_CONTROL));
-	ImGui::Text("LCDC Status: 0x%02X", memory.readDirectly(Video::LCDC_STATUS));
+	ImGui::Text("LCD Control: 0x%02X", memory->readDirectly(Video::LCD_CONTROL));
+	ImGui::Text("LCDC Status: 0x%02X", memory->readDirectly(Video::LCDC_STATUS));
 
-	byte yCoordinate = memory.readDirectly(Video::LY_REGISTER);
+	byte yCoordinate = memory->readDirectly(Video::LY_REGISTER);
 	if (yCoordinate > 144) {
 		ImGui::TextColored(ImVec4(255, 0, 0, 1), "LY: %d", yCoordinate);
 	} else {
@@ -67,9 +67,9 @@ void VideoDebugger::startView(const Memory& memory, Video& video) {
 	ImGui::End();
 }
 
-void VideoDebugger::updateBackground(const Memory& memory, const Video &video)
+void VideoDebugger::updateBackground(const Memory *memory, const Video *video)
 {
-	byte lcdc = memory.readDirectly(0xFF40);
+	byte lcdc = memory->readDirectly(0xFF40);
 
 	bool unsignedIndex;
 	word tileData;
@@ -91,10 +91,10 @@ void VideoDebugger::updateBackground(const Memory& memory, const Video &video)
 	for (byte row = 0; row < 32; row++) {
 		for (byte column = 0; column < 32; column++) {
 			if (unsignedIndex) {
-				word index = memory.read(tileMap + row + column);
+				word index = memory->read(tileMap + row + column);
 				updateBackground(memory, video, tileData + (index * 0x80), row, column);
 			} else {
-				signed char index = static_cast<signed char>(memory.read(tileMap + row + column));
+				signed char index = static_cast<signed char>(memory->read(tileMap + row + column));
 				word location = ((index + 0x80) * 0x10);
 				updateBackground(memory, video, tileData + location, row, column);
 			}
@@ -105,21 +105,21 @@ void VideoDebugger::updateBackground(const Memory& memory, const Video &video)
 	drawWindowPosition(memory, video);
 }
 
-void VideoDebugger::updateBackground(const Memory& memory, const Video &video, word tileAddress, byte row, byte column) {
+void VideoDebugger::updateBackground(const Memory *memory, const Video *video, word tileAddress, byte row, byte column) {
 	for (int line = (row * 8); line < 8 + (row * 8); line++, tileAddress += 2) {
-		byte upperByte = memory.read(tileAddress);
-		byte lowerByte = memory.read(tileAddress + 1);
+		byte upperByte = memory->read(tileAddress);
+		byte lowerByte = memory->read(tileAddress + 1);
 
 		for (int tileColumn = (column * 8), position = 7; tileColumn < 8 + (column * 8); tileColumn++, position--) {
 			int index = tileColumn + line * BACKGROUND_BUFFER_WIDTH;
-			backgroundBuffer[index] = video.getCurrentPallete()[getColour(upperByte, lowerByte, position)];
+			backgroundBuffer[index] = video->getCurrentPallete()[getColour(upperByte, lowerByte, position)];
 		}
 	}
 }
 
-void VideoDebugger::drawWindowPosition(const Memory& memory, const Video &video) {
-	byte x = memory.read(0xFF43);
-	byte y = memory.read(0xFF42);
+void VideoDebugger::drawWindowPosition(const Memory *memory, const Video *video) {
+	byte x = memory->read(0xFF43);
+	byte y = memory->read(0xFF42);
 
 	drawLine(x, y, 160, false);
 	drawLine(x, y + 144, 160, false);
@@ -136,7 +136,7 @@ void VideoDebugger::drawLine(byte x, byte y, byte length, bool vertical) {
 }
 
 
-void VideoDebugger::updateTiles(const Memory& memory, const Video &video) {
+void VideoDebugger::updateTiles(const Memory *memory, const Video *video) {
 	word tileData = 0x8000;
 	for (int row = 0; row < 24; row++) {
 		for (int column = 0; column < 16; column++) {
@@ -147,14 +147,14 @@ void VideoDebugger::updateTiles(const Memory& memory, const Video &video) {
 	}
 }
 
-void VideoDebugger::updateTiles(const Memory& memory, const Video &video, word start, byte row, byte column) {
+void VideoDebugger::updateTiles(const Memory *memory, const Video *video, word start, byte row, byte column) {
 	for (int line = (row*8); line < 8 + (row * 8); line++, start+=2) {
-		byte upperByte = memory.read(start);
-		byte lowerByte = memory.read(start + 1);
+		byte upperByte = memory->read(start);
+		byte lowerByte = memory->read(start + 1);
 
 		for (int tileColumn = (column*8), position = 7; tileColumn < 8 + (column * 8); tileColumn++, position--) {
 			int index = tileColumn + line * TILE_BUFFER_WIDTH;
-			tileBuffer[index] = video.getCurrentPallete()[getColour(upperByte, lowerByte, position)];
+			tileBuffer[index] = video->getCurrentPallete()[getColour(upperByte, lowerByte, position)];
 		}
 	}
 }

@@ -7,5 +7,5 @@ public:
 	CartridgeDebugger() = default;
 	~CartridgeDebugger() = default;
 
-	void startView(const Cartridge& cartridge);
+	void startView(const Cartridge *cartridge);
 };

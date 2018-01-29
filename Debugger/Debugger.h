@@ -19,7 +19,7 @@
 #include "CartridgeDebugger.h"
 
 enum class DebuggerMode : int {
-	IDDLE,
+	IDLE,
 	BREAKPOINT,
 	V_SYNC,
 	RUNNING
@@ -27,14 +27,19 @@ enum class DebuggerMode : int {
 
 class Debugger {
 public:
-	Debugger();
+	Debugger(CPU* cpu, Memory *memory, Video *video, Cartridge *cartridge);
 
-	void startDebugger(const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge);
-	void update(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge);
+	void startDebugger();
+	void update(unsigned int cycles);
 	void closeDebugger();
 
 private:
 	const ImVec4 BACKGROUND_COLOR = {0.8f, 0.8f, 0.8f, 1.0f};
+
+	CPU* cpu;
+	Memory *memory;
+	Video *video;
+	Cartridge *cartridge;
 
 	GLFWwindow* window;
 	DebuggerMode mode;
@@ -43,7 +48,7 @@ private:
 	VideoDebugger videoDebugger;
 	CartridgeDebugger cartridgeDebugger;
 
-	void composeView(int cycles, const CPU& cpu, const Memory& memory, Video& video, const Cartridge& cartridge);
-	void handleBreakpointHit(int cycles, const CPU& cpu, const Memory& memory, Video &video, const Cartridge& cartridge);
+	void composeView(unsigned int cycles);
+	void handleBreakpointHit(unsigned int cycles);
 	void render();
 };

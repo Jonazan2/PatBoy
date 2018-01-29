@@ -4,7 +4,7 @@
 
 MemoryDebugger::MemoryDebugger() : watcherAsBreakpoint(false) {}
 
-void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
+void MemoryDebugger::startView(const Memory *memory, DebuggerMode& mode) {
 
 	ImGui::SetNextWindowPos(ImVec2(650, 150), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Memory");
@@ -37,7 +37,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 		float lineStartX = ImGui::GetCursorPosX();
 		for (int n = 0; n < MEMORY_VIEW_ROWS && addr < MEMORY_VIEW_MEMORY_SIZE; n++, addr++) {
 			ImGui::SameLine(lineStartX + cellWidth * n);
-			ImGui::Text("%02X ", memory.read(addr));
+			ImGui::Text("%02X ", memory->read(addr));
 		}
 
 		ImGui::SameLine(lineStartX + cellWidth * MEMORY_VIEW_ROWS + glyphWidth * 2);
@@ -52,7 +52,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 		addr = lineNumber * MEMORY_VIEW_ROWS;
 		for (int n = 0; n < MEMORY_VIEW_ROWS && addr < MEMORY_VIEW_MEMORY_SIZE; n++, addr++) {
 			if (n > 0) ImGui::SameLine();
-			int c = memory.read(addr);
+			int c = memory->read(addr);
 			ImGui::Text("%c", (c >= 32 && c < 128) ? c : '.');
 		}
 	}
@@ -75,7 +75,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 		int address;
 		if (sscanf(input, "%X", &address)) {
 			word validAddress = address & 0xFFFF;
-			watcher.insert({ validAddress, memory.read(validAddress) });
+			watcher.insert({ validAddress, memory->read(validAddress) });
 		}
 	}
 	ImGui::PopItemWidth();
@@ -117,7 +117,7 @@ void MemoryDebugger::startView(const Memory& memory, DebuggerMode& mode) {
 	ImGui::End();
 }
 
-void MemoryDebugger::updateWatcher(const Memory& memory, DebuggerMode& mode) {
+void MemoryDebugger::updateWatcher(const Memory* memory, DebuggerMode& mode) {
 	if (!watcher.empty()) {
 		if (watcherAsBreakpoint && watcherDataHasChanged(memory)) {
 			mode = DebuggerMode::BREAKPOINT;
@@ -126,20 +126,20 @@ void MemoryDebugger::updateWatcher(const Memory& memory, DebuggerMode& mode) {
 	}
 }
 
-bool MemoryDebugger::watcherDataHasChanged(const Memory& memory) const {
+bool MemoryDebugger::watcherDataHasChanged(const Memory *memory) const {
 	std::map<word, byte>::const_iterator it;
-	for (it = watcher.begin(); it != watcher.end(); ++it) {
-		if (it->second != memory.readDirectly(it->first)) {
+	for (it = watcher.cbegin(); it != watcher.cend(); ++it) {
+		if (it->second != memory->readDirectly(it->first)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void MemoryDebugger::updateWatcherData(const Memory& memory) {
+void MemoryDebugger::updateWatcherData(const Memory *memory) {
 	std::map<word, byte>::iterator it;
 	for (it = watcher.begin(); it != watcher.end(); ++it) {
-		byte data = memory.readDirectly(it->first);
+		byte data = memory->readDirectly(it->first);
 		if (it->second != data) {
 			it->second = data;
 		}

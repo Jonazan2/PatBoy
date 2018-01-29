@@ -20,10 +20,11 @@ GameBoy::GameBoy(const std::string &path) {
     this->memory->init(cpu);
     joypad->init(cpu, memory);
     this->video = new Video(memory, cpu);
+	this->debugger = new Debugger(cpu, memory, video, cartridge);
 }
 
 void GameBoy::startEmulation() {
-	debugger.startDebugger(*cpu, *memory, *video, *cartridge);
+	debugger->startDebugger();
   
 	int cycles;
 	std::chrono::time_point<std::chrono::high_resolution_clock> current, previous;
@@ -58,7 +59,7 @@ void GameBoy::startEmulation() {
 			audio->update(cyclesPerThisOpcode);
 			cpu->updateInterrupts(cyclesPerThisOpcode);
 			cycles += cyclesPerThisOpcode;
-			debugger.update(cycles, *cpu, *memory, *video, *cartridge);
+			debugger->update(cycles);
 		}
 		video->renderGame();
 
@@ -70,7 +71,7 @@ void GameBoy::startEmulation() {
     }
 
 	SDL_Quit();
-	debugger.closeDebugger();
+	debugger->closeDebugger();
 }
 
 GameBoy::~GameBoy() {

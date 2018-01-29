@@ -4,7 +4,7 @@
 
 CPUDebugger::CPUDebugger() : instructionJump(false) {}
 
-void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, DebuggerMode& mode) {
+void CPUDebugger::startView(int cycles, const CPU *cpu, const Memory *memory, DebuggerMode& mode) {
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(650, 800), ImGuiSetCond_FirstUseEver);
 
@@ -32,24 +32,24 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 	ImGui::Text("Registers:");
 	ImGui::Separator();
 	ImGui::Columns(2, "registers");
-	ImGui::Text("AF: 0x%04X", cpu.getAF().value);
-	ImGui::Text("DE: 0x%04X", cpu.getDE().value);
-	if (mode == DebuggerMode::IDDLE || mode == DebuggerMode::BREAKPOINT) {
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "PC: 0x%04X", cpu.getPC().value);
+	ImGui::Text("AF: 0x%04X", cpu->getAF().value);
+	ImGui::Text("DE: 0x%04X", cpu->getDE().value);
+	if (mode == DebuggerMode::IDLE || mode == DebuggerMode::BREAKPOINT) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "PC: 0x%04X", cpu->getPC().value);
 	} else {
-		ImGui::Text("PC: 0x%04X", cpu.getPC().value);
+		ImGui::Text("PC: 0x%04X", cpu->getPC().value);
 	}
 
 	ImGui::NextColumn();
-	ImGui::Text("BC: 0x%04X", cpu.getBC().value);
-	ImGui::Text("HL: 0x%04X", cpu.getHL().value);
-	ImGui::Text("SP: 0x%04X", cpu.getSP().value);
+	ImGui::Text("BC: 0x%04X", cpu->getBC().value);
+	ImGui::Text("HL: 0x%04X", cpu->getHL().value);
+	ImGui::Text("SP: 0x%04X", cpu->getSP().value);
 	ImGui::NextColumn();
 	ImGui::Columns(1);
 	ImGui::Separator();
 
 	/* flags*/
-	const Register AF = cpu.getAF();
+	const Register AF = cpu->getAF();
 	ImGui::Text("Flags:");
 	ImGui::Separator();
 	ImGui::Columns(4, "flags");
@@ -73,8 +73,8 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 	ImGui::BeginChild("##scrollingregion", ImVec2(0, 160));
 	ImGuiListClipper clipper(0xFFFF, ImGui::GetTextLineHeightWithSpacing());
 
-	if ((mode == DebuggerMode::IDDLE || mode == DebuggerMode::BREAKPOINT) && !instructionJump) {
-		ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + (cpu.getPC().value * ImGui::GetTextLineHeightWithSpacing()), 0.5f);
+	if ((mode == DebuggerMode::IDLE || mode == DebuggerMode::BREAKPOINT) && !instructionJump) {
+		ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + (cpu->getPC().value * ImGui::GetTextLineHeightWithSpacing()), 0.5f);
 		instructionJump = true;
 		clipper.DisplayEnd += 16;
 	} else {
@@ -84,7 +84,7 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 	byte previousOpcode = 0x00;
 	for (int i = clipper.DisplayStart; i <= clipper.DisplayEnd; i++) {
 
-		byte opcode = memory.readDirectly(i);
+		byte opcode = memory->readDirectly(i);
 		Opcode opcodeInfo;
 		if (previousOpcode != SPECIAL_OPCODE) {
 			opcodeInfo = gameBoyOpcodes[opcode];
@@ -101,10 +101,10 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 		char name[32];
 		memset(name, 0, 32);
 		if (opcodeInfo.additionalBytes == 2) {
-			word add = memory.readWordDirectly(i + 1);
+			word add = memory->readWordDirectly(i + 1);
 			sprintf(name, opcodeInfo.name, add);
 		} else if (opcodeInfo.additionalBytes == 1) {
-			sprintf(name, opcodeInfo.name, memory.readDirectly(i + 1));
+			sprintf(name, opcodeInfo.name, memory->readDirectly(i + 1));
 		} else {
 			sprintf(name, opcodeInfo.name);
 		}
@@ -112,7 +112,7 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 		char text[128];
 		sprintf(text, "%-*s%-*s%-*s%d", perItemWidth, address, perItemWidth, name, perItemWidth, opcodeHex, opcodeInfo.timing);
 
-		if ((mode == DebuggerMode::IDDLE || mode == DebuggerMode::BREAKPOINT) && i == cpu.getPC().value) {
+		if ((mode == DebuggerMode::IDLE || mode == DebuggerMode::BREAKPOINT) && i == cpu->getPC().value) {
 			ImGui::PushStyleColor(ImGuiCol_Text, ImColor(255, 140, 0));
 		}
 
@@ -125,7 +125,7 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 			}
 		}
 
-		if ((mode == DebuggerMode::IDDLE || mode == DebuggerMode::BREAKPOINT) && i == cpu.getPC().value) {
+		if ((mode == DebuggerMode::IDLE || mode == DebuggerMode::BREAKPOINT) && i == cpu->getPC().value) {
 			ImGui::PopStyleColor();
 		}
 
@@ -184,11 +184,11 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 	ImGui::Separator();
 
 	/* Interrupts */
-	const byte ieRegister = memory.readDirectly(IE_REGISTER);
+	const byte ieRegister = memory->readDirectly(IE_REGISTER);
 	ImGui::Text("Interrupts:"); ImGui::SameLine();
-	ImGui::Text("IME: %s", cpu.isIMEActive() ? "true" : "false");
+	ImGui::Text("IME: %s", cpu->isIMEActive() ? "true" : "false");
 	ImGui::Separator();
-	ImGui::Text("Interrupt Enable (0xFFFF): 0x%02X", memory.readDirectly(0xFFFF));
+	ImGui::Text("Interrupt Enable (0xFFFF): 0x%02X", memory->readDirectly(0xFFFF));
 	ImGui::Columns(5, "flags");
 	ImGui::Text("V-Blank");
 	ImGui::Text(isBitSet(ieRegister, VBLANK) ? "1" : "0"); ImGui::NextColumn();
@@ -203,8 +203,8 @@ void CPUDebugger::startView(int cycles, const CPU& cpu, const Memory& memory, De
 	ImGui::Columns(1);
 	ImGui::Separator();
 
-	const byte ifRegister = memory.readDirectly(IF_REGISTER);
-	ImGui::Text("Interrupt Flag (0xFF0F): 0x%02X", memory.readDirectly(0xFF0F));
+	const byte ifRegister = memory->readDirectly(IF_REGISTER);
+	ImGui::Text("Interrupt Flag (0xFF0F): 0x%02X", memory->readDirectly(0xFF0F));
 	ImGui::Columns(5, "flags");
 	ImGui::Text("V-Blank");
 	ImGui::Text(isBitSet(ifRegister, VBLANK) ? "1" : "0"); ImGui::NextColumn();

@@ -13,7 +13,7 @@ public:
 	CPUDebugger();
 	~CPUDebugger() = default;
 
-	void startView(int cycles, const CPU& cpu, const Memory& memory, DebuggerMode& mode);
+	void startView(int cycles, const CPU* cpu, const Memory* memory, DebuggerMode& mode);
 	bool addresshasBreakpoint(word address) const;
 
 private:

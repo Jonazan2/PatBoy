@@ -81,4 +81,5 @@ GameBoy::~GameBoy() {
     delete cartridge;
     delete video;
     delete cpu;
+	delete debugger;
 }

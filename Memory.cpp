@@ -61,9 +61,12 @@ void Memory::write(const word address, const byte data) {
 		chip->write(address, data);
     } else if ( (address >= 0xC000) && (address <= 0xDFFF) ){
         map[address] = data;
+		if (address <= 0xDDFF) {
+			map[address + 0x2000] = data;
+		}
     } else if ( (address > 0xE000) && (address <= 0xFDFF) ) {
         map[address] = data;
-        map[address -0x2000] = data;
+        map[address - 0x2000] = data;
     } else if ((address >= 0xFEA0) && (address <= 0xFEFF)) {
         // Not allowed
     } else if (address == 0xFF04) {

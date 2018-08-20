@@ -1,5 +1,5 @@
 #pragma once
-#include "Memory.h"
+#include "../Memory.h"
 
 #include <string>
 
@@ -10,8 +10,8 @@ class MemoryChip {
 public:
 	virtual byte read(word address) = 0;
 	virtual void write(word address, byte data) = 0;
-	virtual void save(std::string &name) {};
-	virtual void load(std::string &name) {};
+	virtual void save(const std::string &name) {};
+	virtual void load(const std::string &name) {};
 
 protected:
 

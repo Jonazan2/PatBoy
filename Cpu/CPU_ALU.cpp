@@ -1,4 +1,4 @@
-#include "CPU.h"
+#include "../CPU.h"
 
 void CPU::increment16BitRegister(Register *reg) {
 	reg->value++;

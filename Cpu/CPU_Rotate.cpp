@@ -1,4 +1,4 @@
-#include "CPU.h"
+#include "../CPU.h"
 
 short CPU::opcode0x07() {
 	byte bit = AF.hi & 0x80;

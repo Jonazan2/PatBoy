@@ -97,7 +97,7 @@ public:
 	Cartridge(const std::string&);
 	~Cartridge();
 
-	std::string getTitle() const;
+	const std::string& getTitle() const;
 	DestinationCode getDestinationCode() const;
 	CartridgeSize getCartridgeSize() const;
 	CartridgeType getCartridgeType() const;

@@ -221,7 +221,7 @@ void Cartridge::dumpHexadecimalFile() const {
     printf (" %s\n", buff);
 }
 
-string Cartridge::getTitle() const {
+const string& Cartridge::getTitle() const {
     return this->title;
 }
 

@@ -67,7 +67,6 @@ private:
     void chargeExtendedOpcodes();
     byte getCurrentOpcode();
     void incrementProgramCounter();
-    void decrementProgramCounter();
     void incrementStackPointer();
     void decrementStackPointer();
     void stackPush(const Register);

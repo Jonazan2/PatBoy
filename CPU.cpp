@@ -8,11 +8,7 @@ CPU::CPU(Memory *memory) {
 }
 
 void CPU::incrementProgramCounter() {
-    PC.value++;
-}
-
-void CPU::decrementProgramCounter() {
-    PC.value++;
+    ++PC.value;
 }
 
 byte CPU::getCurrentOpcode() {

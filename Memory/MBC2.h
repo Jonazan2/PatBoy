@@ -1,5 +1,5 @@
 #pragma once
-#include "Memory.h"
+#include "../Memory.h"
 
 /**************************************************************************//**
  *
@@ -14,8 +14,8 @@ class MBC2 : public MemoryChip {
 
 		byte read(word address) final override;
 		void write(word address, byte data) final override;
-		void save(std::string &name) override;
-		void load(std::string &name) override;
+		void save(const std::string &name) override;
+		void load(const std::string &name) override;
 
 	private:
 		const word RAM_SIZE				= 0x200;

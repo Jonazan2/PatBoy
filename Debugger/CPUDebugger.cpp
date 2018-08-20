@@ -244,4 +244,5 @@ bool CPUDebugger::addresshasBreakpoint(word address) const {
 			return false;
 		}
 	}
+	return false;
 }

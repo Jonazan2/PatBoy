@@ -8,7 +8,7 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
-#include "Types.h"
+#include "../../Types.h"
 
 #include <GL/glew.h>
 #include <GL/gl.h>

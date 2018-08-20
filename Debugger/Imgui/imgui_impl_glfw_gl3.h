@@ -7,7 +7,7 @@
 // https://github.com/ocornut/imgui
 
 struct GLFWwindow;
-#include "Types.h"
+#include "../../Types.h"
 
 typedef struct {
 	unsigned int id;

@@ -86,7 +86,7 @@ void MBC3::writeToRamBank(word address, byte data) {
 	}
 }
 
-void MBC3::save(std::string &name) {
+void MBC3::save(const std::string &name) {
 	std::ofstream savefile(name + SAVE_FILE_EXTENSION, std::ofstream::binary);
 	if (savefile.is_open()) {
 		savefile.write(reinterpret_cast<char*>(ram), RAM_BANK_SIZE);
@@ -94,7 +94,7 @@ void MBC3::save(std::string &name) {
 	savefile.close();
 }
 
-void MBC3::load(std::string &name) {
+void MBC3::load(const std::string &name) {
 	std::ifstream savefile(name + SAVE_FILE_EXTENSION, std::ios::in | std::ios::binary | std::ios::ate);
 	if (savefile.is_open()) {
 		std::streampos size = savefile.tellg();

@@ -67,7 +67,7 @@ void MBC2::setRamState(word address) {
 	}
 }
 
-void MBC2::save(std::string &name) {
+void MBC2::save(const std::string &name) {
 	std::ofstream savefile(name + SAVE_FILE_EXTENSION, std::ofstream::binary);
 	if (savefile.is_open()) {
 		savefile.write(reinterpret_cast<char*>(ram), RAM_SIZE);
@@ -75,7 +75,7 @@ void MBC2::save(std::string &name) {
 	savefile.close();
 }
 
-void MBC2::load(std::string &name) {
+void MBC2::load(const std::string &name) {
 	std::ifstream savefile(name + SAVE_FILE_EXTENSION, std::ios::in | std::ios::binary | std::ios::ate);
 	if (savefile.is_open()) {
 		std::streampos size = savefile.tellg();

@@ -28,11 +28,11 @@ public:
 	void reset();
     
     byte read(const word) const;
-	inline byte Memory::readDirectly(const word address) const {
+	inline byte readDirectly(const word address) const {
 		return map[address];
 	}
 
-	inline word Memory::readWordDirectly(const word address) const {
+	inline word readWordDirectly(const word address) const {
 		Register aux;
 		aux.low = map[address];
 		aux.hi = map[address + 1];
@@ -41,7 +41,7 @@ public:
 
     void write(const word, const byte);
 
-	inline void Memory::writeDirectly(const word address, const byte data) {
+	inline void writeDirectly(const word address, const byte data) {
 		this->map[address] = data;
 	}
 

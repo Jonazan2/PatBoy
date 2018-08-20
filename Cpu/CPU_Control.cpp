@@ -1,4 +1,4 @@
-#include "CPU.h"
+#include "../CPU.h"
 
 
 //////////////////////////////// CPU CONTROL COMMANDS

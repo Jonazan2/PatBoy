@@ -119,7 +119,7 @@ void MBC1::setMode(byte data) {
 	mode = Mode(data & 0x01);
 }
 
-void MBC1::save(std::string &name) {
+void MBC1::save(const std::string &name) {
 	std::ofstream savefile(name + SAVE_FILE_EXTENSION, std::ofstream::binary);
 	if (savefile.is_open()) {
 		savefile.write(reinterpret_cast<char*>(ram), RAM_BANK_SIZE);
@@ -127,7 +127,7 @@ void MBC1::save(std::string &name) {
 	savefile.close();
 }
 
-void MBC1::load(std::string &name) {
+void MBC1::load(const std::string &name) {
 	std::ifstream savefile(name + SAVE_FILE_EXTENSION, std::ios::in | std::ios::binary | std::ios::ate);
 	if (savefile.is_open()) {
 		std::streampos size = savefile.tellg();

@@ -1,4 +1,4 @@
-#include "CPU.h"
+#include "../CPU.h"
 
 void CPU::rst(const word address) {
 	stackPush(PC);

@@ -95,7 +95,7 @@ private:
     void handleOAMMode();
     void handleLCDTransferMode();
     
-	bool Video::isLCDEnabled() const {
+	bool isLCDEnabled() const {
 		return isBitSet(memory->read(LCD_CONTROL), 7);
 	}
 
@@ -106,7 +106,7 @@ private:
     void renderBackground(byte);
 	void renderSprites(byte);
 
-	inline RGB Video::getColour(const byte colourNumber) const {
+	inline RGB getColour(const byte colourNumber) const {
 		return pallete[colourNumber];
 	}
 

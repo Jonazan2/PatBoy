@@ -7,7 +7,7 @@
 
 #include "Imgui/imgui_impl_glfw_gl3.h"
 
-#include "Utils.h"
+#include "../Utils.h"
 
 Debugger::Debugger(CPU* cpu, Memory *memory, Video *video, Cartridge *cartridge) 
 	: mode (DebuggerMode::RUNNING) , cpu(cpu), memory(memory), video(video), cartridge(cartridge) {}
@@ -22,6 +22,7 @@ void Debugger::startDebugger()
 	window = glfwCreateWindow(1200, 800, "PatBoy Debugger", NULL, NULL);
 	glfwMakeContextCurrent(window);
 
+	glewExperimental = GL_TRUE;
 	GLint GlewInitResult = glewInit();
 	if (GLEW_OK != GlewInitResult)
 	{

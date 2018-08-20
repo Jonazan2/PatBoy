@@ -9,9 +9,9 @@
 
 #include "Imgui/imgui.h"
 
-#include "CPU.h"
-#include "Video.h"
-#include "Types.h"
+#include "../CPU.h"
+#include "../Video.h"
+#include "../Types.h"
 
 #include "CPUDebugger.h"
 #include "MemoryDebugger.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
-#include "Types.h"
+#include "../Types.h"
 
 class Memory;
 

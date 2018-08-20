@@ -1,7 +1,7 @@
 #pragma once
 
 #include <set>
-#include "Types.h"
+#include "../Types.h"
 
 class CPU;
 class Memory;

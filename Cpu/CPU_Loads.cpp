@@ -1,4 +1,4 @@
-#include "CPU.h"
+#include "../CPU.h"
 
 ///////////////////////////////////16 bit load commands
 void CPU::load16BitRegister(Register *reg) {

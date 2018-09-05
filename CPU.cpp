@@ -105,6 +105,7 @@ void CPU::updateInterrupts(short &cycles) {
 						if (isBitSet(enabledReg, bit)) {
 							serviceInterrupt(Interrupts(bit));
 							cycles += 20;
+							return;
 						}
 					}
 				}

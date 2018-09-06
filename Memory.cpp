@@ -92,7 +92,7 @@ void Memory::write(const word address, const byte data) {
         // Not allowed
     } else if ( address >= 0xFF10 && address <= 0xFF3F ) {
         audio->writeAudioRegister(address, data);
-		address[map] = data;
+		map[address] = data;
     } else {
 		writeDirectly(address, data);
     }

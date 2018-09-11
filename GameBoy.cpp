@@ -41,8 +41,14 @@ void GameBoy::startEmulation() {
             joypad->handleInput(event);
             
 			if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_F1) {
+					video->changeWindowSize();
+				}
 				if (event.key.keysym.sym == SDLK_F2) {
 					video->switchPallete();
+				}
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					quit = true;
 				}
 			}
 

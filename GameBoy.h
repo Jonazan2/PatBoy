@@ -26,7 +26,7 @@ public:
 	GameBoy(const std::string&);
 	void startEmulation();
 	~GameBoy();
-    
+
 private:
 	const int MAX_CYCLES = 70224;
 	const float FPS = 59.73f;

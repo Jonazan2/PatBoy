@@ -46,9 +46,10 @@ public:
     void updateGraphics(short);
     void renderGame();
 	void switchPallete();
+	void changeWindowSize();
 
 	void* getFrameBuffer() { return frameBuffer; }
-	RGB* const getCurrentPallete() const { return pallete; }
+	RGB* const getCurrentPallete() const { return currentPallete; }
 	Colour getColourFromPallete(byte pallete, Colour originalColour);
 
 private:
@@ -69,6 +70,19 @@ private:
 	static RGB CLASSIC_PALLETE[4];
 	static RGB GREY_PALLETE[4];
 
+	struct WindowResolution
+	{
+		int width;
+		int height;
+
+		bool operator==(const WindowResolution& rhs) const {
+			return width == rhs.width && height == rhs.height;
+		}
+	};
+	static const int MAX_AMOUNT_WINDOW_RESOLUTIONS = 3;
+	static const WindowResolution FULLSCREEN_WINDOW;
+	static const WindowResolution WINDOW_RESOLUTIONS[MAX_AMOUNT_WINDOW_RESOLUTIONS];
+		
 	enum class Mode : byte {
 		H_BLANK = 0,
 		V_BLANK = 1,
@@ -81,12 +95,13 @@ private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
+	int currentResolutionIndex;
     CPU *cpu;
     Memory *memory;
 	void *icon;
 
     Mode mode;
-	RGB *pallete;
+	RGB *currentPallete;
     int videoCycles;
 	int vblankCycles;
 
@@ -107,7 +122,7 @@ private:
 	void renderSprites(byte);
 
 	inline RGB getColour(const byte colourNumber) const {
-		return pallete[colourNumber];
+		return currentPallete[colourNumber];
 	}
 
     bool createSDLWindow();

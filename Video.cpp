@@ -6,6 +6,13 @@
 
 RGB Video::CLASSIC_PALLETE[4] = { { 155,188,15 }, { 139,172,15 }, { 48,98,48 }, { 15,56,15 } };
 RGB Video::GREY_PALLETE[4] = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 }, { 0x0,0x0,0x0 } };
+const Video::WindowResolution Video::FULLSCREEN_WINDOW = { 1920, 1080 };
+const Video::WindowResolution Video::WINDOW_RESOLUTIONS[MAX_AMOUNT_WINDOW_RESOLUTIONS] = 
+{	
+	{GAMEBOY_WIDTH, GAMEBOY_HEIGHT}, 
+	{GAMEBOY_WIDTH * 5, GAMEBOY_HEIGHT * 5}, 
+	FULLSCREEN_WINDOW 
+};
 
 Video::Video(Memory *memory, CPU *cpu) {
     this->memory = memory;
@@ -17,7 +24,8 @@ Video::Video(Memory *memory, CPU *cpu) {
 	this->videoCycles = 0;
 	this->vblankCycles = 0;
 	this->mode = Video::Mode::OAM_RAM;
-	this->pallete = GREY_PALLETE;
+	this->currentPallete = GREY_PALLETE;
+	this->currentResolutionIndex = 0;
 }
 
 void Video::updateGraphics(short cycles) {
@@ -241,7 +249,7 @@ void Video::renderBackground(byte lcdControl) {
         colourNum <<= 1;
         colourNum |= getBitValue(upperByte,colourBit);
 
-        RGB colour = GREY_PALLETE[getColourFromPallete(backgroundPallete, Colour(colourNum))];
+        RGB colour = currentPallete[getColourFromPallete(backgroundPallete, Colour(colourNum))];
 		int index = pixel + (scanline * GAMEBOY_WIDTH);
 		frameBuffer[index].red = colour.red;
 		frameBuffer[index].green = colour.green;
@@ -312,9 +320,9 @@ void Video::renderSprites(byte lcdControl) {
 					if (colourNum != Colour::WHITE) {
 						int index = pixel + (scanline * GAMEBOY_WIDTH);
 
-						bool showThroughBG = hidden && frameBuffer[index].isEqual(GREY_PALLETE[Colour::WHITE]);
+						bool showThroughBG = hidden && frameBuffer[index].isEqual(currentPallete[Colour::WHITE]);
 						if (!hidden || showThroughBG) {
-							RGB colour = GREY_PALLETE[getColourFromPallete(pallete, Colour(colourNum))];
+							RGB colour = currentPallete[getColourFromPallete(pallete, Colour(colourNum))];
 							frameBuffer[index].red = colour.red;
 							frameBuffer[index].green = colour.green;
 							frameBuffer[index].blue = colour.blue;
@@ -376,12 +384,14 @@ bool Video::createSDLWindow() {
     if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
         return false;
     }
-    
-    window = SDL_CreateWindow("PatBoy", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                              GAMEBOY_WIDTH, GAMEBOY_HEIGHT, 0);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 0);
+
+	const WindowResolution resolution = WINDOW_RESOLUTIONS[currentResolutionIndex];
+	window = SDL_CreateWindow("PatBoy", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, resolution.width, resolution.height, SDL_WINDOW_INPUT_FOCUS);
 
 	setWindowIcon();
     renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_RenderSetLogicalSize(renderer, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24,
                                 SDL_TEXTUREACCESS_STREAMING, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
     return true ;
@@ -409,11 +419,31 @@ void Video::renderGame() {
 }
 
 void Video::switchPallete() {
-	if (pallete == CLASSIC_PALLETE) {
-		pallete = GREY_PALLETE;
-	} else if (pallete == GREY_PALLETE) {
-		pallete = CLASSIC_PALLETE;
+	if (currentPallete == CLASSIC_PALLETE) {
+		currentPallete = GREY_PALLETE;
+	} else if (currentPallete == GREY_PALLETE) {
+		currentPallete = CLASSIC_PALLETE;
 	}
+}
+
+void Video::changeWindowSize()
+{
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+
+	currentResolutionIndex = (currentResolutionIndex + 1) % MAX_AMOUNT_WINDOW_RESOLUTIONS;
+	const WindowResolution resolution = WINDOW_RESOLUTIONS[currentResolutionIndex];
+	window = SDL_CreateWindow("PatBoy", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, resolution.width, resolution.height, SDL_WINDOW_INPUT_FOCUS );
+	if (resolution == FULLSCREEN_WINDOW) {
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
+
+	setWindowIcon();
+	renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_RenderSetLogicalSize(renderer, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24,
+		SDL_TEXTUREACCESS_STREAMING, GAMEBOY_WIDTH, GAMEBOY_HEIGHT);
 }
 
 void Video::resetFrameBuffer() {

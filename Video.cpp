@@ -102,6 +102,7 @@ void Video::handleVBlankMode(short cycles) {
 
 	if (videoCycles >= VBLANK_CYCLES) {
 		vblankCycles = 0;
+		videoCycles = 0;
 
 		/* Reset scanlines to zero */
 		memory->writeDirectly(LY_REGISTER, 0);

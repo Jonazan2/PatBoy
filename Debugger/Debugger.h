@@ -49,6 +49,8 @@ private:
 	CartridgeDebugger cartridgeDebugger;
 
 	void composeView(unsigned int cycles);
+	void composeControlView();
 	void handleBreakpointHit(unsigned int cycles);
 	void render();
+	void resetEmulator();
 };

@@ -22,6 +22,8 @@ public:
     CPU(Memory *);
 	~CPU() = default;
 
+	void reset();
+
     unsigned int update();
     void requestInterrupt(Interrupts);
     void updateTimers(int);
@@ -60,7 +62,6 @@ private:
     unsigned int timaCounter;
     unsigned int currentClockSpeed;
 
-	void reset();
     void serviceInterrupt(Interrupts);
     
     void chargeOpcodes();

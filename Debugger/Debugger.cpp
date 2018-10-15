@@ -72,10 +72,22 @@ void Debugger::composeView(unsigned int cycles) {
 	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
 
+	composeControlView();
 	cpuDebugger.startView(cycles, cpu, memory, mode);
 	videoDebugger.startView(memory, video);
 	memoryDebugger.startView(memory, mode);
 	cartridgeDebugger.startView(cartridge);
+}
+
+void Debugger::composeControlView() {
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(200, 50));
+
+	ImGui::Begin("Emulator Control");
+	if (ImGui::Button("Reset")) {
+		resetEmulator();
+	}
+	ImGui::End();
 }
 
 void Debugger::handleBreakpointHit(unsigned int cycles) {
@@ -106,4 +118,9 @@ void Debugger::render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	ImGui::Render();
 	glfwSwapBuffers(window);
+}
+
+void Debugger::resetEmulator() {
+	cpu->reset();
+	video->reset();
 }

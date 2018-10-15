@@ -43,6 +43,9 @@ public:
     
     Video(Memory*, CPU*);
     ~Video();
+
+	void reset();
+
     void updateGraphics(short);
     void renderGame();
 	void switchPallete();

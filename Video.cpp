@@ -26,7 +26,17 @@ Video::Video(Memory *memory, CPU *cpu) {
 	this->mode = Video::Mode::OAM_RAM;
 	this->currentPallete = GREY_PALLETE;
 	this->currentResolutionIndex = 0;
+	changeWindowSize();
 }
+
+void Video::reset()
+{
+	this->resetFrameBuffer();
+	this->videoCycles = 0;
+	this->vblankCycles = 0;
+	this->mode = Video::Mode::OAM_RAM;
+}
+
 
 void Video::updateGraphics(short cycles) {
     if (isLCDEnabled()) {

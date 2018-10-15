@@ -500,15 +500,15 @@ void CPU::decrementStackPointer() {
 
 void CPU::stackPush(const Register reg) {
     decrementStackPointer();
-    memory->writeDirectly(SP.value, reg.hi);
+    memory->write(SP.value, reg.hi);
     decrementStackPointer();
-    memory->writeDirectly(SP.value, reg.low);
+    memory->write(SP.value, reg.low);
 }
 
 void CPU::stackPop(Register *reg) {
-    reg->low = memory->readDirectly(SP.value);
+    reg->low = memory->read(SP.value);
     incrementStackPointer();
-    reg->hi = memory->readDirectly(SP.value);
+    reg->hi = memory->read(SP.value);
     incrementStackPointer();
 }
 

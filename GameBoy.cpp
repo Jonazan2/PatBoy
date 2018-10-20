@@ -17,9 +17,9 @@ GameBoy::GameBoy(const std::string &path) {
     this->joypad = new Joypad();
 	this->memory = new Memory(cartridge, audio, joypad);
     this->cpu = new CPU(memory);
-    this->memory->init(cpu);
-    joypad->init(cpu, memory);
     this->video = new Video(memory, cpu);
+    this->memory->init(cpu, video);
+    joypad->init(cpu, memory);
 	this->debugger = new Debugger(cpu, memory, video, cartridge);
 }
 

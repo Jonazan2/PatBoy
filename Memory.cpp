@@ -3,6 +3,7 @@
 #include "Memory/MBC2.h"
 #include "Memory/MBC3.h"
 #include "Memory/RomOnly.h"
+#include "Video.h"
 
 MemoryChip* Memory::createMemoryChipForCartridge(Memory* memory, Cartridge* cartridge) {
 	MemoryChip* chip;
@@ -42,8 +43,9 @@ Memory::Memory(Cartridge *cartridge, Audio *audio, Joypad *joypad) {
 	}
 }
 
-void Memory::init(CPU * cpu) {
+void Memory::init(CPU * cpu, Video *video) {
     this->cpu = cpu;
+	this->video = video;
 }
 
 byte Memory::read(const word address) const {
@@ -73,7 +75,7 @@ void Memory::write(const word address, const byte data) {
         map[address] = 0x0;
         cpu->resetDivRegister();
     }else if (address == 0xFF07) {
-        map[address] = data ;
+        map[address] = data;
 
         switch(data & 0x03) {
             case 0:  cpu->setCurrentClockSpeed(1024);  break;
@@ -83,8 +85,39 @@ void Memory::write(const word address, const byte data) {
             default: assert(false);      break;
         }
 
-    } else if (address == 0xFF41) {
-        // Not allowed
+	} else if (address == Video::LCD_CONTROL) {
+		byte currentLCDStatus = map[address];
+		if (!isBitSet(data, 7) && video->isLCDEnabled()) {
+			video->DisableLCD();
+		}
+		map[address] = data;
+	} else if (address == Video::LCDC_STATUS) {
+		// Don't allow the override of values in bits [0,2]
+		byte lcdcStatus = map[address];
+		byte relevantData = data & 0x78;
+		byte currentLCDCStatus = relevantData | (lcdcStatus & 0x07);
+		map[address] = currentLCDCStatus;
+
+		// Check the current state of the PPU and request interrupt if needed
+		if (video->isLCDEnabled()) {
+			Video::Mode currentMode = video->getCurrentMode();
+			bool shouldRequestInterrupt = false;
+			switch (currentMode) {
+				case Video::Mode::H_BLANK:
+					shouldRequestInterrupt = isBitSet(currentLCDCStatus, 3);
+					break;
+				case Video::Mode::V_BLANK:
+					shouldRequestInterrupt = isBitSet(currentLCDCStatus, 4);
+					break;
+				case Video::Mode::OAM_RAM:
+					shouldRequestInterrupt = isBitSet(currentLCDCStatus, 5);
+					break;
+			}
+
+			if (shouldRequestInterrupt) {
+				cpu->requestInterrupt(Interrupts::LCD);
+			}
+		}
     } else if (address == 0xFF46){
 		map[0xFF46] = data;
 		DMA(data);

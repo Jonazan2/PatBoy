@@ -10,6 +10,7 @@
 
 class CPU;
 class Joypad;
+class Video;
 
 /**************************************************************************//**
  * \brief Class that implements the Memory system of the Nintendo Game Boy
@@ -24,7 +25,7 @@ public:
     Memory(Cartridge *, Audio *, Joypad *);
 	~Memory();
 
-	void init(CPU *);
+	void init(CPU *, Video*);
 	void reset();
     
     byte read(const word) const;
@@ -54,6 +55,7 @@ private:
 	static MemoryChip* createMemoryChipForCartridge(Memory* memory, Cartridge* cartridge);
 
     Audio *audio;
+    Video *video;
     Joypad *joypad;
     CPU *cpu;
     byte *map;

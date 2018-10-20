@@ -56,16 +56,19 @@ void Video::updateGraphics(short cycles) {
 				break;
 		}
 	} else {
-		videoCycles = 0;
-		vblankCycles = 0;
-		memory->writeDirectly(LY_REGISTER, 0);
-
-		byte lcdc = memory->readDirectly(LCDC_STATUS);
-		memory->writeDirectly(LCDC_STATUS, lcdc & 0xFC);
-		mode = Video::Mode::H_BLANK;
-
-		compareLYWithLYC();
+		DisableLCD();
 	}
+}
+
+void Video::DisableLCD()
+{
+	videoCycles = 0;
+	vblankCycles = 0;
+	memory->writeDirectly(LY_REGISTER, 0);
+
+	byte lcdc = memory->readDirectly(LCDC_STATUS);
+	memory->writeDirectly(LCDC_STATUS, lcdc & 0xFC);
+	mode = Video::Mode::H_BLANK;
 }
 
 void Video::handleHBlankMode() {
@@ -82,7 +85,11 @@ void Video::handleHBlankMode() {
 			byte lcdStatus = memory->readDirectly(LCDC_STATUS);
 			setBit(&lcdStatus, 0);
 			memory->writeDirectly(LCDC_STATUS, lcdStatus);
+
 			cpu->requestInterrupt(Interrupts::VBLANK);
+			if (isBitSet(lcdStatus, 4)) {
+				cpu->requestInterrupt(Interrupts::LCD);
+			}
 		} else {
 			mode = Mode::OAM_RAM;
 			byte lcdStatus = memory->readDirectly(LCDC_STATUS);
@@ -157,6 +164,10 @@ void Video::handleLCDTransferMode() {
 		clearBit(&lcdStatus,1);
 		clearBit(&lcdStatus,0);
 		memory->writeDirectly(LCDC_STATUS, lcdStatus);
+
+		if (isBitSet(lcdStatus, 3)) {
+			cpu->requestInterrupt(Interrupts::LCD);
+		}
 	}
 }
 

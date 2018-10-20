@@ -25,7 +25,6 @@
 class Video {
     
 public:
-    
     static const short GAMEBOY_WIDTH = 160;
     static const short GAMEBOY_HEIGHT = 144;
     
@@ -40,6 +39,14 @@ public:
         DARK_GREY,
         BLACK
     };
+
+	enum class Mode : byte {
+		H_BLANK = 0,
+		V_BLANK = 1,
+		OAM_RAM = 2,
+		LCD_TRANSFER = 3
+	};
+
     
     Video(Memory*, CPU*);
     ~Video();
@@ -50,10 +57,16 @@ public:
     void renderGame();
 	void switchPallete();
 	void changeWindowSize();
+	void DisableLCD();
 
 	void* getFrameBuffer() { return frameBuffer; }
 	RGB* const getCurrentPallete() const { return currentPallete; }
 	Colour getColourFromPallete(byte pallete, Colour originalColour);
+	Video::Mode getCurrentMode() const { return mode; }
+
+	bool isLCDEnabled() const {
+		return isBitSet(memory->read(LCD_CONTROL), 7);
+	}
 
 private:
 	const word SCROLL_Y = 0xFF42;
@@ -85,14 +98,7 @@ private:
 	static const int MAX_AMOUNT_WINDOW_RESOLUTIONS = 3;
 	static const WindowResolution FULLSCREEN_WINDOW;
 	static const WindowResolution WINDOW_RESOLUTIONS[MAX_AMOUNT_WINDOW_RESOLUTIONS];
-		
-	enum class Mode : byte {
-		H_BLANK = 0,
-		V_BLANK = 1,
-		OAM_RAM	= 2,
-		LCD_TRANSFER = 3
-	};
-
+	
     RGB frameBuffer[GAMEBOY_HEIGHT * GAMEBOY_WIDTH];
     
     SDL_Window *window;
@@ -112,10 +118,7 @@ private:
     void handleVBlankMode(short cycles);
     void handleOAMMode();
     void handleLCDTransferMode();
-    
-	bool isLCDEnabled() const {
-		return isBitSet(memory->read(LCD_CONTROL), 7);
-	}
+
 
 	void compareLYWithLYC();
 

@@ -8,6 +8,7 @@ MBC1::MBC1(Memory* memory, Cartridge *cartridge) : MemoryChip{ memory, cartridge
 	ram = new byte[RAM_BANK_SIZE * 4];
 	memset(ram, 0xFF, sizeof(ram));
     ramEnabled = false;
+	rom = cartridge->getRom();
 
     currentRAMBank = 0;
     currentROMBank = 1;
@@ -32,7 +33,6 @@ byte MBC1::read(word address) {
 
 byte MBC1::readFromRomBank(word address) {
 	int romAddress = currentROMBank * ROM_BANK_SIZE;
-	byte* rom = cartridge->getRom();
 	return rom[(address - 0x4000) + romAddress];
 }
 

@@ -89,6 +89,8 @@ void Memory::write(const word address, const byte data) {
 		byte currentLCDStatus = map[address];
 		if (!isBitSet(data, 7) && video->isLCDEnabled()) {
 			video->DisableLCD();
+		} else if (isBitSet(data, 7) && !video->isLCDEnabled()) {
+			video->EnableLCD();
 		}
 		map[address] = data;
 	} else if (address == Video::LCDC_STATUS) {

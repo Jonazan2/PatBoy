@@ -64,10 +64,8 @@ public:
 	Colour getColourFromPallete(byte pallete, Colour originalColour);
 	Video::Mode getCurrentMode() const { return mode; }
 
-	bool isLCDEnabled() const {
-		return isBitSet(memory->read(LCD_CONTROL), 7);
-	}
-
+	bool isLCDEnabled() const { return lcdEnabled; }
+	void EnableLCD() { lcdEnabled = true; }
 private:
 	const word SCROLL_Y = 0xFF42;
 	const word SCROLL_X = 0xFF43;
@@ -109,6 +107,7 @@ private:
     Memory *memory;
 	void *icon;
 
+	bool lcdEnabled;
     Mode mode;
 	RGB *currentPallete;
     int videoCycles;
@@ -124,15 +123,16 @@ private:
 
     void drawScanline();
     Mode getLCDMode() const;
-    void renderBackground(byte);
+	void renderBackground(byte);
+	void renderWindow(byte, byte, byte);
+	void renderTile(bool unsig, word tileMap, word tileData, byte xPos, byte yPos, byte pixel, byte backgroundPallete, byte scanline);
 	void renderSprites(byte);
 
-	inline RGB getColour(const byte colourNumber) const {
-		return currentPallete[colourNumber];
-	}
+	inline RGB getColour(const byte colourNumber) const { return currentPallete[colourNumber]; }
 
     bool createSDLWindow();
 	bool setWindowIcon();
     void resetFrameBuffer();
 };
+
 #endif

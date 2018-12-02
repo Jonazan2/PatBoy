@@ -14,7 +14,7 @@ const Video::WindowResolution Video::WINDOW_RESOLUTIONS[MAX_AMOUNT_WINDOW_RESOLU
 	FULLSCREEN_WINDOW 
 };
 
-Video::Video(Memory *memory, CPU *cpu) {
+Video::Video(Memory *memory, CPU *cpu) : lcdEnabled(true) {
     this->memory = memory;
     this->cpu = cpu;
     this->createSDLWindow();
@@ -62,6 +62,7 @@ void Video::updateGraphics(short cycles) {
 
 void Video::DisableLCD()
 {
+	lcdEnabled = false;
 	videoCycles = 0;
 	vblankCycles = 0;
 	memory->writeDirectly(LY_REGISTER, 0);
@@ -191,6 +192,14 @@ void Video::drawScanline() {
     const byte lcdControl = memory->readDirectly(LCD_CONTROL);
 	if (isBitSet(lcdControl, 0)) {
 		renderBackground(lcdControl);
+		if (isBitSet(lcdControl, 5)) {
+			const int scanline = memory->readDirectly(LY_REGISTER);
+			const byte windowY = memory->readDirectly(WINDOWS_Y);
+			if (scanline >= windowY)
+			{
+				renderWindow(lcdControl, scanline, windowY);
+			}
+		}
 	}
 	if ( isBitSet(lcdControl, 1) ) {
         renderSprites(lcdControl);
@@ -198,85 +207,79 @@ void Video::drawScanline() {
 }
 
 void Video::renderBackground(byte lcdControl) {
-    byte scrollY = memory->read(SCROLL_Y);
-    byte scrollX = memory->read(SCROLL_X);
-    byte windowY = memory->read(WINDOWS_Y);
-    byte windowX = memory->read(WINDOWS_X);
+    byte scrollY = memory->readDirectly(SCROLL_Y);
+    byte scrollX = memory->readDirectly(SCROLL_X);
 
+	const int scanline = memory->readDirectly(LY_REGISTER);
+	const bool unsig = isBitSet(lcdControl, 4);
+	const byte backgroundPallete = memory->readDirectly(0xFF47);
+	const word tileMap = isBitSet(lcdControl, 3) ? 0x9C00 : 0x9800;
+	const word tileData = unsig ? 0x8000 : 0x8800;
+
+	byte xPos = 0;
+	byte yPos = scrollY + scanline;
+	word tileRow, tileLocation;
+    for ( int pixel = 0 ; pixel < 160; pixel++ ) {
+		xPos = pixel + scrollX;
+		yPos = scrollY + scanline;
+		renderTile(unsig, tileMap, tileData, xPos, yPos, pixel, backgroundPallete, scanline);
+    }
+}
+
+void Video::renderWindow(byte lcdControl, byte scanline, byte windowY) {
+	byte windowX = memory->readDirectly(WINDOWS_X);
 	if (windowX <= 0x07) {
-		windowX = 0x00;
+		windowX -= windowX;
 	} else {
 		windowX -= 7;
 	}
 
-	const int scanline = memory->readDirectly(LY_REGISTER);
-	bool usingWindow = isBitSet(lcdControl, 5) && windowY <= scanline;
+	const bool unsig = isBitSet(lcdControl, 4);
+	const word windowTileMap = isBitSet(lcdControl, 6) ? 0x9C00 : 0x9800;
+	const word tileData = unsig ? 0x8000 : 0x8800;
+	const byte backgroundPallete = memory->readDirectly(0xFF47);
 
-	bool unsig = true;    
-	word tileData;
-    if ( isBitSet(lcdControl,4) ) {
-        tileData = 0x8000;
-    } else {
-        tileData = 0x8800;
-        unsig= false;
-    }
-
-	byte backgroundPallete = memory->read(0xFF47);
-	word tileRow, tileLocation, tileMap;
+	word tileMap;
 	byte xPos = 0, yPos = 0;
-    for ( int pixel = 0 ; pixel < 160; pixel++ ) {
-		
-		if (usingWindow && pixel >= windowX && scanline >= windowY) {
-			xPos = pixel - windowX;
-			yPos = scanline - windowY;
+	word tileRow, tileLocation;
+	for (int pixel = windowX; pixel < 160; pixel++) {
+		xPos = pixel - windowX;
+		yPos = scanline - windowY;
+		renderTile(unsig, windowTileMap, tileData, xPos, yPos, pixel, backgroundPallete, scanline);
+	}
+}
 
-			if (isBitSet(lcdControl, 6)) {
-				tileMap = 0x9C00;
-			} else {
-				tileMap = 0x9800;
-			}
-		} else {
-			xPos = pixel + scrollX;
-			yPos = scrollY + scanline;
+void Video::renderTile(bool unsig, word tileMap, word tileData, byte xPos, byte yPos, byte pixel, byte backgroundPallete, byte scanline) {
 
-			if (isBitSet(lcdControl, 3)) {
-				tileMap = 0x9C00;
-			} else {
-				tileMap = 0x9800;
-			}
-		}
-		
-		tileRow = ((yPos / 8) * 32);
-		tileLocation = tileData;
-        int tileNum;
-        if( unsig ) {
-            tileNum = static_cast<byte>(memory->read(tileMap + tileRow + (xPos / 8)));
-			tileLocation += (tileNum * 16);
-			assert(tileLocation < 0x8FFF);
-        } else {
-            tileNum = static_cast<signed char>(memory->read(tileMap + tileRow + (xPos / 8)));
-			tileLocation += ((tileNum + 0x80) * 16);
-			assert(tileLocation < 0x97FF);
-        }
+	const word tileRow = ((yPos / 8) * 32);
+	if (unsig) {
+		byte tileNum = memory->read(tileMap + tileRow + (xPos / 8));
+		tileData += (tileNum * 16);
+		assert(tileData < 0x8FFF);
+	}
+	else {
+		signed char tileNum = memory->read(tileMap + tileRow + (xPos / 8));
+		tileData += ((tileNum + 0x80) * 16);
+		assert(tileData < 0x97FF);
+	}
 
-        byte address = (yPos % 8) * 2;
-        byte upperByte = memory->read(tileLocation + address);
-        byte lowerByte = memory->read(tileLocation + address + 1);
+	byte address = (yPos % 8) * 2;
+	byte upperByte = memory->read(tileData + address);
+	byte lowerByte = memory->read(tileData + address + 1);
 
-        int colourBit = xPos % 8;
-        colourBit -= 7;
-        colourBit = -colourBit;
+	int colourBit = xPos % 8;
+	colourBit -= 7;
+	colourBit = -colourBit;
 
-        int colourNum = getBitValue(lowerByte, colourBit);
-        colourNum <<= 1;
-        colourNum |= getBitValue(upperByte,colourBit);
+	int colourNum = getBitValue(lowerByte, colourBit);
+	colourNum <<= 1;
+	colourNum |= getBitValue(upperByte, colourBit);
 
-        RGB colour = currentPallete[getColourFromPallete(backgroundPallete, Colour(colourNum))];
-		int index = pixel + (scanline * GAMEBOY_WIDTH);
-		frameBuffer[index].red = colour.red;
-		frameBuffer[index].green = colour.green;
-		frameBuffer[index].blue = colour.blue;
-    }
+	RGB colour = currentPallete[getColourFromPallete(backgroundPallete, Colour(colourNum))];
+	int index = pixel + (scanline * GAMEBOY_WIDTH);
+	frameBuffer[index].red = colour.red;
+	frameBuffer[index].green = colour.green;
+	frameBuffer[index].blue = colour.blue;
 }
 
 void Video::renderSprites(byte lcdControl) {

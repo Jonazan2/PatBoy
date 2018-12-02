@@ -33,6 +33,7 @@ class MBC1 : public MemoryChip {
 		byte higherRomBankBits;
 
 		byte* ram;
+		byte* rom;
 		bool ramEnabled;
 
 		byte readFromRamBank(word address);

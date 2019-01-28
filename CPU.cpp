@@ -1,6 +1,8 @@
 #include "CPU.h"
 
-CPU::CPU(Memory *memory) {
+CPU::CPU(Memory *memory) 
+	: halt_bug(false) 
+{
     this->memory = memory;
     chargeOpcodes();
     chargeExtendedOpcodes();
@@ -14,6 +16,12 @@ void CPU::incrementProgramCounter() {
 byte CPU::getCurrentOpcode() {
     byte opcode = memory->read(PC.value);
     incrementProgramCounter();
+
+	if (halt_bug) {
+		halt_bug = false;
+		--PC.value;
+	}
+
     return opcode;
 }
 

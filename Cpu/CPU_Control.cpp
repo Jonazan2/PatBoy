@@ -3,7 +3,17 @@
 
 //////////////////////////////// CPU CONTROL COMMANDS
 short CPU::opcode0x76() {
-    halt = true;
+    
+	halt = true;
+	
+	/* Check halt bug */
+	byte interruptEnabledFlag = memory->read(IE_REGISTER);
+	byte interruptFlag = memory->read(IF_REGISTER);
+
+	if (!ime && (interruptFlag & interruptEnabledFlag & 0x1F)) {
+		halt_bug = true;
+	}
+
     return 0;
 }
 

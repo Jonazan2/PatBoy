@@ -52,6 +52,7 @@ private:
     Register PC;
     
     bool halt;
+	bool halt_bug;
     bool ime;
     
     Memory *memory;

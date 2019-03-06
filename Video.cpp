@@ -296,6 +296,7 @@ void Video::renderSprites(byte lcdControl) {
 		// Read the sprite attributes
 		byte attributes = memory->read(0xFE00+index+3) ;
 		byte pallete = memory->read(isBitSet(attributes, 4) ? 0xFF49 : 0xFF48);
+		const RGB currentAlpha = currentPallete[getColourFromPallete(pallete, Colour::WHITE)];
         bool yFlip =  isBitSet(attributes, 6);
         bool xFlip = isBitSet(attributes, 5);
 		bool hidden = isBitSet(attributes, 7);
@@ -342,12 +343,11 @@ void Video::renderSprites(byte lcdControl) {
 						setBit(&colourNum, 0);
 					}
 
-					if (colourNum != Colour::WHITE) {
-						int index = pixel + (scanline * GAMEBOY_WIDTH);
-
-						bool showThroughBG = hidden && frameBuffer[index].isEqual(currentPallete[Colour::WHITE]);
+					const RGB colour = currentPallete[getColourFromPallete(pallete, Colour(colourNum))];
+					if (!colour.isEqual(currentAlpha)) {
+						const int index = pixel + (scanline * GAMEBOY_WIDTH);
+						const bool showThroughBG = hidden && frameBuffer[index].isEqual(currentAlpha);
 						if (!hidden || showThroughBG) {
-							RGB colour = currentPallete[getColourFromPallete(pallete, Colour(colourNum))];
 							frameBuffer[index].red = colour.red;
 							frameBuffer[index].green = colour.green;
 							frameBuffer[index].blue = colour.blue;

@@ -32,7 +32,7 @@ struct RGB {
     byte green;
     byte blue;
 
-	bool isEqual(RGB other) {
+	bool isEqual(RGB other) const {
 		return red == other.red && green == other.green && blue == other.blue;
 	}
 };

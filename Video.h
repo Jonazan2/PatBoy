@@ -34,7 +34,7 @@ public:
     static const word LY_COMPARE = 0xFF45;
     
     enum Colour : int {
-        WHITE,
+        WHITE = 0,
         LIGHT_GREY,
         DARK_GREY,
         BLACK

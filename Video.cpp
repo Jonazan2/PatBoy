@@ -288,23 +288,23 @@ void Video::renderSprites(byte lcdControl) {
     for (int sprite = 0 ; sprite < 40; sprite++) {
         byte index = sprite*4 ;
 
-		// Read the sprite position and the its tile index
-        byte yPos = memory->read(0xFE00+index) - 16;
-        byte xPos = memory->read(0xFE00+index+1)-8;
+        // Read the sprite position and its tile index
+        byte yPos = memory->read(0xFE00 + index) - 16;
+        byte xPos = memory->read(0xFE00 + index + 1) - 8;
         byte tileIndex = memory->read(0xFE00+index+2) ;
 
-		// Read the sprite attributes
-		byte attributes = memory->read(0xFE00+index+3) ;
-		byte pallete = memory->read(isBitSet(attributes, 4) ? 0xFF49 : 0xFF48);
-		const RGB currentAlpha = currentPallete[getColourFromPallete(pallete, Colour::WHITE)];
-        bool yFlip =  isBitSet(attributes, 6);
-        bool xFlip = isBitSet(attributes, 5);
-		bool hidden = isBitSet(attributes, 7);
+        // Read the sprite attributes
+        const byte attributes = memory->read(0xFE00+index+3) ;
+        const byte pallete = memory->read(isBitSet(attributes, 4) ? 0xFF49 : 0xFF48);
+        const byte backgroundPallete = memory->readDirectly(0xFF47);
+        const RGB backgroundZeroColour = currentPallete[getColourFromPallete(backgroundPallete, Colour::WHITE)];
+        const bool yFlip =  isBitSet(attributes, 6);
+        const bool xFlip = isBitSet(attributes, 5);
+        const bool spriteOnTop = !isBitSet(attributes, 7);
 
-        int scanline = memory->read(LY_REGISTER);
+        const int scanline = memory->read(LY_REGISTER);
 
         int ysize = 8;
-
         if ( use8x16 ) {
             ysize = 16;
         }
@@ -343,12 +343,11 @@ void Video::renderSprites(byte lcdControl) {
 						setBit(&colourNum, 0);
 					}
 
-					const RGB colour = currentPallete[getColourFromPallete(pallete, Colour(colourNum))];
-					if (!colour.isEqual(currentAlpha)) {
+					if (colourNum != Colour::WHITE) {
 						const int index = pixel + (scanline * GAMEBOY_WIDTH);
-						const bool showThroughBG = hidden && frameBuffer[index].isEqual(currentAlpha);
-						if (!hidden || showThroughBG) {
-							frameBuffer[index].red = colour.red;
+						if (spriteOnTop || frameBuffer[index].isEqual(backgroundZeroColour)) {
+					        const RGB colour = currentPallete[getColourFromPallete(pallete, Colour(colourNum))];
+                            frameBuffer[index].red = colour.red;
 							frameBuffer[index].green = colour.green;
 							frameBuffer[index].blue = colour.blue;
 						}

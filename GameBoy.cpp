@@ -58,7 +58,7 @@ void GameBoy::startEmulation() {
 		}
 
 		cycles = 0;
-		while (cycles < MAX_CYCLES) {
+		while (!video->isReadyToRenderGame()) {
 			short cyclesPerThisOpcode = cpu->update();
 			cpu->updateTimers(cyclesPerThisOpcode);
 			video->updateGraphics(cyclesPerThisOpcode);

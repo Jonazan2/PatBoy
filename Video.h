@@ -45,6 +45,7 @@ public:
     ~Video();
     void updateGraphics(short);
     void renderGame();
+	bool isReadyToRenderGame() const { return readyToRender; }
 	void switchPallete();
 	void changeWindowSize();
 
@@ -104,7 +105,8 @@ private:
 	RGB *currentPallete;
     int videoCycles;
 	int vblankCycles;
-
+	bool readyToRender;
+	
     void handleHBlankMode();
     void handleVBlankMode(short cycles);
     void handleOAMMode();

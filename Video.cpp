@@ -26,6 +26,7 @@ Video::Video(Memory *memory, CPU *cpu) {
 	this->mode = Video::Mode::OAM_RAM;
 	this->currentPallete = GREY_PALLETE;
 	this->currentResolutionIndex = 0;
+	this->readyToRender = false;
 }
 
 void Video::updateGraphics(short cycles) {
@@ -103,7 +104,8 @@ void Video::handleVBlankMode(short cycles) {
 	if (videoCycles >= VBLANK_CYCLES) {
 		vblankCycles = 0;
 		videoCycles = 0;
-
+		readyToRender = true;
+		
 		/* Reset scanlines to zero */
 		memory->writeDirectly(LY_REGISTER, 0);
 		compareLYWithLYC();
@@ -417,6 +419,8 @@ void Video::renderGame() {
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
+	
+	readyToRender = false;
 }
 
 void Video::switchPallete() {

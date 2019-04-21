@@ -21,19 +21,20 @@
 #include <GLFW/glfw3native.h>
 #endif
 
-#include <map>
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS 1
+#include <unordered_map>
 
 // Data
-static GLFWwindow*						g_Window = NULL;
-static std::map<GLuint, Texture>	g_TextureMap;
-static double							g_Time = 0.0f;
-static bool								g_MousePressed[3] = { false, false, false };
-static float							g_MouseWheel = 0.0f;
-static GLuint							g_FontTexture = 0;
-static int								g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
-static int								g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
-static int								g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
-static unsigned int						g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+static GLFWwindow*							g_Window = NULL;
+static std::unordered_map<GLuint, Texture>	g_TextureMap;
+static double								g_Time = 0.0f;
+static bool									g_MousePressed[3] = { false, false, false };
+static float								g_MouseWheel = 0.0f;
+static GLuint								g_FontTexture = 0;
+static int									g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
+static int									g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
+static int									g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
+static unsigned int							g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
 
 ImTextureID ImGui_ImplGlfwGL3_CreateTexture(Texture& texture)
 {
@@ -337,6 +338,9 @@ bool    ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks)
 {
     g_Window = window;
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
     ImGuiIO& io = ImGui::GetIO();
     io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                         // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
     io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
@@ -358,7 +362,6 @@ bool    ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks)
     io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
     io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-    io.RenderDrawListsFn = ImGui_ImplGlfwGL3_RenderDrawLists;       // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
     io.SetClipboardTextFn = ImGui_ImplGlfwGL3_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfwGL3_GetClipboardText;
     io.ClipboardUserData = g_Window;
@@ -380,7 +383,7 @@ bool    ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks)
 void ImGui_ImplGlfwGL3_Shutdown()
 {
     ImGui_ImplGlfwGL3_InvalidateDeviceObjects();
-    ImGui::Shutdown();
+    ImGui::DestroyContext();
 }
 
 void ImGui_ImplGlfwGL3_NewFrame()

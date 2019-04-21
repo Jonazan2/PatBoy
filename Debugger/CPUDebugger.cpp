@@ -5,8 +5,8 @@
 CPUDebugger::CPUDebugger() : instructionJump(false) {}
 
 void CPUDebugger::startView(int cycles, const CPU *cpu, const Memory *memory, DebuggerMode& mode) {
-	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(650, 800), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(650, 800), ImGuiCond_FirstUseEver);
 
 	ImGui::Begin("CPU");
 	/* debugger controlers */
@@ -113,7 +113,7 @@ void CPUDebugger::startView(int cycles, const CPU *cpu, const Memory *memory, De
 		sprintf(text, "%-*s%-*s%-*s%d", perItemWidth, address, perItemWidth, name, perItemWidth, opcodeHex, opcodeInfo.timing);
 
 		if ((mode == DebuggerMode::IDLE || mode == DebuggerMode::BREAKPOINT) && i == cpu->getPC().value) {
-			ImGui::PushStyleColor(ImGuiCol_Text, ImColor(255, 140, 0));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 140, 0, 0));
 		}
 
 		bool alreadySelected = addresshasBreakpoint(i);
@@ -139,7 +139,7 @@ void CPUDebugger::startView(int cycles, const CPU *cpu, const Memory *memory, De
 	ImGui::Separator();
 
 	/* breakpoints */
-	ImGui::AlignFirstTextHeightToWidgets();
+	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Add breakpoint:");
 	ImGui::SameLine();
 
@@ -157,8 +157,8 @@ void CPUDebugger::startView(int cycles, const CPU *cpu, const Memory *memory, De
 
 	if (!breakpoints.empty()) {
 		ImGui::SameLine();
-		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f).Value);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f).Value);
 		if (ImGui::Button("Clear all breakpoints")) {
 			breakpoints.clear();
 		}
@@ -221,7 +221,7 @@ void CPUDebugger::startView(int cycles, const CPU *cpu, const Memory *memory, De
 	/* cycles counter */
 	ImGui::Separator();
 
-	ImGui::AlignFirstTextHeightToWidgets();
+	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Cycles:");
 	ImGui::SameLine();
 	char buf[32];

@@ -12,7 +12,7 @@ VideoDebugger::VideoDebugger() : frameBufferTexture(nullptr), showFrameBufferWin
 };
 
 void VideoDebugger::startView(const Memory *memory, Video *video) {
-	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(300, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(605, 80));
 
 	ImGui::Begin("Video");
@@ -33,7 +33,7 @@ void VideoDebugger::startView(const Memory *memory, Video *video) {
 	}
 
 	if (showFrameBufferWindow) {
-		ImGui::SetNextWindowSize(ImVec2(160, 144), ImGuiSetCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(160, 144), ImGuiCond_FirstUseEver);
 		ImGui::Begin("GameBoy");
 		ImGui::Image(frameBufferTexture, ImVec2(160, 144));
 		ImGui::End();
@@ -45,7 +45,7 @@ void VideoDebugger::startView(const Memory *memory, Video *video) {
 
 	if (showTileBufferWindow) {
 		updateTiles(memory, video);
-		ImGui::SetNextWindowSize(ImVec2(256, 384), ImGuiSetCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(256, 384), ImGuiCond_FirstUseEver);
 		ImGui::Begin("Tiles");
 		ImGui::Image(tileBufferTexture, ImVec2(256, 384));
 		ImGui::End();
@@ -58,7 +58,7 @@ void VideoDebugger::startView(const Memory *memory, Video *video) {
 
 	if (showBackgroundBufferWindow) {
 		updateBackground(memory, video);
-		ImGui::SetNextWindowSize(ImVec2(512, 512), ImGuiSetCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(512, 512), ImGuiCond_FirstUseEver);
 		ImGui::Begin("Background");
 		ImGui::Image(backgroundBufferTexture, ImVec2(512, 512));
 		ImGui::End();

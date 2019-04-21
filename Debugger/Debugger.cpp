@@ -7,8 +7,6 @@
 
 #include "Imgui/imgui_impl_glfw_gl3.h"
 
-#include "../Utils.h"
-
 Debugger::Debugger(CPU* cpu, Memory *memory, Video *video, Cartridge *cartridge) 
 	: mode (DebuggerMode::RUNNING) , cpu(cpu), memory(memory), video(video), cartridge(cartridge) {}
 
@@ -117,6 +115,7 @@ void Debugger::render() {
 	glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
 	glClear(GL_COLOR_BUFFER_BIT);
 	ImGui::Render();
+	ImGui_ImplGlfwGL3_RenderDrawLists(ImGui::GetDrawData());
 	glfwSwapBuffers(window);
 }
 

@@ -3,7 +3,7 @@
 #include "Debugger.h"
 
 void CartridgeDebugger::startView(const Cartridge *cartridge) {
-	ImGui::SetNextWindowPos(ImVec2(610, 0), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(610, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(475, 120));
 
 	ImGui::Begin("Cartridge");

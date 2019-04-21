@@ -6,7 +6,7 @@ MemoryDebugger::MemoryDebugger() : watcherAsBreakpoint(false) {}
 
 void MemoryDebugger::startView(const Memory *memory, DebuggerMode& mode) {
 
-	ImGui::SetNextWindowPos(ImVec2(650, 150), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(650, 150), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Memory");
 	ImGui::BeginChild("##scrolling", ImVec2(0, 450));
 
@@ -64,7 +64,7 @@ void MemoryDebugger::startView(const Memory *memory, DebuggerMode& mode) {
 	ImGui::Separator();
 
 	ImGui::PushItemWidth(160);
-	ImGui::AlignFirstTextHeightToWidgets();
+	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Add watcher:"); ImGui::SameLine();
 	ImGui::PopItemWidth();
 
@@ -82,8 +82,8 @@ void MemoryDebugger::startView(const Memory *memory, DebuggerMode& mode) {
 
 	if (!watcher.empty()) {
 		ImGui::SameLine();
-		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImColor::HSV(1.0f, 0.6f, 0.6f).Value);
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImColor::HSV(0.95f, 0.5f, 0.5f).Value);
 		if (ImGui::Button("Clear all watchers")) {
 			watcher.clear();
 			mode = DebuggerMode::RUNNING;

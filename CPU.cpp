@@ -67,7 +67,7 @@ void CPU::updateTimers(int cycles) {
 		timaCounter += cycles ;
         
 		// time to increment the timer
-		if ( timaCounter >= currentClockSpeed ) {
+		while ( timaCounter >= currentClockSpeed ) {
 			timaCounter -= currentClockSpeed;
 
 			if ( memory->readDirectly(0xFF05) == 0xFF ) {

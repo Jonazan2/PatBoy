@@ -747,7 +747,7 @@ short CPU::extendedOpcode0xC6() {
     byte data = memory->read(HL.value);
     setBit(&data, 0);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 0, (HL)
 
 short CPU::extendedOpcode0xC7() {
@@ -790,7 +790,7 @@ short CPU::extendedOpcode0xCE() {
     byte data = memory->read(HL.value);
     setBit(&data, 1);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 1, (HL)
 
 short CPU::extendedOpcode0xCF() {
@@ -833,7 +833,7 @@ short CPU::extendedOpcode0xD6() {
     byte data = memory->read(HL.value);
     setBit(&data, 2);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 2, (HL)
 
 short CPU::extendedOpcode0xD7() {
@@ -876,7 +876,7 @@ short CPU::extendedOpcode0xDE() {
     byte data = memory->read(HL.value);
     setBit(&data, 3);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 3, (HL)
 
 short CPU::extendedOpcode0xDF() {
@@ -919,7 +919,7 @@ short CPU::extendedOpcode0xE6() {
     byte data = memory->read(HL.value);
     setBit(&data, 4);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 4, (HL)
 
 short CPU::extendedOpcode0xE7() {
@@ -962,7 +962,7 @@ short CPU::extendedOpcode0xEE() {
     byte data = memory->read(HL.value);
     setBit(&data, 5);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 5, (HL)
 
 short CPU::extendedOpcode0xEF() {
@@ -1005,7 +1005,7 @@ short CPU::extendedOpcode0xF6() {
     byte data = memory->read(HL.value);
     setBit(&data, 6);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 6, (HL)
 
 short CPU::extendedOpcode0xF7() {
@@ -1048,7 +1048,7 @@ short CPU::extendedOpcode0xFE() {
     byte data = memory->read(HL.value);
     setBit(&data, 7);
     memory->write(HL.value, data);
-    return 12;
+    return 16;
 }// set 7, (HL)
 
 short CPU::extendedOpcode0xFF() {

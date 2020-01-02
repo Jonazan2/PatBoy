@@ -1,0 +1,11 @@
+Linux Build instructions
+
+You'll need some dev libraries installed, here is the command in Ubuntu:
+
+   sudo apt install libsdl2-dev libglew-dev libglfw3-dev freeglut3-dev
+
+To build with CMake:
+
+   cmake .
+   make
+

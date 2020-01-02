@@ -45,10 +45,10 @@ ImTextureID ImGui_ImplGlfwGL3_CreateTexture(Texture& texture)
 	return (ImTextureID) id;
 }
 
-void ImGui_ImplGlfwGL3_UpdateTexture(ImTextureID textureId, void *buffer)
-{
-	g_TextureMap.at((GLuint)textureId).buffer = buffer;
-}
+//void ImGui_ImplGlfwGL3_UpdateTexture(ImTextureID textureId, void *buffer)
+//{
+//	g_TextureMap.at((GLuint)textureId).buffer = buffer;
+//}
 
 
 void ImGui_ImplGlfwGL3_Bind_Textures()

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="main">
+      <UniqueIdentifier>{6A7F9A7C-56B6-9B0D-FFA2-8110EBB8170F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main\windows">
+      <UniqueIdentifier>{C48B8593-B0EE-1438-5974-4DEE45B6E0BA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thread">
+      <UniqueIdentifier>{DD9F0F1E-C941-3AF4-B2FC-4D489E3DC144}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thread\generic">
+      <UniqueIdentifier>{E99709E3-D565-FDE8-BEF9-6D0FAA66D94D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SDL2\src\thread\generic\SDL_syscond.h">
+      <Filter>thread\generic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\SDL2\src\main\windows\SDL_windows_main.c">
+      <Filter>main\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SDL2\src\thread\generic\SDL_syscond.c">
+      <Filter>thread\generic</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

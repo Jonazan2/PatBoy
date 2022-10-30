@@ -20,7 +20,7 @@ byte MBC2::read(word address) {
 	} else if (address <= 0x97FF) {
 		return memory->readDirectly(address);
 	} else if (address <= 0xA1FF) {
-		readFromRam(address);
+		return readFromRam(address);
 	} else {
 		return memory->readDirectly(address);
 	}
